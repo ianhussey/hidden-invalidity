@@ -80,7 +80,7 @@ trimmed_data <- AIID_data %>%
                 soc_pe1, soc_pe2, soc_pe3, soc_pe4, soc_pe5, soc_pe6, soc_pe7, soc_pe8, soc_pe9, soc_pe10)
 
 # save to disk
-save(trimmed_data, file = "processed/trimmed_data.RData")
+save(trimmed_data, file = "trimmed_data.RData")
 
 ```
 
