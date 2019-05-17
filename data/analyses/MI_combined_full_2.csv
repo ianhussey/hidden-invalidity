@@ -1,0 +1,25 @@
+model,RMSEA,CFI,TLI,SRMR,delta_RMSEA,delta_CFI,MI,MI_failed,Scale,Group
+config,0.028,0.966,0.964,0.069,,,1,,Balanced Inventory of Desirable Responding,sex
+weak,0.033,0.951,0.949,0.072,0.005,-0.015,0,weak,Balanced Inventory of Desirable Responding,sex
+strong,0.037,0.937,0.937,0.074,0.004,-0.014,1,,Balanced Inventory of Desirable Responding,sex
+config,0.064,0.957,0.95,0.087,,,1,,Intuitions about Controllability and Awareness of Thoughts,sex
+weak,0.063,0.956,0.953,0.088,-0.001,-0.001,1,,Intuitions about Controllability and Awareness of Thoughts,sex
+strong,0.06,0.958,0.957,0.089,-0.003,0.002,1,,Intuitions about Controllability and Awareness of Thoughts,sex
+config,0.053,0.918,0.912,0.085,,,1,,Need for Cognitive Closure,sex
+weak,0.055,0.91,0.906,0.087,0.002,-0.008,1,,Need for Cognitive Closure,sex
+strong,0.054,0.909,0.907,0.087,-0.001,-0.001,1,,Need for Cognitive Closure,sex
+config,0.041,0.95,0.944,0.074,,,1,,Spheres of Control,sex
+weak,0.047,0.931,0.927,0.078,0.006,-0.019,0,weak,Spheres of Control,sex
+strong,0.047,0.928,0.927,0.08,0,-0.003,1,,Spheres of Control,sex
+config,0.034,0.951,0.948,0.072,,,1,,Balanced Inventory of Desirable Responding,age
+weak,0.041,0.926,0.924,0.076,0.007,-0.025,0,weak,Balanced Inventory of Desirable Responding,age
+strong,0.043,0.914,0.914,0.078,0.002,-0.012,1,,Balanced Inventory of Desirable Responding,age
+config,0.064,0.958,0.952,0.086,,,1,,Intuitions about Controllability and Awareness of Thoughts,age
+weak,0.07,0.946,0.942,0.093,0.006,-0.012,1,,Intuitions about Controllability and Awareness of Thoughts,age
+strong,0.07,0.943,0.942,0.095,0,-0.003,1,,Intuitions about Controllability and Awareness of Thoughts,age
+config,0.051,0.921,0.916,0.085,,,1,,Need for Cognitive Closure,age
+weak,0.055,0.907,0.902,0.088,0.004,-0.014,1,,Need for Cognitive Closure,age
+strong,0.055,0.905,0.903,0.089,0,-0.002,1,,Need for Cognitive Closure,age
+config,0.041,0.951,0.944,0.075,,,1,,Spheres of Control,age
+weak,0.05,0.922,0.916,0.082,0.009,-0.029,0,weak,Spheres of Control,age
+strong,0.049,0.922,0.921,0.083,-0.001,0,1,,Spheres of Control,age

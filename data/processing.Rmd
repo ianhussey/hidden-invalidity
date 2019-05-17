@@ -1,0 +1,88 @@
+---
+title: "Trim AIID dataset"
+author: "Ian Hussey^[Ghent University. Email: ian.hussey@ugent.be]"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    highlight: haddock
+    theme: flatly
+    toc: no
+    toc_float: no
+---
+
+Trim data.
+
+Include only participants with complete individual differences data, fluent english, age 18-65, and present age and gender data.
+
+```{r}
+
+# dependencies
+library(tidyverse)
+
+# get data
+#load("~/git/Attitudes-2.0/data/processed/attitudes_2.0_data.RData")
+load("~/git/Attitudes-2.0/data/subsets/attitudes_2.0_subset_exploratory.RData")
+
+# trim data 
+#trimmed_data <- attitudes_2.0_data %>%
+trimmed_data <- attitudes_2.0_subset_exploratory %>%
+
+  # only complete data
+  filter(complete_individual_differences_data == TRUE) %>%
+  
+  # only Ss who speak english regularly or are fluent
+  filter(english_fluency == "English is my primary language" | 
+           english_fluency == "English fluent - speak/read it regularly" |
+           english_fluency == "English fluent - speak/read infrequently") %>%
+  filter(age >= 18 & age <= 65) %>%
+  filter(!is.na(sex)) %>%
+  dplyr::select(user_id,
+                session_id, 
+                datetime_ymdhms,
+                age, 
+                sex, 
+                individual_differences_measure, 
+                individual_differences_sum_score, 
+                BFI_E_subscale, BFI_C_subscale, BFI_N_subscale, BFI_A_subscale, BFI_O_subscale, 
+                NFCC_P_subscale, NFCC_D_subscale, NFCC_C_subscale, NFCC_O_subscale, NFCC_A_subscale, 
+                ## item level data
+                bfi_e1, bfi_e2, bfi_e3, bfi_e4, bfi_e5, bfi_e6, bfi_e7, bfi_e8, 
+                bfi_c1, bfi_c2, bfi_c3, bfi_c4, bfi_c5, bfi_c6, bfi_c7, bfi_c8, bfi_c9, 
+                bfi_n1, bfi_n2, bfi_n3, bfi_n4, bfi_n5, bfi_n6, bfi_n7, bfi_n8, 
+                bfi_a1, bfi_a2, bfi_a3, bfi_a4, bfi_a5, bfi_a6, bfi_a7, bfi_a8, bfi_a9, 
+                bfi_o1, bfi_o2, bfi_o3, bfi_o4, bfi_o5, bfi_o6, bfi_o7, bfi_o8, bfi_o9, bfi_o10, 
+                bidr_im1, bidr_im2, bidr_im3, bidr_im4, bidr_im5, bidr_im6, bidr_im7, bidr_im8, bidr_im9, 
+                bidr_im10, bidr_im11, bidr_im12, bidr_im13, bidr_im14, bidr_im15, bidr_im16, bidr_im17, bidr_im18, 
+                bidr_sde1, bidr_sde2, bidr_sde3, bidr_sde4, bidr_sde5, bidr_sde6, bidr_sde7, bidr_sde8, 
+                bidr_sde9, bidr_sde10, bidr_sde11, bidr_sde12, bidr_sde13, bidr_sde14, bidr_sde15, bidr_sde16, 
+                bidr_sde17, bidr_sde18, 
+                bjw1, bjw2, bjw3, bjw4, bjw5, bjw6, 
+                brs1, brs2, brs3, brs4, brs5, brs6, brs7, brs8, brs9, brs10, brs11, brs12, brs13, brs14, brs15, brs16, 
+                he1, he2, he3, he4, he5, he6, he7, he8, he9, he10, 
+                icat_o1, icat_o2, icat_o3, icat_o4, icat_o5, icat_o6, icat_o7, icat_o8, icat_o9, 
+                icat_s1, icat_s2, icat_s3, icat_s4, icat_s5, icat_s6, icat_s7, icat_s8, icat_s9, 
+                nfc1, nfc2, nfc3, nfc4, nfc5, nfc6, nfc7, nfc8, nfc9, 
+                nfc10, nfc11, nfc12, nfc13, nfc14, nfc15, nfc16, nfc17, nfc18, 
+                nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8, 
+                nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7, 
+                nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8, 
+                nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8, nfcc_a9, 
+                nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7, nfcc_o8, nfcc_o9, nfcc_o10, 
+                pe1, pe2, pe3, pe4, pe5, pe6, pe7, pe8, pe9, pe10, pe11, 
+                pns1, pns2, pns3, pns4, pns5, pns6, pns7, pns8, pns9, pns10, pns11, pns12, 
+                rse1, rse2, rse3, rse4, rse5, rse6, rse7, rse8, rse9, rse10, 
+                rwa1, rwa2, rwa3, rwa4, rwa5, rwa6, rwa7, rwa8, rwa9, rwa10, 
+                rwa11, rwa12, rwa13, rwa14, rwa15, rwa16, rwa17, rwa18, rwa19, rwa20, 
+                sdo1, sdo2, sdo3, sdo4, sdo5, sdo6, sdo7, sdo8, sdo9, sdo10, sdo11, sdo12, 
+                sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, sm10, sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, 
+                soc_ic1, soc_ic2, soc_ic3, soc_ic4, soc_ic5, soc_ic6, soc_ic7, soc_ic8, soc_ic9, soc_ic10, 
+                soc_pe1, soc_pe2, soc_pe3, soc_pe4, soc_pe5, soc_pe6, soc_pe7, soc_pe8, soc_pe9, soc_pe10)
+
+# save to disk
+save(trimmed_data, file = "processed/trimmed_data.RData")
+
+```
+
+
+

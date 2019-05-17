@@ -1,0 +1,2183 @@
+---
+title: "Assessing the psychometric properties of 15 scales from social and personality psychology in a large internet sample"
+author: "Ian Hussey^[Ghent University. Email: ian.hussey@ugent.be]"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    highlight: haddock
+    theme: flatly
+    toc: yes
+    toc_float: yes
+---
+
+# To do
+
+- consistency bootstrapping needs redoing.
+
+# Decision making criteria
+
+CFA
+
+- Note somewhere that item reverse scoring has already been done; we are not interested in method factors such as reverse wordings, only interpretative factors.
+- Fit indices
+- Chi^2 assesses absolute fit. It is sample size dependant, and given our sample sizes will be significant in almost all cases and is therefore not informative. However, it is still important to report along with its degrees of freedom and associated p value (Kline, 2005; Hayduk et al, 2007). 
+- Standardized Root Mean Residual (SRMR) assesses absolute fit too. 
+- Tuckler-Lewis Fit Index (TLI) assesses Relative Fit. Compares to a null model, although is not a hypothesis test. Sample size independent, which is important here.
+- Root Mean Square Error of Approximation (RMSEA) assesses Noncentrality.
+- Bentler’s Comparative Fit Index (CLI) assesses Noncentrality.
+- Hu and Bentler (1999) suggest a two-index presentation format of either SRMR with the CFI, TLI, or RMSEA. We'll report all four metrics and make a composite of all three two-index scores:
+  - CLI >= .95 & SRMR <= .09
+  - TFI >= .95 & SRMR <= .09
+  - RMSEA <= .06 & SRMR <= .09
+
+MI tests
+
+- MI via model fit indices (Chen, 2007; Putnick & Bornstein, 2016; see also Cheung & Rensvold, 2002; Meade et al., 2008).
+- Configural invariance failure: same as CFA above.
+- Metric and scalar invariance failure: delta_RMSEA > 0.01 or delta_CFI < -0.015
+
+Overall scale evaluations
+
+- For a scale to be rated "good" it must demonstrate good internally consistency, stable across time (both immediately and over time), it must conform to the expected factor structure, and it must be invariant across age and gender.
+- Criterion: omega_t >= .7 & dependability >= .7 & stability >= .7 & CFA fit >= Mixed & passed MI for both age and gender
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,
+                      warning=FALSE,
+                      cache=TRUE,
+                      cache.lazy=TRUE)
+```
+
+```{r}
+
+# dependencies
+library(tidyverse)
+library(lavaan)
+library(semTools)
+library(knitr)
+library(kableExtra)
+library(timesavers)
+library(moments)
+library(plotrix)
+library(broom)
+library(lubridate)
+library(psych)
+
+# options
+options(knitr.table.format = "html") # necessary configuration of tables
+
+# disable scientific notation
+options(scipen = 999) 
+
+# set seed for reproducability
+set.seed(42)
+
+```
+
+# Data
+
+## Get data
+
+```{r}
+
+# get data
+load("../data/processed/trimmed_data.RData")
+
+# trim to include only the first timepoint per user_id per scale
+# ie exclude repeat participations on the same scale
+trimmed_first_timepoint_per_user_per_scale <- trimmed_data %>%
+  arrange(user_id, individual_differences_measure, datetime_ymdhms) %>%
+  mutate(combined_var = paste0(user_id, individual_differences_measure)) %>%
+  filter(combined_var != lag(combined_var)) %>%
+  dplyr::select(-combined_var)
+
+```
+
+## Subset data
+
+By split scales
+
+```{r}
+
+
+# find median age to split by.
+# Because individuals can participate more than once, and their age is recorded as age at participation, repeat participations
+# overrepresent that participant's age when finding medians. Given we can't assume that repeate participations are evenly distributed across ages, # we must instead construct a median age for the whole sample. 
+# This also ensures that the same median age is used for all scales.
+
+median_age <- trimmed_first_timepoint_per_user_per_scale %>%
+  group_by(user_id) %>%
+  summarize(mean_age_by_participant = mean(age)) %>%  # given repeat presentations with changing age
+  ungroup() %>%
+  summarize(median_age = median(mean_age_by_participant)) %>%
+  pull(median_age) %>%
+  round(0)
+
+# split scales
+
+bfi_e_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bfi_e1, bfi_e2, bfi_e3, bfi_e4, bfi_e5, bfi_e6, bfi_e7, bfi_e8, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+bfi_c_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bfi_c1, bfi_c2, bfi_c3, bfi_c4, bfi_c5, bfi_c6, bfi_c7, bfi_c8, bfi_c9, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+bfi_n_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bfi_n1, bfi_n2, bfi_n3, bfi_n4, bfi_n5, bfi_n6, bfi_n7, bfi_n8, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+bfi_a_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bfi_a1, bfi_a2, bfi_a3, bfi_a4, bfi_a5, bfi_a6, bfi_a7, bfi_a8, bfi_a9, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+bfi_o_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bfi_o1, bfi_o2, bfi_o3, bfi_o4, bfi_o5, bfi_o6, bfi_o7, bfi_o8, bfi_o9, bfi_o10, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+bidr_im_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bidr_im1, bidr_im2, bidr_im3, bidr_im4, bidr_im5, bidr_im6, bidr_im7, bidr_im8, 
+                bidr_im9, bidr_im10, bidr_im11, bidr_im12, bidr_im13, bidr_im14, bidr_im15, 
+                bidr_im16, bidr_im17, bidr_im18, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+bidr_sde_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bidr_sde1, bidr_sde2, bidr_sde3, bidr_sde4, bidr_sde5, bidr_sde6, bidr_sde7, bidr_sde8, 
+                bidr_sde9, bidr_sde10, bidr_sde11, bidr_sde12, bidr_sde13, bidr_sde14, bidr_sde15, bidr_sde16, 
+                bidr_sde17, bidr_sde18, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+bjw_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bjw1, bjw2, bjw3, bjw4, bjw5, bjw6, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+brs_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(brs1, brs2, brs3, brs4, brs5, brs6, brs7, brs8, brs9, brs10, brs11, brs12, brs13, brs14, brs15, brs16, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+he_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(he1, he2, he3, he4, he5, he6, he7, he8, he9, he10, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+icat_o_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(icat_o1, icat_o2, icat_o3, icat_o4, icat_o5, icat_o6, icat_o7, icat_o8, icat_o9, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+icat_s_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(icat_s1, icat_s2, icat_s3, icat_s4, icat_s5, icat_s6, icat_s7, icat_s8, icat_s9, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+nfc_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(nfc1, nfc2, nfc3, nfc4, nfc5, nfc6, nfc7, nfc8, nfc9, 
+                nfc10, nfc11, nfc12, nfc13, nfc14, nfc15, nfc16, nfc17, nfc18, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+nfcc_pdc_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8, 
+                nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7, 
+                nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+nfcc_ao_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8, 
+                nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+pe_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(pe1, pe2, pe3, pe4, pe5, pe6, pe7, pe8, pe9, pe10, pe11, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+pns_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(pns1, pns2, pns3, pns4, pns5, pns6, pns7, pns8, pns9, pns10, pns11, pns12, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+rse_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(rse1, rse2, rse3, rse4, rse5, rse6, rse7, rse8, rse9, rse10, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+rwa_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(rwa1, rwa2, rwa3, rwa4, rwa5, rwa6, rwa7, rwa8, rwa9, rwa10, 
+                rwa11, rwa12, rwa13, rwa14, rwa15, rwa16, rwa17, rwa18, rwa19, rwa20, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+sdo_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(sdo1, sdo2, sdo3, sdo4, sdo5, sdo6, sdo7, sdo8, sdo9, sdo10, sdo11, sdo12, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+sm_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, sm10, sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+soc_ic_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(soc_ic1, soc_ic2, soc_ic3, soc_ic4, soc_ic5, soc_ic6, soc_ic7, soc_ic8, soc_ic9, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+soc_pe_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(soc_pe1, soc_pe2, soc_pe3, soc_pe4, soc_pe5, soc_pe6, soc_pe7, soc_pe8, soc_pe9, soc_pe10, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+```
+
+By full scales
+
+NB excludes users that completed the two halves more than 24 hours apart.
+
+```{r}
+
+# determine which participants have full scale data
+
+# function to return the user_ids and datetimes with a given scale
+user_id_by_scale <- function(scale_name){
+  trimmed_data %>%
+    dplyr::select(user_id, individual_differences_measure, datetime_ymdhms) %>%
+    filter(individual_differences_measure == scale_name) %>%
+    arrange(user_id, individual_differences_measure, datetime_ymdhms) %>%
+    mutate(combined_var = paste0(user_id, individual_differences_measure),
+           instance = ifelse(combined_var == lag(combined_var), 2, 1)) %>%
+    filter(instance == 1) %>%
+    select(-combined_var, -instance)
+}
+
+# apply for each scale pair
+
+## This contains some magic on two fronts, neither of which I can remember the hows and whys of.
+## 1. I cross semi_join in two directions to find matching cases. Can't remember why but it works.
+## 2. I then do some reshaping to find the absolute time between the completions of the two scales, trim 
+## participants who take longer than 1 day (24 hours), and reshape back to an original format that works with 
+## the subsequent functions below. Refactoring into a function or to make the logic more transparent would take time
+## and, given it all works, Im not motivated to do it. If you are reading this comment and you're not me, 
+## I am extremely suprised. Please accept a) my congratulations for doing such deep dives into other peoples code, 
+## and b) my apologies for what follows. Kanye/Oprah-2020.
+
+# bfi
+user_ids_with_bfi_1      <- user_id_by_scale(scale_name = "BFI-Part 1")
+user_ids_with_bfi_2      <- user_id_by_scale(scale_name = "BFI-Part 2")
+
+user_ids_with_bfi_1_2    <- semi_join(user_ids_with_bfi_1, 
+                                      user_ids_with_bfi_2, 
+                                      by = "user_id")
+
+user_ids_with_bfi_2_2    <- semi_join(user_ids_with_bfi_2, 
+                                      user_ids_with_bfi_1, 
+                                      by = "user_id")
+
+user_ids_with_both_bfi   <- rbind(user_ids_with_bfi_1_2, user_ids_with_bfi_2_2) %>%
+  spread(individual_differences_measure, datetime_ymdhms) %>%
+  dplyr::rename(first_scale = !!names(.[2]),
+                second_scale = !!names(.[3])) %>%
+  mutate(days_to_followup = as.duration(interval(start = ymd_hms(first_scale), 
+                                                 end = ymd_hms(second_scale))),
+         days_to_followup = abs(round(as.numeric(days_to_followup, "days"), 3))) %>%
+  filter(days_to_followup <= 1) %>%
+  gather(individual_differences_measure, datetime_ymdhms, c("first_scale", "second_scale")) %>%
+  mutate(individual_differences_measure = recode(individual_differences_measure,
+                                                 "first_scale" = "BFI-Part 1",
+                                                 "second_scale" = "BFI-Part 2"))
+
+# bidr
+user_ids_with_bidr_im    <- user_id_by_scale(scale_name = "BIDR-IM")
+user_ids_with_bidr_sde   <- user_id_by_scale(scale_name = "BIDR-SDE")
+
+user_ids_with_bidr_im_2  <- semi_join(user_ids_with_bidr_im, 
+                                      user_ids_with_bidr_sde, 
+                                      by = "user_id")
+
+user_ids_with_bidr_sde_2 <- semi_join(user_ids_with_bidr_sde, 
+                                      user_ids_with_bidr_im, 
+                                      by = "user_id")
+
+user_ids_with_both_bidr  <- rbind(user_ids_with_bidr_im_2, user_ids_with_bidr_sde_2) %>%
+  spread(individual_differences_measure, datetime_ymdhms) %>%
+  dplyr::rename(first_scale = !!names(.[2]),
+                second_scale = !!names(.[3])) %>%
+  mutate(days_to_followup = as.duration(interval(start = ymd_hms(first_scale), 
+                                                 end = ymd_hms(second_scale))),
+         days_to_followup = abs(round(as.numeric(days_to_followup, "days"), 3))) %>%
+  filter(days_to_followup <= 1) %>%
+  gather(individual_differences_measure, datetime_ymdhms, c("first_scale", "second_scale")) %>%
+  mutate(individual_differences_measure = recode(individual_differences_measure,
+                                                 "first_scale" = "BIDR-IM",
+                                                 "second_scale" = "BIDR-SDE"))
+
+# icat
+user_ids_with_icat_o     <- user_id_by_scale(scale_name = "ICAT-O")
+user_ids_with_icat_s     <- user_id_by_scale(scale_name = "ICAT-S")
+
+user_ids_with_icat_o_2   <- semi_join(user_ids_with_icat_o, 
+                                      user_ids_with_icat_s, 
+                                      by = "user_id")
+
+user_ids_with_icat_s_2   <- semi_join(user_ids_with_icat_s, 
+                                      user_ids_with_icat_o, 
+                                      by = "user_id")
+
+user_ids_with_both_icat  <- rbind(user_ids_with_icat_o_2, user_ids_with_icat_s_2) %>%
+  spread(individual_differences_measure, datetime_ymdhms) %>%
+  dplyr::rename(first_scale = !!names(.[2]),
+                second_scale = !!names(.[3])) %>%
+  mutate(days_to_followup = as.duration(interval(start = ymd_hms(first_scale), 
+                                                 end = ymd_hms(second_scale))),
+         days_to_followup = abs(round(as.numeric(days_to_followup, "days"), 3))) %>%
+  filter(days_to_followup <= 1) %>%
+  gather(individual_differences_measure, datetime_ymdhms, c("first_scale", "second_scale")) %>%
+  mutate(individual_differences_measure = recode(individual_differences_measure,
+                                                 "first_scale" = "ICAT-O",
+                                                 "second_scale" = "ICAT-S"))
+
+# nfcc
+user_ids_with_nfcc_1     <- user_id_by_scale(scale_name = "NFCC, Part 1")
+user_ids_with_nfcc_2     <- user_id_by_scale(scale_name = "NFCC, Part 2")
+
+user_ids_with_nfcc_1_2   <- semi_join(user_ids_with_nfcc_1, 
+                                      user_ids_with_nfcc_2, 
+                                      by = "user_id")
+
+user_ids_with_nfcc_2_2   <- semi_join(user_ids_with_nfcc_2, 
+                                      user_ids_with_nfcc_1, 
+                                      by = "user_id")
+
+user_ids_with_both_nfcc  <- rbind(user_ids_with_nfcc_1_2, user_ids_with_nfcc_2_2) %>%
+  spread(individual_differences_measure, datetime_ymdhms) %>%
+  dplyr::rename(first_scale = !!names(.[2]),
+                second_scale = !!names(.[3])) %>%
+  mutate(days_to_followup = as.duration(interval(start = ymd_hms(first_scale), 
+                                                 end = ymd_hms(second_scale))),
+         days_to_followup = abs(round(as.numeric(days_to_followup, "days"), 3))) %>%
+  filter(days_to_followup <= 1) %>%
+  gather(individual_differences_measure, datetime_ymdhms, c("first_scale", "second_scale")) %>%
+  mutate(individual_differences_measure = recode(individual_differences_measure,
+                                                 "first_scale" = "NFCC, Part 1",
+                                                 "second_scale" = "NFCC, Part 2"))
+
+# soc
+user_ids_with_soc_ic     <- user_id_by_scale(scale_name = "SOC-IC")
+user_ids_with_soc_pe     <- user_id_by_scale(scale_name = "SOC-PE")
+
+user_ids_with_soc_ic_2   <- semi_join(user_ids_with_soc_ic, 
+                                      user_ids_with_soc_pe, 
+                                      by = "user_id")
+
+user_ids_with_soc_pe_2   <- semi_join(user_ids_with_soc_pe, 
+                                      user_ids_with_soc_ic, 
+                                      by = "user_id")
+
+user_ids_with_both_soc   <- rbind(user_ids_with_soc_ic_2, user_ids_with_soc_pe_2) %>%
+  spread(individual_differences_measure, datetime_ymdhms) %>%
+  dplyr::rename(first_scale = !!names(.[2]),
+                second_scale = !!names(.[3])) %>%
+  mutate(days_to_followup = as.duration(interval(start = ymd_hms(first_scale), 
+                                                 end = ymd_hms(second_scale))),
+         days_to_followup = abs(round(as.numeric(days_to_followup, "days"), 3))) %>%
+  filter(days_to_followup <= 1) %>%
+  gather(individual_differences_measure, datetime_ymdhms, c("first_scale", "second_scale")) %>%
+  mutate(individual_differences_measure = recode(individual_differences_measure,
+                                                 "first_scale" = "SOC-IC",
+                                                 "second_scale" = "SOC-PE"))
+
+# join half scales and reduce to one row per user id
+join_full_scale <- function(data_1, data_2){
+  data_1 %>%
+    semi_join(data_2, 
+              by = c("user_id", "individual_differences_measure", "datetime_ymdhms")) %>%
+    select(user_id, contains("bfi_"), contains("bidr_"), 
+           contains("icat_"), contains("nfcc_"), contains("soc_"), -contains("_subscale")) %>%
+    # hacky way to collapse two rows per user_id into one. Function further below removes the NaNs it creates.
+    # to anyone who reads this hideous solution: I'm sorry. I'm sure there's a more tidyverse way of doing this, but it's 2am.
+    group_by(user_id) %>%
+    summarize_all(funs(mean(., na.rm = TRUE))) %>%
+    ungroup()
+}
+
+full_scales_temp <- 
+  rbind(join_full_scale(data_1 = trimmed_data, data_2 = user_ids_with_both_bfi),
+        join_full_scale(data_1 = trimmed_data, data_2 = user_ids_with_both_bidr),
+        join_full_scale(data_1 = trimmed_data, data_2 = user_ids_with_both_icat),
+        join_full_scale(data_1 = trimmed_data, data_2 = user_ids_with_both_nfcc),
+        join_full_scale(data_1 = trimmed_data, data_2 = user_ids_with_both_soc))
+
+# replace all NaN in this data frame with NA
+is.nan.data.frame <- function(x){do.call(cbind, lapply(x, is.nan))}
+full_scales_temp[is.nan.data.frame(full_scales_temp)] <- NA
+
+# age, gender, and distinct user_ids for joining below
+demographics_temp <- trimmed_data %>%
+  select(user_id, age, sex) %>%
+  distinct(user_id, .keep_all = TRUE)
+
+# create individual_differences_measure variable. difficult to do this by joining given multiple individual_differences_measures by user_id
+full_scales_data <- full_scales_temp %>%
+  mutate(Scale = ifelse(!is.na(bfi_e1), "BFI", 
+                        ifelse(!is.na(bidr_im1), "BIDR", 
+                               ifelse(!is.na(icat_o1), "ICAT", 
+                                      ifelse(!is.na(nfcc_p1), "NFCC", 
+                                             ifelse(!is.na(soc_ic1), "SOC", NA)))))) %>%
+  left_join(demographics_temp, by = "user_id")
+
+# summaries of data present
+
+# for joining again later below
+N_with_full_scale_data <- nrow(full_scales_data)
+
+percent_with_full_scale_data <- round(nrow(full_scales_data) / nrow(demographics_temp)*100, 2)
+
+# N per full scale - also used further below
+n_per_full_scale <- full_scales_data %>%  
+  count(Scale) 
+
+n_per_full_scale %>% kable()
+
+```
+
+`r N_with_full_scale_data` participants (`r percent_with_full_scale_data`%) had full scale available from scales that were split in two and had completed both halves within 24 hours.
+
+```{r}
+
+# subset full scales data
+
+# select data
+bfi_data <- full_scales_data %>%
+  dplyr::select(bfi_e1, bfi_e2, bfi_e3, bfi_e4, bfi_e5, bfi_e6, bfi_e7, bfi_e8, 
+                bfi_c1, bfi_c2, bfi_c3, bfi_c4, bfi_c5, bfi_c6, bfi_c7, bfi_c8, bfi_c9, 
+                bfi_n1, bfi_n2, bfi_n3, bfi_n4, bfi_n5, bfi_n6, bfi_n7, bfi_n8, 
+                bfi_a1, bfi_a2, bfi_a3, bfi_a4, bfi_a5, bfi_a6, bfi_a7, bfi_a8, bfi_a9, 
+                bfi_o1, bfi_o2, bfi_o3, bfi_o4, bfi_o5, bfi_o6, bfi_o7, bfi_o8, bfi_o9, bfi_o10, 
+                sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+bidr_data <- full_scales_data %>%
+  dplyr::select(bidr_im1, bidr_im2, bidr_im3, bidr_im4, bidr_im5, bidr_im6, bidr_im7, bidr_im8, 
+                bidr_im9, bidr_im10, bidr_im11, bidr_im12, bidr_im13, bidr_im14, bidr_im15, 
+                bidr_im16, bidr_im17, bidr_im18, 
+                bidr_sde1, bidr_sde2, bidr_sde3, bidr_sde4, bidr_sde5, bidr_sde6, bidr_sde7, bidr_sde8, 
+                bidr_sde9, bidr_sde10, bidr_sde11, bidr_sde12, bidr_sde13, bidr_sde14, bidr_sde15,
+                bidr_sde16, bidr_sde17, bidr_sde18, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+icat_data <- full_scales_data %>%
+  dplyr::select(icat_o1, icat_o2, icat_o3, icat_o4, icat_o5, icat_o6, icat_o7, icat_o8, icat_o9, 
+                icat_s1, icat_s2, icat_s3, icat_s4, icat_s5, icat_s6, icat_s7, icat_s8, icat_s9, 
+                sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+nfcc_data <- full_scales_data %>%
+  dplyr::select(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8, 
+                nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7, 
+                nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8, 
+                nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8, 
+                nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+soc_data <- full_scales_data %>%
+  dplyr::select(soc_ic1, soc_ic2, soc_ic3, soc_ic4, soc_ic5, soc_ic6, soc_ic7, soc_ic8, soc_ic9, 
+                soc_pe1, soc_pe2, soc_pe3, soc_pe4, soc_pe5, soc_pe6, soc_pe7, soc_pe8, soc_pe9, soc_pe10,
+                sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+```
+
+### Test-retest data
+
+```{r}
+
+## get and reshape data
+
+# separate out user_ids with two timepoints per scale
+user_ids_with_two_timepoints_per_scale <- trimmed_data %>%
+  dplyr::select(user_id, session_id, datetime_ymdhms, individual_differences_measure) %>%
+  count(user_id, individual_differences_measure) %>%
+  filter(n >= 2)
+
+# semi join with full data
+two_timepoints_per_scale <- trimmed_data %>%
+  semi_join(user_ids_with_two_timepoints_per_scale, 
+            by = c("user_id", "individual_differences_measure")) %>%
+  arrange(user_id, individual_differences_measure, datetime_ymdhms) %>%
+  mutate(combined_var = paste0(user_id, individual_differences_measure),
+         timepoint = ifelse(combined_var == lag(combined_var, n = 2), 3, 
+                            ifelse(combined_var == lag(combined_var, n = 1), 2 , 1)),
+         # lag can't operate on the first row, so mung a solution to this.
+         timepoint = ifelse(is.na(timepoint), 1, timepoint)) %>%
+  filter(timepoint %in% c(1, 2)) %>%
+  dplyr::select(user_id, datetime_ymdhms, timepoint, individual_differences_measure,
+                individual_differences_sum_score)
+
+# rehape t1
+timepoint_1 <- two_timepoints_per_scale %>%
+  filter(timepoint == 1) %>%
+  rename(individual_differences_sum_score_t1 = individual_differences_sum_score,
+         datetime_ymdhms_t1 = datetime_ymdhms) %>%
+  dplyr::select(-timepoint)
+
+# reshape t2
+timepoint_2 <- two_timepoints_per_scale %>%
+  filter(timepoint == 2) %>%
+  rename(individual_differences_sum_score_t2 = individual_differences_sum_score,
+         datetime_ymdhms_t2 = datetime_ymdhms) %>%
+  dplyr::select(-timepoint)
+
+# join
+two_timepoint_scores_temp <- timepoint_1 %>%
+  left_join(timepoint_2, by = c("user_id", "individual_differences_measure")) %>%
+  mutate(days_to_followup = as.duration(interval(start = ymd_hms(datetime_ymdhms_t1), 
+                                                 end = ymd_hms(datetime_ymdhms_t2))),
+         days_to_followup = round(as.numeric(days_to_followup, "days"), 3)) %>%
+  na.omit
+
+## for the BFI scales, we need the subscale sum score rather than the full scale sum score. 
+
+# bfi t1
+timepoint_1_bfi_temp <- two_timepoint_scores_temp %>%
+  filter(individual_differences_measure %in% c("BFI-Part 1", "BFI-Part 2")) %>%
+  select(user_id, datetime_ymdhms_t1, individual_differences_measure)
+
+timepoint_1_bfi <- trimmed_data %>%
+  rename(datetime_ymdhms_t1 = datetime_ymdhms) %>%
+  semi_join(timepoint_1_bfi_temp, 
+            by = c("user_id", "individual_differences_measure", "datetime_ymdhms_t1")) %>%
+  select(user_id, datetime_ymdhms_t1, BFI_E_subscale, BFI_C_subscale, BFI_N_subscale, BFI_A_subscale, BFI_O_subscale) %>%
+  rename(BFI_E = BFI_E_subscale,
+         BFI_C = BFI_C_subscale,
+         BFI_N = BFI_N_subscale,
+         BFI_A = BFI_A_subscale,
+         BFI_O = BFI_O_subscale) %>%
+  gather(individual_differences_measure, individual_differences_sum_score_t1, 
+         c("BFI_E", "BFI_C", "BFI_N", "BFI_A", "BFI_O")) %>%
+  na.omit
+
+# bfi t2
+timepoint_2_bfi_temp <- two_timepoint_scores_temp %>%
+  filter(individual_differences_measure %in% c("BFI-Part 1", "BFI-Part 2")) %>%
+  select(user_id, datetime_ymdhms_t2, individual_differences_measure)
+
+timepoint_2_bfi <- trimmed_data %>%
+  rename(datetime_ymdhms_t2 = datetime_ymdhms) %>%
+  semi_join(timepoint_2_bfi_temp, 
+            by = c("user_id", "individual_differences_measure", "datetime_ymdhms_t2")) %>%
+  select(user_id, datetime_ymdhms_t2, BFI_E_subscale, BFI_C_subscale, BFI_N_subscale, BFI_A_subscale, BFI_O_subscale) %>%
+  rename(BFI_E = BFI_E_subscale,
+         BFI_C = BFI_C_subscale,
+         BFI_N = BFI_N_subscale,
+         BFI_A = BFI_A_subscale,
+         BFI_O = BFI_O_subscale) %>%
+  gather(individual_differences_measure, individual_differences_sum_score_t2, 
+         c("BFI_E", "BFI_C", "BFI_N", "BFI_A", "BFI_O")) %>%
+  na.omit
+
+two_timepoint_scores_bfi <- 
+  full_join(timepoint_1_bfi, timepoint_2_bfi, by = c("user_id", "individual_differences_measure")) %>%
+  mutate(days_to_followup = as.duration(interval(start = ymd_hms(datetime_ymdhms_t1), 
+                                                 end = ymd_hms(datetime_ymdhms_t2))),
+         days_to_followup = round(as.numeric(days_to_followup, "days"), 3))
+
+
+## exclude the bfi sum scores and replace with the subscale sum scores
+
+
+two_timepoint_scores <- two_timepoint_scores_temp %>%
+  filter(!(individual_differences_measure %in% c("BFI-Part 1", "BFI-Part 2"))) %>%
+  rbind(two_timepoint_scores_bfi)
+
+
+## quick analyses of timepoint data to understand distributions
+
+# percent with test retest data
+n_with_test_retest_data <- round(nrow(two_timepoint_scores), 1)
+
+percent_with_test_retest_data <- round(nrow(two_timepoint_scores) / nrow(trimmed_first_timepoint_per_user_per_scale)*100, 1)
+
+# days to follow-up
+two_timepoint_scores %>%
+  summarise(min = min(days_to_followup),
+            max = max(days_to_followup),
+            sd = sd(days_to_followup),
+            median = median(days_to_followup),
+            mean = mean(days_to_followup)) %>%
+  round_df(2)
+
+quantile(two_timepoint_scores$days_to_followup)
+
+```
+
+`r n_with_test_retest_data` user_ids (`r percent_with_test_retest_data`%) had test-retest data on the same scale available. 
+
+Retest times are highly skewed. Most reparticipated the same day, the vast majority within a week, but some up to multiple years later. 
+
+# Scale details
+
+```{r}
+
+# trim data
+n_per_scale <- trimmed_first_timepoint_per_user_per_scale %>%
+  rename(Scale = individual_differences_measure) %>%
+  count(Scale) %>%
+  mutate(Scale = dplyr::recode(Scale,
+                               "BFI-Part 1" = "BFI-E",
+                               "BFI-Part 2" = "BFI-A",
+                               "NFCC, Part 1" = "NFCC-PDC",
+                               "NFCC, Part 2" = "NFCC-AO"))
+
+## add n per scale for bfi subscales
+temp_ns <- data.frame(Scale = c("BFI-C", "BFI-N", "BFI-O"),
+                      n = c(NA, NA, NA)) 
+
+n_per_scale_with_bfi_subscales <- n_per_scale %>%
+  rbind(temp_ns) %>%
+  # hacky solution to populate the BFI1 and BFI2 Ns into all cells
+  mutate(n = ifelse(Scale == "BFI-C", n[.$Scale == "BFI-E"], n),
+         n = ifelse(Scale == "BFI-N", n[.$Scale == "BFI-E"], n),
+         n = ifelse(Scale == "BFI-O", n[.$Scale == "BFI-A"], n),
+         Scale = as.factor(as.character(Scale)))
+
+# k factors per scale
+k_factors <- data.frame(Scale = c("Big 5 Inventory - E",
+                                  "Big 5 Inventory - C",
+                                  "Big 5 Inventory - N",
+                                  "Big 5 Inventory - A",
+                                  "Big 5 Inventory - O",
+                                  "Balanced Inventory of Desirable Responding - Impression Management", 
+                                  "Balanced Inventory of Desirable Responding - Self Deception", 
+                                  "Belief in a Just World: General Just World Scale", 
+                                  "Bayesian Racism", 
+                                  "Humanitarianism-Egalitarianism",
+                                  "Intuitions about Controllability and Awareness of Thoughts - Others",
+                                  "Intuitions about Controllability and Awareness of Thoughts - Self",
+                                  "Need for Cognition",
+                                  "Need for Cognitive Closure - P,D,CM",
+                                  "Need for Cognitive Closure - O,A",
+                                  "Protestant Ethic",
+                                  "Personal Need for Structure",
+                                  "Rosenberg Self-Esteem",
+                                  "Ring-Wing Authoritarianism",
+                                  "Social Dominance Orientation",
+                                  "Self-Monitoring",
+                                  "Spheres of Control - Interpersonal Control",
+                                  "Spheres of Control - Personal Efficacy"),
+                        Factors = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1))
+
+# k items per scale
+k_items <- data.frame(Scale = c("Big 5 Inventory - E",
+                                "Big 5 Inventory - C",
+                                "Big 5 Inventory - N",
+                                "Big 5 Inventory - A",
+                                "Big 5 Inventory - O",
+                                "Balanced Inventory of Desirable Responding - Impression Management", 
+                                "Balanced Inventory of Desirable Responding - Self Deception", 
+                                "Belief in a Just World: General Just World Scale", 
+                                "Bayesian Racism", 
+                                "Humanitarianism-Egalitarianism",
+                                "Intuitions about Controllability and Awareness of Thoughts - Others",
+                                "Intuitions about Controllability and Awareness of Thoughts - Self",
+                                "Need for Cognition",
+                                "Need for Cognitive Closure - P,D,CM",
+                                "Need for Cognitive Closure - O,A",
+                                "Protestant Ethic",
+                                "Personal Need for Structure",
+                                "Rosenberg Self-Esteem",
+                                "Ring-Wing Authoritarianism",
+                                "Social Dominance Orientation",
+                                "Self-Monitoring",
+                                "Spheres of Control - Interpersonal Control",
+                                "Spheres of Control - Personal Efficacy"),
+                      `Items` = c(8, 9, 8, 9, 10, 18, 18, 6, 16, 10, 9, 9, 18, 23, 19, 11, 12, 10, 20, 12, 18, 10, 10))
+
+# scale modifications from original publications
+changes <- data.frame(Scale = c("Big 5 Inventory - E",
+                                "Big 5 Inventory - C",
+                                "Big 5 Inventory - N",
+                                "Big 5 Inventory - A",
+                                "Big 5 Inventory - O",
+                                "Balanced Inventory of Desirable Responding - Impression Management", 
+                                "Balanced Inventory of Desirable Responding - Self Deception", 
+                                "Belief in a Just World: General Just World Scale", 
+                                "Bayesian Racism", 
+                                "Humanitarianism-Egalitarianism",
+                                "Intuitions about Controllability and Awareness of Thoughts - Others",
+                                "Intuitions about Controllability and Awareness of Thoughts - Self",
+                                "Need for Cognition",
+                                "Need for Cognitive Closure - P,D,CM",
+                                "Need for Cognitive Closure - O,A",
+                                "Protestant Ethic",
+                                "Personal Need for Structure",
+                                "Rosenberg Self-Esteem",
+                                "Ring-Wing Authoritarianism",
+                                "Social Dominance Orientation",
+                                "Self-Monitoring",
+                                "Spheres of Control - Interpersonal Control",
+                                "Spheres of Control - Personal Efficacy"),
+                      Changes = c("Response format changed to 1-6 (strongly disagree-strongly agree)",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree)",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree)",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree)",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree)",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree; Evidence suggests this polytomous response format is preferable over original dichotomous: Stoeber, Dette, & Musch, 2002); 2 items dropped (original items 30 & 34)",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree; Evidence suggests this polytomous response format is preferable over original dichotomous: Stoeber, Dette, & Musch, 2002); 2 items dropped (original items 13 & 18)",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree); Little agreement in literatuer on canonical version of scale, items drawn from Lipkus et al (2001)",
+                                  "None",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree)",
+                                  "3 items modified",
+                                  "3 items modified",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree)",
+                                  "3 items dropped (ie 'lie' scale dropped)",
+                                  "3 items dropped (ie 'lie' scale dropped)",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree)",
+                                  "None",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree); 10 items dropped",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree); 10 items dropped (original items 1, 2, 9, 10, 14, 18, 20, 25, 27, & 30)",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree), Multiple versions of scale provided in original publication, Number 4 scale used here",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree)",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree)",
+                                  "Response format changed to 1-6 (strongly disagree-strongly agree)"),
+                      Interpretation = c("Higher scores = greater degree of given personality trait",
+                                         "Higher scores = greater degree of given personality trait",
+                                         "Higher scores = greater degree of given personality trait",
+                                         "Higher scores = greater degree of given personality trait",
+                                         "Higher scores = greater degree of given personality trait",
+                                         "Higher scores = greater desirable responding",
+                                         "Higher scores = greater desirable responding",
+                                         "Higher scores = greater belief in a just world",
+                                         "Higher scores = greater racism",
+                                         "Higher scores = greater humanitarianism-egalitarianism",
+                                         "Higher scores = greater belief in controllability and awareness of thoughts",
+                                         "Higher scores = greater belief in controllability and awareness of thoughts",
+                                         "Higher scores = greater need for cognition",
+                                         "Higher scores = greater need for cognitive closure",
+                                         "Higher scores = greater need for cognitive closure",
+                                         "Higher scores = greater Protestant work-ethic",
+                                         "Higher scores = greater need for structure",
+                                         "Higher scores = greater self-esteem",
+                                         "Higher scores = greater ring-wing authoritarianism",
+                                         "Higher scores = greater social dominance orientation",
+                                         "Higher scores = greater self-monitoring",
+                                         "Higher scores = greater interpersonal control",
+                                         "Higher scores = greater personal efficacy"))
+
+```
+
+## Scale descriptives
+
+Items per scale
+
+```{r}
+
+k_items %>%
+  summarize(mean = round(mean(Items), 1),
+            sd = round(sd(Items), 1),
+            min = round(min(Items), 1),
+            max = round(max(Items), 1)) %>%
+  gather()
+
+```
+
+Factors per scale
+
+```{r}
+
+k_items %>%
+  summarize(mean = round(mean(Items), 1),
+            sd = round(sd(Items), 1),
+            min = round(min(Items), 1),
+            max = round(max(Items), 1)) %>%
+  gather()
+
+```
+
+## Models
+
+```{r}
+
+# split scale models
+bfi_e_model <- "E =~ bfi_e1 + bfi_e2 + bfi_e3 + bfi_e4 + bfi_e5 + bfi_e6 + bfi_e7 + bfi_e8" 
+
+bfi_c_model <- "C =~ bfi_c1 + bfi_c2 + bfi_c3 + bfi_c4 + bfi_c5 + bfi_c6 + bfi_c7 + bfi_c8 + bfi_c9" 
+
+bfi_n_model <- "N =~ bfi_n1 + bfi_n2 + bfi_n3 + bfi_n4 + bfi_n5 + bfi_n6 + bfi_n7 + bfi_n8" 
+
+bfi_a_model <- "A =~ bfi_a1 + bfi_a2 + bfi_a3 + bfi_a4 + bfi_a5 + bfi_a6 + bfi_a7 + bfi_a8 + bfi_a9" 
+
+bfi_o_model <- "O =~ bfi_o1 + bfi_o2 + bfi_o3 + bfi_o4 + bfi_o5 + bfi_o6 + bfi_o7 + bfi_o8 + bfi_o9 + bfi_o10" 
+
+bidr_im_model <- "IM =~ bidr_im1 + bidr_im2 + bidr_im3 + bidr_im4 + bidr_im5 + bidr_im6 + bidr_im7 + bidr_im8 + bidr_im9 + bidr_im10 + bidr_im11 + bidr_im12 + bidr_im13 + bidr_im14 + bidr_im15 + bidr_im16 + bidr_im17 + bidr_im18" 
+
+bidr_sde_model <- "SDE =~ bidr_sde1 + bidr_sde2 + bidr_sde3 + bidr_sde4 + bidr_sde5 + bidr_sde6 + bidr_sde7 + bidr_sde8 + bidr_sde9 + bidr_sde10 + bidr_sde11 + bidr_sde12 + bidr_sde13 + bidr_sde14 + bidr_sde15 + bidr_sde16 + bidr_sde17 + bidr_sde18" 
+
+bjw_model <- "BJW =~ bjw1 + bjw2 + bjw3 + bjw4 + bjw5 + bjw6" 
+
+brs_model <- "BRS =~ brs1 + brs2 + brs3 + brs4 + brs5 + brs6 + brs7 + brs8 + brs9 + brs10 + brs11 + brs12 + brs13 + brs14 + brs15 + brs16" 
+
+he_model <- "HE =~ he1 + he2 + he3 + he4 + he5 + he6 + he7 + he8 + he9 + he10" 
+
+icat_o_model <- "ICAT_O =~ icat_o1 + icat_o2 + icat_o3 + icat_o4 + icat_o5 + icat_o6 + icat_o7 + icat_o8 + icat_o9" 
+
+icat_s_model <- "ICAT_S =~ icat_s1 + icat_s2 + icat_s3 + icat_s4 + icat_s5 + icat_s6 + icat_s7 + icat_s8 + icat_s9" 
+
+nfc_model <- "NFC =~ nfc1 + nfc2 + nfc3 + nfc4 + nfc5 + nfc6 + nfc7 + nfc8 + nfc9 + nfc10 + nfc11 + nfc12 + nfc13 + nfc14 + nfc15 + nfc16 + nfc17 + nfc18" 
+
+nfcc_pdc_model <- "P =~ nfcc_p1 + nfcc_p2 + nfcc_p3 + nfcc_p4 + nfcc_p5 + nfcc_p6 + nfcc_p7 + nfcc_p8
+                   D =~ nfcc_d1 + nfcc_d2 + nfcc_d3 + nfcc_d4 + nfcc_d5 + nfcc_d6 + nfcc_d7
+                   C =~ nfcc_c1 + nfcc_c2 + nfcc_c3 + nfcc_c4 + nfcc_c5 + nfcc_c6 + nfcc_c7 + nfcc_c8" 
+
+nfcc_ao_model <- "A =~ nfcc_a1 + nfcc_a2 + nfcc_a3 + nfcc_a4 + nfcc_a5 + nfcc_a6 + nfcc_a7 + nfcc_a8
+                  O =~ nfcc_o1 + nfcc_o2 + nfcc_o3 + nfcc_o4 + nfcc_o5 + nfcc_o6 + nfcc_o7" 
+
+pe_model <- "PE =~ pe1 + pe2 + pe3 + pe4 + pe5 + pe6 + pe7 + pe8 + pe9 + pe10 + pe11" 
+
+pns_model <- "PNS =~ pns1 + pns2 + pns3 + pns4 + pns5 + pns6 + pns7 + pns8 + pns9 + pns10 + pns11 + pns12" 
+
+rse_model <- "RSE =~ rse1 + rse2 + rse3 + rse4 + rse5 + rse6 + rse7 + rse8 + rse9 + rse10" 
+
+rwa_model <- "RWA =~ rwa1 + rwa2 + rwa3 + rwa4 + rwa5 + rwa6 + rwa7 + rwa8 + rwa9 + rwa10 + rwa11 + rwa12 + rwa13 + rwa14 + rwa15 + rwa16 + rwa17 + rwa18 + rwa19 + rwa20" 
+
+sdo_model <- "SDO =~ sdo1 + sdo2 + sdo3 + sdo4 + sdo5 + sdo6 + sdo7 + sdo8 + sdo9 + sdo10 + sdo11 + sdo12" 
+
+sm_model <- "SM =~ sm1 + sm2 + sm3 + sm4 + sm5 + sm6 + sm7 + sm8 + sm9 + sm10 + sm11 + sm12 + sm13 + sm14 + sm15 + sm16 + sm17 + sm18" 
+
+soc_ic_model <- "IC =~ soc_ic1 + soc_ic2 + soc_ic3 + soc_ic4 + soc_ic5 + soc_ic6 + soc_ic7 + soc_ic8 + soc_ic9" 
+soc_pe_model <- "PE =~ soc_pe1 + soc_pe2 + soc_pe3 + soc_pe4 + soc_pe5 + soc_pe6 + soc_pe7 + soc_pe8 + soc_pe9 + soc_pe10" 
+
+
+# full scales
+bidr_model <- "IM =~ bidr_im1 + bidr_im2 + bidr_im3 + bidr_im4 + bidr_im5 + bidr_im6 + bidr_im7 + bidr_im8 + bidr_im9 + bidr_im10 + bidr_im11 + bidr_im12 + bidr_im13 + bidr_im14 + bidr_im15 + bidr_im16 + bidr_im17 + bidr_im18
+               SDE =~ bidr_sde1 + bidr_sde2 + bidr_sde3 + bidr_sde4 + bidr_sde5 + bidr_sde6 + bidr_sde7 + bidr_sde8 + bidr_sde9 + bidr_sde10 + bidr_sde11 + bidr_sde12 + bidr_sde13 + bidr_sde14 + bidr_sde15 + bidr_sde16 + bidr_sde17 + bidr_sde18" 
+
+icat_model <- "ICAT_O =~ icat_o1 + icat_o2 + icat_o3 + icat_o4 + icat_o5 + icat_o6 + icat_o7 + icat_o8 + icat_o9
+               ICAT_S =~ icat_s1 + icat_s2 + icat_s3 + icat_s4 + icat_s5 + icat_s6 + icat_s7 + icat_s8 + icat_s9" 
+
+nfcc_model <- "P =~ nfcc_p1 + nfcc_p2 + nfcc_p3 + nfcc_p4 + nfcc_p5 + nfcc_p6 + nfcc_p7 + nfcc_p8
+               D =~ nfcc_d1 + nfcc_d2 + nfcc_d3 + nfcc_d4 + nfcc_d5 + nfcc_d6 + nfcc_d7
+               C =~ nfcc_c1 + nfcc_c2 + nfcc_c3 + nfcc_c4 + nfcc_c5 + nfcc_c6 + nfcc_c7 + nfcc_c8
+               A =~ nfcc_a1 + nfcc_a2 + nfcc_a3 + nfcc_a4 + nfcc_a5 + nfcc_a6 + nfcc_a7 + nfcc_a8
+               O =~ nfcc_o1 + nfcc_o2 + nfcc_o3 + nfcc_o4 + nfcc_o5 + nfcc_o6 + nfcc_o7" 
+
+soc_model <- "IC =~ soc_ic1 + soc_ic2 + soc_ic3 + soc_ic4 + soc_ic5 + soc_ic6 + soc_ic7 + soc_ic8 + soc_ic9
+              PE =~ soc_pe1 + soc_pe2 + soc_pe3 + soc_pe4 + soc_pe5 + soc_pe6 + soc_pe7 + soc_pe8 + soc_pe9 + soc_pe10" 
+
+```
+
+# Demographics
+
+```{r}
+
+trimmed_data %>%
+  count() %>%
+  rename(`N unique experimental sessions` = n) %>%
+  kable()
+
+trimmed_data %>%
+  select(user_id, session_id) %>%
+  group_by(user_id) %>%
+  summarize(n = n()) %>%
+  summarize(mean_sessions = mean(n),
+            median_sessions = median(n),
+            sd_sessions = sd(n)) %>%
+  round_df(2) %>%
+  gather() %>%
+  kable()
+
+demographics_temp <- trimmed_first_timepoint_per_user_per_scale %>%
+  mutate(sex = recode(sex,
+                      "f" = 1,
+                      "m" = 2)) %>%
+  group_by(user_id) %>%
+  # given repeat presentations
+  summarize(mean_age_across_participations = mean(age),
+            sex = mean(sex)) %>%
+  ungroup() %>%
+  mutate(sex = recode(sex,
+                      "1" = "f",
+                      "2" = "m"))
+
+demographics_temp %>%
+  count() %>%
+  rename(`N unique participants` = n) %>%
+  kable()
+
+demographics_temp %>%
+  count(sex) %>%
+  kable()
+
+demographics_temp %>%
+  summarise(age_mean = mean(mean_age_across_participations),
+            age_median = median(mean_age_across_participations),
+            age_sd = sd(mean_age_across_participations)) %>%
+  round_df(2) %>%
+  gather() %>%
+  kable()
+
+```
+
+# Distributions
+
+## Simple visualisation for skew etc
+
+```{r}
+
+ggplot(trimmed_first_timepoint_per_user_per_scale) + 
+  geom_density(aes(individual_differences_sum_score)) +
+  facet_wrap(~individual_differences_measure, scales = "free")
+
+```
+
+By split scales
+
+```{r}
+
+## distribution info
+distributions_auto <- function(data) {
+  require(moments)
+  require(plotrix)
+  data %>%
+    mutate(sum = rowSums(.)) %>%
+    dplyr::select(sum) %>%
+    summarize(M = round(mean(sum, na.rm = TRUE), 2),
+              SE = round(std.error(sum, na.rm = TRUE), 2),
+              SD = round(sd(sum, na.rm = TRUE), 2),
+              Skewness = round(skewness(sum), 2),
+              Kurtosis = round(kurtosis(sum), 2))
+}
+
+# distributions
+bfi_e_dist    <- bfi_e_data    %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+bfi_c_dist    <- bfi_c_data    %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+bfi_n_dist    <- bfi_n_data    %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+bfi_a_dist    <- bfi_a_data    %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+bfi_o_dist    <- bfi_o_data    %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+bidr_im_dist  <- bidr_im_data  %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+bidr_sde_dist <- bidr_sde_data %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+bjw_dist      <- bjw_data      %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+brs_dist      <- brs_data      %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+he_dist       <- he_data       %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+icat_o_dist   <- icat_o_data   %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+icat_s_dist   <- icat_s_data   %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+nfc_dist      <- nfc_data      %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+nfcc_ao_dist  <- nfcc_ao_data  %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+nfcc_pdc_dist <- nfcc_pdc_data %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+pe_dist       <- pe_data       %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+pns_dist      <- pns_data      %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+rse_dist      <- rse_data      %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+rwa_dist      <- rwa_data      %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+sdo_dist      <- sdo_data      %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+sm_dist       <- sm_data       %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+soc_ic_dist   <- soc_ic_data   %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+soc_pe_dist   <- soc_pe_data   %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+
+# combine
+Scale = c("Big 5 Inventory - E",
+          "Big 5 Inventory - C",
+          "Big 5 Inventory - N",
+          "Big 5 Inventory - A",
+          "Big 5 Inventory - O",
+          "Balanced Inventory of Desirable Responding - Impression Management",
+          "Balanced Inventory of Desirable Responding - Self Deception",
+          "Belief in a Just World: General Just World Scale",
+          "Bayesian Racism",
+          "Humanitarianism-Egalitarianism",
+          "Intuitions about Controllability and Awareness of Thoughts - Others",
+          "Intuitions about Controllability and Awareness of Thoughts - Self",
+          "Need for Cognition",
+          "Need for Cognitive Closure - P,D,CM",
+          "Need for Cognitive Closure - O,A",
+          "Protestant Ethic",
+          "Personal Need for Structure",
+          "Rosenberg Self-Esteem",
+          "Ring-Wing Authoritarianism",
+          "Social Dominance Orientation",
+          "Self-Monitoring",
+          "Spheres of Control - Interpersonal Control",
+          "Spheres of Control - Personal Efficacy")
+
+dist_results <- rbind(bfi_e_dist, bfi_c_dist, bfi_n_dist, bfi_a_dist, bfi_o_dist,
+                      bidr_im_dist, bidr_sde_dist, bjw_dist, brs_dist,
+                      he_dist, icat_o_dist, icat_s_dist, nfc_dist, nfcc_ao_dist, nfcc_pdc_dist,
+                      pe_dist, pns_dist, rse_dist, rwa_dist, sdo_dist, sm_dist, soc_ic_dist, soc_pe_dist)
+
+dist_results$Scale <- Scale
+
+```
+
+```{r}
+save(dist_results, file = "../data/analyses/dist_results.RData")
+#load("../data/analyses/dist_results.RData")
+```
+
+By full scales
+
+```{r}
+
+# distributions
+bidr_dist    <- bidr_data  %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+icat_dist    <- icat_data  %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+nfcc_dist    <- nfcc_data  %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+soc_dist     <- soc_data   %>% dplyr::select(-age, -sex) %>% distributions_auto(.)
+
+# combine
+Scale = c("Balanced Inventory of Desirable Responding",
+          "Intuitions about Controllability and Awareness of Thoughts",
+          "Need for Cognitive Closure",
+          "Spheres of Control")
+
+dist_results_2 <- rbind(bidr_dist, icat_dist, nfcc_dist, soc_dist)
+
+dist_results_2$Scale <- Scale
+
+```
+
+```{r}
+save(dist_results_2, file = "../data/analyses/dist_results_2.RData")
+#load("../data/analyses/dist_results_2.RData")
+```
+
+# Internal consistency
+
+```{r}
+
+nboots = 1000
+
+fit_cfa <- function(data, model) {
+  require(lavaan)
+  require(tidyverse)
+  
+  data %>%
+    dplyr::select(-sex, -age) %>%
+    cfa(model, 
+        data = ., 
+        order = c("1", "2", "3", "4", "5", "6"),  # treat responses as ordinal given likert scales
+        estimator = "WLSMV")
+}
+
+# split scales
+bfi_e_fit    <- fit_cfa(bfi_e_data,    bfi_e_model)
+bfi_c_fit    <- fit_cfa(bfi_c_data,    bfi_c_model)
+bfi_n_fit    <- fit_cfa(bfi_n_data,    bfi_n_model)
+bfi_a_fit    <- fit_cfa(bfi_a_data,    bfi_a_model)
+bfi_o_fit    <- fit_cfa(bfi_o_data,    bfi_o_model)
+bidr_im_fit  <- fit_cfa(bidr_im_data,  bidr_im_model)
+bidr_sde_fit <- fit_cfa(bidr_sde_data, bidr_sde_model)
+bjw_fit      <- fit_cfa(bjw_data,      bjw_model)
+brs_fit      <- fit_cfa(brs_data,      brs_model)
+he_fit       <- fit_cfa(he_data,       he_model)
+icat_o_fit   <- fit_cfa(icat_o_data,   icat_o_model)
+icat_s_fit   <- fit_cfa(icat_s_data,   icat_s_model)
+nfc_fit      <- fit_cfa(nfc_data,      nfc_model)
+nfcc_ao_fit  <- fit_cfa(nfcc_ao_data,  nfcc_ao_model)
+nfcc_pdc_fit <- fit_cfa(nfcc_pdc_data, nfcc_pdc_model)
+pe_fit       <- fit_cfa(pe_data,       pe_model)
+pns_fit      <- fit_cfa(pns_data,      pns_model)
+rse_fit      <- fit_cfa(rse_data,      rse_model)
+rwa_fit      <- fit_cfa(rwa_data,      rwa_model)
+sdo_fit      <- fit_cfa(sdo_data,      sdo_model)
+sm_fit       <- fit_cfa(sm_data,       sm_model)
+soc_ic_fit   <- fit_cfa(soc_ic_data,   soc_ic_model)
+soc_pe_fit   <- fit_cfa(soc_pe_data,   soc_pe_model)
+# full scales
+bidr_fit     <- fit_cfa(bidr_data,  bidr_model)
+icat_fit     <- fit_cfa(icat_data,  icat_model)
+nfcc_fit     <- fit_cfa(nfcc_data,  nfcc_model)
+soc_fit      <- fit_cfa(soc_data,   soc_model)
+
+estimate_reliability <- function(fit, scale) {
+  require(semTools)
+  require(tidyverse)
+  
+  fit %>%
+    semTools::reliability(.) %>%
+    as.data.frame() %>%
+    round_df(3) %>%
+    rownames_to_column(var = "metric") %>%
+    select(metric, total) %>%
+    filter(metric %in% c("alpha", "omega2", "omega3")) %>%
+    spread(metric, total) %>%
+    rename(omega_t = omega2,
+           omega_h = omega3) %>%
+    mutate(Scale = scale)
+}
+
+reliability_estimates <- rbind(
+  estimate_reliability(bfi_e_fit,    "Big 5 Inventory - E"),
+  estimate_reliability(bfi_c_fit,    "Big 5 Inventory - C"),
+  estimate_reliability(bfi_n_fit,    "Big 5 Inventory - N"),
+  estimate_reliability(bfi_a_fit,    "Big 5 Inventory - A"),
+  estimate_reliability(bfi_o_fit,    "Big 5 Inventory - O"),
+  estimate_reliability(bidr_im_fit,  "Balanced Inventory of Desirable Responding - Impression Management"),
+  estimate_reliability(bidr_sde_fit, "Balanced Inventory of Desirable Responding - Self Deception"),
+  estimate_reliability(bjw_fit,      "Belief in a Just World: General Just World Scale"),
+  estimate_reliability(brs_fit,      "Bayesian Racism"),
+  estimate_reliability(he_fit,       "Humanitarianism-Egalitarianism"),
+  estimate_reliability(icat_o_fit,   "Intuitions about Controllability and Awareness of Thoughts - Others"),
+  estimate_reliability(icat_s_fit,   "Intuitions about Controllability and Awareness of Thoughts - Self"),
+  estimate_reliability(nfc_fit,      "Need for Cognition"),
+  estimate_reliability(nfcc_ao_fit,  "Need for Cognitive Closure - O,A"),
+  estimate_reliability(nfcc_pdc_fit, "Need for Cognitive Closure - P,D,CM"),
+  estimate_reliability(pe_fit,       "Protestant Ethic"),
+  estimate_reliability(pns_fit,      "Personal Need for Structure"),
+  estimate_reliability(rse_fit,      "Rosenberg Self-Esteem"),
+  estimate_reliability(rwa_fit,      "Ring-Wing Authoritarianism"),
+  estimate_reliability(sdo_fit,      "Social Dominance Orientation"),
+  estimate_reliability(sm_fit,       "Self-Monitoring"),
+  estimate_reliability(soc_ic_fit,   "Spheres of Control - Interpersonal Control"),
+  estimate_reliability(soc_pe_fit,   "Spheres of Control - Personal Efficacy"),
+  estimate_reliability(bidr_fit,     "Balanced Inventory of Desirable Responding"),
+  estimate_reliability(icat_fit,     "Intuitions about Controllability and Awareness of Thoughts"),
+  estimate_reliability(nfcc_fit,     "Need for Cognitive Closure"),
+  estimate_reliability(soc_fit,      "Spheres of Control")
+)  
+
+# CIs
+estimate_reliability_2 <- function(model, data) {
+  require(lavaan)
+  require(tidyverse)
+  
+  data %>%
+    dplyr::select(-sex, -age) %>%
+    cfa(model = model, 
+        data = ., 
+        order = c("1", "2", "3", "4", "5", "6"),  # treat responses as ordinal given likert scales
+        estimator = "WLSMV") %>%
+    semTools::reliability(.) %>%
+    as.data.frame() %>%
+    round_df(2) %>%
+    rownames_to_column(var = "metric") %>%
+    select(metric, total) %>%
+    filter(metric %in% c("alpha", "omega2", "omega3")) %>%
+    spread(metric, total) %>%
+    rename(omega_t = omega2,
+           omega_h = omega3)
+}
+
+estimate_reliability_boot_ci <- function(data, model, scale) {
+  require(broom)
+  require(tidyverse)
+  
+  data %>%
+    broom::bootstrap(nboots) %>%
+    do(estimate_reliability_2(data = ., model = model)) %>%
+    ungroup() %>%
+    dplyr::summarize(alpha_ci_lwr   = quantile(as.numeric(alpha), 0.025),
+                     alpha_ci_upr   = quantile(as.numeric(alpha), 0.975),
+                     omega_t_ci_lwr = quantile(as.numeric(omega_t), 0.025),
+                     omega_t_ci_upr = quantile(as.numeric(omega_t), 0.975),
+                     omega_h_ci_lwr = quantile(as.numeric(omega_h), 0.025),
+                     omega_h_ci_upr = quantile(as.numeric(omega_h), 0.975)) %>%
+    round_df(3) %>%
+    mutate(Scale = scale)
+}
+
+reliability_estimate_cis <- rbind(
+  # split scales
+  estimate_reliability_boot_ci(data = bfi_e_data,  
+                               model = bfi_e_model,  
+                               "Big 5 Inventory - E"),
+  estimate_reliability_boot_ci(data = bfi_c_data,  
+                               model = bfi_c_model,  
+                               "Big 5 Inventory - C"),
+  estimate_reliability_boot_ci(data = bfi_n_data,  
+                               model = bfi_n_model,  
+                               "Big 5 Inventory - N"),
+  estimate_reliability_boot_ci(data = bfi_a_data,  
+                               model = bfi_a_model,  
+                               "Big 5 Inventory - A"),
+  estimate_reliability_boot_ci(data = bfi_o_data,  
+                               model = bfi_o_model,  
+                               "Big 5 Inventory - O"),
+  estimate_reliability_boot_ci(data = bidr_im_data,  
+                               model = bidr_im_model,  
+                               "Balanced Inventory of Desirable Responding - Impression Management"),
+  estimate_reliability_boot_ci(data = bidr_sde_data, 
+                               model = bidr_sde_model, 
+                               "Balanced Inventory of Desirable Responding - Self Deception"),
+  estimate_reliability_boot_ci(data = bjw_data,    
+                               model = bjw_model,     
+                               "Belief in a Just World: General Just World Scale"),
+  estimate_reliability_boot_ci(data = brs_data,    
+                               model = brs_model,  
+                               "Bayesian Racism"),
+  estimate_reliability_boot_ci(data = he_data,   
+                               model = he_model, 
+                               "Humanitarianism-Egalitarianism"),
+  estimate_reliability_boot_ci(data = icat_o_data,   
+                               model = icat_o_model, 
+                               "Intuitions about Controllability and Awareness of Thoughts - Others"),
+  estimate_reliability_boot_ci(data = icat_s_data,   
+                               model = icat_s_model,  
+                               "Intuitions about Controllability and Awareness of Thoughts - Self"),
+  estimate_reliability_boot_ci(data = nfc_data,     
+                               model = nfc_model,    
+                               "Need for Cognition"),
+  estimate_reliability_boot_ci(data = nfcc_ao_data,  
+                               model = nfcc_ao_model, 
+                               "Need for Cognitive Closure - O,A"),
+  estimate_reliability_boot_ci(data = nfcc_pdc_data, 
+                               model = nfcc_pdc_model, 
+                               "Need for Cognitive Closure - P,D,CM"),
+  estimate_reliability_boot_ci(data = pe_data,      
+                               model = pe_model,    
+                               "Protestant Ethic"),
+  estimate_reliability_boot_ci(data = pns_data,    
+                               model = pns_model,  
+                               "Personal Need for Structure"),
+  estimate_reliability_boot_ci(data = rse_data,     
+                               model = rse_model,     
+                               "Rosenberg Self-Esteem"),
+  estimate_reliability_boot_ci(data = rwa_data,   
+                               model = rwa_model,
+                               "Ring-Wing Authoritarianism"),
+  estimate_reliability_boot_ci(data = sdo_data,   
+                               model = sdo_model,
+                               "Social Dominance Orientation"),
+  estimate_reliability_boot_ci(data = sm_data,    
+                               model = sm_model,  
+                               "Self-Monitoring"),
+  estimate_reliability_boot_ci(data = soc_ic_data,   
+                               model = soc_ic_model,   
+                               "Spheres of Control - Interpersonal Control"),
+  estimate_reliability_boot_ci(data = soc_pe_data,   
+                               model = soc_pe_model,
+                               "Spheres of Control - Personal Efficacy"),
+  # full scales
+  estimate_reliability_boot_ci(data = bidr_data,  
+                               model = bidr_model,  
+                               "Balanced Inventory of Desirable Responding"),
+  estimate_reliability_boot_ci(data = icat_data,   
+                               model = icat_model, 
+                               "Intuitions about Controllability and Awareness of Thoughts"),
+  estimate_reliability_boot_ci(data = nfcc_data,  
+                               model = nfcc_model, 
+                               "Need for Cognitive Closure"),
+  estimate_reliability_boot_ci(data = soc_data,   
+                               model = soc_model,   
+                               "Spheres of Control")
+)  
+
+consistency_results <- reliability_estimates %>%
+  left_join(reliability_estimate_cis, by = "Scale") %>%
+  select(Scale, alpha, alpha_ci_lwr, alpha_ci_upr, 
+         omega_t, omega_t_ci_lwr, omega_t_ci_upr, 
+         omega_h, omega_h_ci_lwr, omega_h_ci_upr)
+
+```
+
+```{r}
+save(consistency_results, file = "../data/analyses/consistency_results.RData")
+
+
+# temp <- data.frame(Scale = c("Big 5 Inventory - E", "Big 5 Inventory - C", "Big 5 Inventory - N", 
+#                              "Big 5 Inventory - A", "Big 5 Inventory - O"),
+#                    alpha = rep(NA, 5),
+#                    alpha_ci_lwr = rep(NA, 5),
+#                    alpha_ci_upr = rep(NA, 5),
+#                    omega_t = rep(NA, 5),
+#                    omega_t_ci_lwr = rep(NA, 5),
+#                    omega_t_ci_upr = rep(NA, 5),
+#                    omega_h = rep(NA, 5),
+#                    omega_h_ci_lwr = rep(NA, 5),
+#                    omega_h_ci_upr = rep(NA, 5))
+# 
+# consistency_results <- consistency_results %>%
+#   rbind(temp) %>%
+#   filter(!(Scale %in% c("Big 5 Inventory - E,C,N", "Big 5 Inventory - A,O")))
+
+#load("../data/analyses/consistency_results.RData")
+```
+
+# Test-retest reliability
+
+## Dependability
+
+split scales only
+
+```{r}
+
+dependability_data <- two_timepoint_scores %>%
+  filter(days_to_followup < 1/24)  # retest within an hour
+
+# n per scale
+n_per_scale_dependability <- user_ids_with_two_timepoints_per_scale %>%
+  # scale names differ between two data frames; hack a solution
+  mutate(individual_differences_measure = ifelse(as.character(individual_differences_measure) == "BFI-Part 1", "BFI_E", 
+                                                 ifelse(as.character(individual_differences_measure) == "BFI-Part 2", "BFI_A", 
+                                                        as.character(individual_differences_measure)))) %>%
+  semi_join(dependability_data, by = c("user_id", "individual_differences_measure")) %>%
+  count(individual_differences_measure) %>%
+  rename(Scale = individual_differences_measure,
+         `Test-retest dependability n` = nn)
+
+pearson_r_estimate <- function(data, Scale){
+  require(tidyverse)
+  require(psych)
+
+  res <- data %>%
+    filter(individual_differences_measure == Scale) %>%
+    select(individual_differences_sum_score_t1, individual_differences_sum_score_t2) %>%
+    cor.ci(n.iter = 1000, method = "pearson", plot = FALSE)
+
+  results <-
+    data.frame(Scale = Scale,
+               pearson_r = res$means,
+               pearson_r_ci_lwr = res$ci$low.e,
+               pearson_r_ci_upr = res$ci$up.e) %>%
+    round_df(3)
+
+  return(results)
+}
+
+test_retest_dependability <-
+  rbind(pearson_r_estimate(data = dependability_data, Scale = "BFI_E"),
+        pearson_r_estimate(data = dependability_data, Scale = "BFI_C"),
+        pearson_r_estimate(data = dependability_data, Scale = "BFI_N"),
+        pearson_r_estimate(data = dependability_data, Scale = "BFI_A"),
+        pearson_r_estimate(data = dependability_data, Scale = "BFI_O"),
+        pearson_r_estimate(data = dependability_data, Scale = "BIDR-IM"),
+        pearson_r_estimate(data = dependability_data, Scale = "BIDR-SDE"),
+        pearson_r_estimate(data = dependability_data, Scale = "BJW"),
+        pearson_r_estimate(data = dependability_data, Scale = "BRS"),
+        pearson_r_estimate(data = dependability_data, Scale = "HE"),
+        pearson_r_estimate(data = dependability_data, Scale = "ICAT-O"),
+        pearson_r_estimate(data = dependability_data, Scale = "ICAT-S"),
+        pearson_r_estimate(data = dependability_data, Scale = "NFC"),
+        pearson_r_estimate(data = dependability_data, Scale = "NFCC, Part 1"),
+        pearson_r_estimate(data = dependability_data, Scale = "NFCC, Part 2"),
+        pearson_r_estimate(data = dependability_data, Scale = "PE"),
+        pearson_r_estimate(data = dependability_data, Scale = "PNS"),
+        pearson_r_estimate(data = dependability_data, Scale = "RSE"),
+        pearson_r_estimate(data = dependability_data, Scale = "RWA"),
+        pearson_r_estimate(data = dependability_data, Scale = "SDO"),
+        pearson_r_estimate(data = dependability_data, Scale = "SM"),
+        pearson_r_estimate(data = dependability_data, Scale = "SOC-IC"),
+        pearson_r_estimate(data = dependability_data, Scale = "SOC-PE")) %>%
+  rename(`Test-retest dependability r` = pearson_r,
+         `dependability r lower` = pearson_r_ci_lwr,
+         `dependability r upper` = pearson_r_ci_upr)
+
+# combine and tidy
+dependability_results <- test_retest_dependability %>%
+  full_join(n_per_scale_dependability, by = "Scale") %>%
+  # hacky solution to populate the BFI1 and BFI2 Ns into all cells
+  mutate(`Test-retest dependability n` = ifelse(Scale == "BFI_C", lag(`Test-retest dependability n`), `Test-retest dependability n`),
+         `Test-retest dependability n` = ifelse(Scale == "BFI_N", lag(`Test-retest dependability n`), `Test-retest dependability n`),
+         `Test-retest dependability n` = ifelse(Scale == "BFI_O", lag(`Test-retest dependability n`), `Test-retest dependability n`)) %>%
+  mutate(Scale = dplyr::recode(Scale,
+                               "BFI_E"    = "Big 5 Inventory - E",
+                               "BFI_C"    = "Big 5 Inventory - C",
+                               "BFI_N"    = "Big 5 Inventory - N",
+                               "BFI_A"    = "Big 5 Inventory - A",
+                               "BFI_O"    = "Big 5 Inventory - O",
+                               "BIDR-IM"  = "Balanced Inventory of Desirable Responding - Impression Management",
+                               "BIDR-SDE" = "Balanced Inventory of Desirable Responding - Self Deception",
+                               "BJW"      = "Belief in a Just World: General Just World Scale",
+                               "BRS"      = "Bayesian Racism",
+                               "HE"       = "Humanitarianism-Egalitarianism",
+                               "ICAT-O"   = "Intuitions about Controllability and Awareness of Thoughts - Others",
+                               "ICAT-S"   = "Intuitions about Controllability and Awareness of Thoughts - Self",
+                               "NFC"      = "Need for Cognition",
+                               "NFCC, Part 1"  = "Need for Cognitive Closure - P,D,CM",
+                               "NFCC, Part 2"  = "Need for Cognitive Closure - O,A",
+                               "PE"       = "Protestant Ethic",
+                               "PNS"      = "Personal Need for Structure",
+                               "RSE"      = "Rosenberg Self-Esteem",
+                               "RWA"      = "Ring-Wing Authoritarianism",
+                               "SDO"      = "Social Dominance Orientation",
+                               "SM"       = "Self-Monitoring",
+                               "SOC-IC"   = "Spheres of Control - Interpersonal Control",
+                               "SOC-PE"   = "Spheres of Control - Personal Efficacy"))
+
+```
+
+```{r}
+save(dependability_results, file = "../data/analyses/dependability_results.RData")
+#load("../data/analyses/dependability_results.RData")
+```
+
+## Stability
+
+By split scales only
+
+```{r}
+
+stability_data <- two_timepoint_scores %>%
+  filter(days_to_followup >= 1 & days_to_followup < 365)  # retest more than a day and less than a year later
+
+# n per scale
+n_per_scale_stability <- user_ids_with_two_timepoints_per_scale %>%
+  # scale names differ between two data frames; hack a solution
+  mutate(individual_differences_measure = ifelse(as.character(individual_differences_measure) == "BFI-Part 1", "BFI_E", 
+                                                 ifelse(as.character(individual_differences_measure) == "BFI-Part 2", "BFI_A", 
+                                                        as.character(individual_differences_measure)))) %>%
+  semi_join(stability_data, by = c("user_id", "individual_differences_measure")) %>%
+  count(individual_differences_measure) %>%
+  rename(Scale = individual_differences_measure,
+         `Test-retest stability n` = nn)
+
+test_retest_stability <-
+  rbind(pearson_r_estimate(data = stability_data, Scale = "BFI_E"),
+        pearson_r_estimate(data = stability_data, Scale = "BFI_C"),
+        pearson_r_estimate(data = stability_data, Scale = "BFI_N"),
+        pearson_r_estimate(data = stability_data, Scale = "BFI_A"),
+        pearson_r_estimate(data = stability_data, Scale = "BFI_O"),
+        pearson_r_estimate(data = stability_data, Scale = "BIDR-IM"),
+        pearson_r_estimate(data = stability_data, Scale = "BIDR-SDE"),
+        pearson_r_estimate(data = stability_data, Scale = "BJW"),
+        pearson_r_estimate(data = stability_data, Scale = "BRS"),
+        pearson_r_estimate(data = stability_data, Scale = "HE"),
+        pearson_r_estimate(data = stability_data, Scale = "ICAT-O"),
+        pearson_r_estimate(data = stability_data, Scale = "ICAT-S"),
+        pearson_r_estimate(data = stability_data, Scale = "NFC"),
+        pearson_r_estimate(data = stability_data, Scale = "NFCC, Part 1"),
+        pearson_r_estimate(data = stability_data, Scale = "NFCC, Part 2"),
+        pearson_r_estimate(data = stability_data, Scale = "PE"),
+        pearson_r_estimate(data = stability_data, Scale = "PNS"),
+        pearson_r_estimate(data = stability_data, Scale = "RSE"),
+        pearson_r_estimate(data = stability_data, Scale = "RWA"),
+        pearson_r_estimate(data = stability_data, Scale = "SDO"),
+        pearson_r_estimate(data = stability_data, Scale = "SM"),
+        pearson_r_estimate(data = stability_data, Scale = "SOC-IC"),
+        pearson_r_estimate(data = stability_data, Scale = "SOC-PE")) %>%
+  rename(`Test-retest stability r` = pearson_r,
+         `stability r lower` = pearson_r_ci_lwr,
+         `stability r upper` = pearson_r_ci_upr)
+
+# combine and tidy
+stability_results <- test_retest_stability %>%
+  full_join(n_per_scale_stability, by = "Scale") %>%
+  # hacky solution to populate the BFI1 and BFI2 Ns into all cells
+  mutate(`Test-retest stability n` = ifelse(Scale == "BFI_C", lag(`Test-retest stability n`), `Test-retest stability n`),
+         `Test-retest stability n` = ifelse(Scale == "BFI_N", lag(`Test-retest stability n`), `Test-retest stability n`),
+         `Test-retest stability n` = ifelse(Scale == "BFI_O", lag(`Test-retest stability n`), `Test-retest stability n`)) %>%
+  mutate(Scale = dplyr::recode(Scale,
+                               "BFI_E"    = "Big 5 Inventory - E",
+                               "BFI_C"    = "Big 5 Inventory - C",
+                               "BFI_N"    = "Big 5 Inventory - N",
+                               "BFI_A"    = "Big 5 Inventory - A",
+                               "BFI_O"    = "Big 5 Inventory - O",
+                               "BIDR-IM"  = "Balanced Inventory of Desirable Responding - Impression Management",
+                               "BIDR-SDE" = "Balanced Inventory of Desirable Responding - Self Deception",
+                               "BJW"      = "Belief in a Just World: General Just World Scale",
+                               "BRS"      = "Bayesian Racism",
+                               "HE"       = "Humanitarianism-Egalitarianism",
+                               "ICAT-O"   = "Intuitions about Controllability and Awareness of Thoughts - Others",
+                               "ICAT-S"   = "Intuitions about Controllability and Awareness of Thoughts - Self",
+                               "NFC"      = "Need for Cognition",
+                               "NFCC, Part 1"  = "Need for Cognitive Closure - P,D,CM",
+                               "NFCC, Part 2"  = "Need for Cognitive Closure - O,A",
+                               "PE"       = "Protestant Ethic",
+                               "PNS"      = "Personal Need for Structure",
+                               "RSE"      = "Rosenberg Self-Esteem",
+                               "RWA"      = "Ring-Wing Authoritarianism",
+                               "SDO"      = "Social Dominance Orientation",
+                               "SM"       = "Self-Monitoring",
+                               "SOC-IC"   = "Spheres of Control - Interpersonal Control",
+                               "SOC-PE"   = "Spheres of Control - Personal Efficacy"))
+
+```
+
+```{r}
+save(stability_results, file = "../data/analyses/stability_results.RData")
+#load("../data/analyses/stability_results.RData")
+```
+
+# CFA
+
+```{r}
+
+## fit a CFA and return its model fit statistics
+cfa_auto <- function(data, model, scale) {
+  require(lavaan)
+  require(tidyverse)
+  
+  # fit cfa
+  cfa_data <- data %>%
+    dplyr::select(-sex, -age)
+  
+  # sem model
+  fit <- cfa(model, 
+             data = cfa_data, 
+             # orthogonal = TRUE,  # for scales with subscales, treat the latent variables as orthogonal rather than correlated by uncommenting this. produces poorer outcomes across all measures.
+             order = c("1", "2", "3", "4", "5", "6"),  # treat responses as ordinal given likert scales
+             estimator = "WLSMV")  # diagonally weighted least squares (DWLS) + robust sem estimation. Change to "ML" or one of its robust variants (e.g., "MLM") for maximum liklihood estimation. produces poorer outcomes across all measures.
+  
+  # fit statistics
+  temp <- fitMeasures(fit) %>%
+    as.data.frame() %>%
+    rownames_to_column() 
+  colnames(temp) <- c("Statistic", "Estimate")
+  fit_stats <- temp %>%
+    filter(Statistic %in% c("chisq", "df", "pvalue", "srmr", "rmsea", "rmsea.ci.lower",
+                            "rmsea.ci.upper", "cfi", "tli")) %>%
+    t() %>%
+    as.tibble() %>%
+    mutate(scale = scale)
+  return(fit_stats)
+}
+
+```
+
+By split scales
+
+```{r}
+
+# fit models
+bfi_e_fit_results    <- cfa_auto(data = bfi_e_data,    model = bfi_e_model,    scale = "BFI-E")
+bfi_c_fit_results    <- cfa_auto(data = bfi_c_data,    model = bfi_c_model,    scale = "BFI-C")
+bfi_n_fit_results    <- cfa_auto(data = bfi_n_data,    model = bfi_n_model,    scale = "BFI-N")
+bfi_a_fit_results    <- cfa_auto(data = bfi_a_data,    model = bfi_a_model,    scale = "BFI-A")
+bfi_o_fit_results    <- cfa_auto(data = bfi_o_data,    model = bfi_o_model,    scale = "BFI-O")
+bidr_im_fit_results  <- cfa_auto(data = bidr_im_data,  model = bidr_im_model,  scale = "BIDR-IM")
+bidr_sde_fit_results <- cfa_auto(data = bidr_sde_data, model = bidr_sde_model, scale = "BIDR-SDE")
+bjw_fit_results      <- cfa_auto(data = bjw_data,      model = bjw_model,      scale = "BJW")
+brs_fit_results      <- cfa_auto(data = brs_data,      model = brs_model,      scale = "BRS")
+he_fit_results       <- cfa_auto(data = he_data,       model = he_model,       scale = "HE")
+icat_o_fit_results   <- cfa_auto(data = icat_o_data,   model = icat_o_model,   scale = "ICAT-O")
+icat_s_fit_results   <- cfa_auto(data = icat_s_data,   model = icat_s_model,   scale = "ICAT-S")
+nfc_fit_results      <- cfa_auto(data = nfc_data,      model = nfc_model,      scale = "NFC")
+nfcc_pdc_fit_results <- cfa_auto(data = nfcc_pdc_data, model = nfcc_pdc_model, scale = "NFCC-PDC")
+nfcc_ao_fit_results  <- cfa_auto(data = nfcc_ao_data,  model = nfcc_ao_model,  scale = "NFCC-AO")
+pe_fit_results       <- cfa_auto(data = pe_data,       model = pe_model,       scale = "PE")
+pns_fit_results      <- cfa_auto(data = pns_data,      model = pns_model,      scale = "PNS")
+rse_fit_results      <- cfa_auto(data = rse_data,      model = rse_model,      scale = "RSE")
+rwa_fit_results      <- cfa_auto(data = rwa_data,      model = rwa_model,      scale = "RWA")
+sdo_fit_results      <- cfa_auto(data = sdo_data,      model = sdo_model,      scale = "SDO")
+sm_fit_results       <- cfa_auto(data = sm_data,       model = sm_model,       scale = "SM")
+soc_ic_fit_results   <- cfa_auto(data = soc_ic_data,   model = soc_ic_model,   scale = "SOC-IC")
+soc_pe_fit_results   <- cfa_auto(data = soc_pe_data,   model = soc_pe_model,   scale = "SOC-PE")
+
+# combined and add model fit decisions
+fit_results <-
+  rbind(bfi_e_fit_results,
+        bfi_c_fit_results,
+        bfi_n_fit_results,
+        bfi_a_fit_results,
+        bfi_o_fit_results,
+        bidr_im_fit_results,
+        bidr_sde_fit_results,
+        bjw_fit_results,
+        brs_fit_results,
+        he_fit_results,
+        icat_o_fit_results,
+        icat_s_fit_results,
+        nfc_fit_results,
+        nfcc_pdc_fit_results,
+        nfcc_ao_fit_results,
+        pe_fit_results,
+        pns_fit_results,
+        rse_fit_results,
+        rwa_fit_results,
+        sdo_fit_results,
+        sm_fit_results,
+        soc_ic_fit_results,
+        soc_pe_fit_results) %>%
+  filter(V2 != "df") %>%
+  rename(chisq = V1,
+         df = V2,
+         p = V3,
+         CFI = V4,
+         TLI = V5,
+         RMSEA = V6,
+         lower = V7,
+         upper = V8,
+         SRMR = V9,
+         Scale = scale) %>%
+  left_join(n_per_scale_with_bfi_subscales, by = "Scale") %>% 
+  mutate(chisq         = round(as.numeric(chisq), 0),
+         df            = round(as.numeric(df),    0),
+         `chisq/df`    = round(chisq/df, 1),
+         p             = ifelse(p < .00001, "<.00001", round(as.numeric(p), 5)),
+         CFI           = round(as.numeric(CFI),   3),
+         TLI           = round(as.numeric(TLI),   3),
+         RMSEA         = round(as.numeric(RMSEA), 3),
+         lower         = round(as.numeric(lower), 3),
+         upper         = round(as.numeric(upper), 3),
+         SRMR          = round(as.numeric(SRMR),  3),
+
+         # CFA fit criteria from Hu & Bentler (1999)
+         # NB THESE ARE APPLIED TO THE FULL SCALES TOO AND MUST BE CHANGED SEPARATELY
+         # "We reccomend that practitioners use a cutoff value close to .95 for TLI (CFI) in combination
+         # with a cutoff value close to .09 for SRMR to evaluate model fit...A combination rule with RMSEA > .06 and SRMR > .09 (or .10) resulted in the least sum of Type I and II error rates (pps 27-28)."
+         `CFI fit`   = ifelse(CFI   >= .95, 1, 0),
+         `TLI fit`   = ifelse(TLI   >= .95, 1, 0),
+         `RMSEA fit` = ifelse(RMSEA <= .06, 1, 0),
+         `SRMR fit`  = ifelse(SRMR  <= .09, 1, 0)) %>%
+
+  mutate(Scale = dplyr::recode(Scale,
+                               "BFI-E"    = "Big 5 Inventory - E",
+                               "BFI-C"    = "Big 5 Inventory - C",
+                               "BFI-N"    = "Big 5 Inventory - N",
+                               "BFI-A"    = "Big 5 Inventory - A",
+                               "BFI-O"    = "Big 5 Inventory - O",
+                               "BIDR-IM"  = "Balanced Inventory of Desirable Responding - Impression Management",
+                               "BIDR-SDE" = "Balanced Inventory of Desirable Responding - Self Deception",
+                               "BJW"      = "Belief in a Just World: General Just World Scale",
+                               "BRS"      = "Bayesian Racism",
+                               "HE"       = "Humanitarianism-Egalitarianism",
+                               "ICAT-O"   = "Intuitions about Controllability and Awareness of Thoughts - Others",
+                               "ICAT-S"   = "Intuitions about Controllability and Awareness of Thoughts - Self",
+                               "NFC"      = "Need for Cognition",
+                               "NFCC-PDC" = "Need for Cognitive Closure - P,D,CM",
+                               "NFCC-AO"  = "Need for Cognitive Closure - O,A",
+                               "PE"       = "Protestant Ethic",
+                               "PNS"      = "Personal Need for Structure",
+                               "RSE"      = "Rosenberg Self-Esteem",
+                               "RWA"      = "Ring-Wing Authoritarianism",
+                               "SDO"      = "Social Dominance Orientation",
+                               "SM"       = "Self-Monitoring",
+                               "SOC-IC"   = "Spheres of Control - Interpersonal Control",
+                               "SOC-PE"   = "Spheres of Control - Personal Efficacy")) %>%
+  left_join(k_factors, by = "Scale") %>%
+  left_join(k_items, by = "Scale") %>%
+  dplyr::select(Scale, n, Factors, Items, chisq, `chisq/df`, df, p,
+                SRMR, `SRMR fit`, TLI, `TLI fit`, CFI, `CFI fit`, RMSEA, lower, upper,
+                `RMSEA fit`) %>%
+  mutate(all_four = ifelse(`RMSEA fit` == 1 & `SRMR fit` == 1 & `CFI fit` == 1 & `TLI fit` == 1, 1, 0),
+         rmsea_and_srmr = ifelse(`RMSEA fit` == 1 & `SRMR fit` == 1, 1, 0),
+         tli_and_srmr = ifelse(`TLI fit` == 1 & `SRMR fit` == 1, 1, 0),
+         cfi_and_srmr = ifelse(`CFI fit` == 1 & `SRMR fit` == 1, 1, 0),
+         `Model fit` = ifelse(all_four == 1, "Unequivocally good",
+                                ifelse(rmsea_and_srmr == 0 &
+                                         tli_and_srmr == 0 &
+                                         cfi_and_srmr == 0, "Poor", "Mixed")),
+         `Model fit` = fct_relevel(`Model fit`,
+                                     "Unequivocally good", "Mixed", "Poor"),
+         `CFI fit` = ifelse(`CFI fit` == 1, "*", NA),
+         `TLI fit` = ifelse(`TLI fit` == 1, "*", NA),
+         `RMSEA fit` = ifelse(`RMSEA fit` == 1, "*", NA),
+         `SRMR fit` = ifelse(`SRMR fit` == 1, "*", NA)) %>%
+  dplyr::select(-all_four, -rmsea_and_srmr, -tli_and_srmr, -cfi_and_srmr)
+
+```
+
+```{r}
+save(fit_results, file = "../data/analyses/fit_results.RData")
+#load("../data/analyses/fit_results.RData")
+```
+
+By full scales
+
+```{r}
+
+# k items per scale
+k_items_2 <- data.frame(Scale = c("Balanced Inventory of Desirable Responding",
+                                  "Intuitions about Controllability and Awareness of Thoughts",
+                                  "Need for Cognitive Closure",
+                                  "Spheres of Control"),
+                        `Items` = c(36, 18, 42, 20))
+
+# k factors per scale
+k_factors_2 <- data.frame(Scale = c("Balanced Inventory of Desirable Responding",
+                                    "Intuitions about Controllability and Awareness of Thoughts",
+                                    "Need for Cognitive Closure",
+                                    "Spheres of Control"),
+                          Factors = c(2, 2, 5, 2))
+
+# fit models
+bidr_fit_results <- cfa_auto(data = bidr_data, model = bidr_model, scale = "BIDR")
+icat_fit_results <- cfa_auto(data = icat_data, model = icat_model, scale = "ICAT")
+nfcc_fit_results <- cfa_auto(data = nfcc_data, model = nfcc_model, scale = "NFCC")
+soc_fit_results  <- cfa_auto(data = soc_data,  model = soc_model,  scale = "SOC")
+
+# combined and add model fit decisions
+fit_results_2 <-
+  rbind(bidr_fit_results,
+        icat_fit_results,
+        nfcc_fit_results,
+        soc_fit_results) %>%
+  filter(V2 != "df") %>%
+  rename(chisq = V1,
+         df = V2,
+         p = V3,
+         CFI = V4,
+         TLI = V5,
+         RMSEA = V6,
+         lower = V7,
+         upper = V8,
+         SRMR = V9,
+         Scale = scale) %>%
+  left_join(n_per_full_scale, by = "Scale") %>%             # needs creation
+  mutate(chisq         = round(as.numeric(chisq), 0),
+         df            = round(as.numeric(df),    0),
+         `chisq/df`    = round(chisq/df, 1),
+         p             = ifelse(p < .00001, "<.00001", round(as.numeric(p), 5)),
+         CFI           = round(as.numeric(CFI),   3),
+         TLI           = round(as.numeric(TLI),   3),
+         RMSEA         = round(as.numeric(RMSEA), 3),
+         lower         = round(as.numeric(lower), 3),
+         upper         = round(as.numeric(upper), 3),
+         SRMR          = round(as.numeric(SRMR),  3),
+
+         # CFA fit criteria from Hu & Bentler (1999)
+         # NB THESE ARE APPLIED TO THE FULL SCALES TOO AND MUST BE CHANGED SEPARATELY
+         # "We reccomend that practitioners use a cutoff value close to .95 for TLI (CFI) in combination
+         # with a cutoff value close to .09 for SRMR to evaluate model fit...A combination rule with RMSEA > .06 and SRMR > .09 (or .10) resulted in the least sum of Type I and II error rates (pps 27-28)."
+         `CFI fit`   = ifelse(CFI   >= .95, 1, 0),
+         `TLI fit`   = ifelse(TLI   >= .95, 1, 0),
+         `RMSEA fit` = ifelse(RMSEA <= .06, 1, 0),
+         `SRMR fit`  = ifelse(SRMR  <= .09, 1, 0)) %>%
+
+  mutate(Scale = dplyr::recode(Scale,
+                               "BIDR" = "Balanced Inventory of Desirable Responding",
+                               "ICAT" = "Intuitions about Controllability and Awareness of Thoughts",
+                               "NFCC" = "Need for Cognitive Closure",
+                               "SOC"  = "Spheres of Control")) %>%
+  left_join(k_factors_2, by = "Scale") %>%
+  left_join(k_items_2, by = "Scale") %>%
+  mutate(`chisq/item` = round(chisq/Items, 0)) %>%
+  dplyr::select(Scale, n, Factors, Items, chisq, `chisq/df`, df, p,
+                SRMR, `SRMR fit`, TLI, `TLI fit`, CFI, `CFI fit`, RMSEA, lower, upper,
+                `RMSEA fit`) %>%
+  mutate(all_four = ifelse(`RMSEA fit` == 1 & `SRMR fit` == 1 & `CFI fit` == 1 & `TLI fit` == 1, 1, 0),
+         rmsea_and_srmr = ifelse(`RMSEA fit` == 1 & `SRMR fit` == 1, 1, 0),
+         tli_and_srmr = ifelse(`TLI fit` == 1 & `SRMR fit` == 1, 1, 0),
+         cfi_and_srmr = ifelse(`CFI fit` == 1 & `SRMR fit` == 1, 1, 0),
+         `Model fit` = ifelse(all_four == 1, "Unequivocally good",
+                                ifelse(rmsea_and_srmr == 0 &
+                                         tli_and_srmr == 0 &
+                                         cfi_and_srmr == 0, "Poor", "Mixed")),
+         `Model fit` = fct_relevel(`Model fit`,
+                                     "Unequivocally good", "Mixed", "Poor"),
+         `CFI fit` = ifelse(`CFI fit` == 1, "*", NA),
+         `TLI fit` = ifelse(`TLI fit` == 1, "*", NA),
+         `RMSEA fit` = ifelse(`RMSEA fit` == 1, "*", NA),
+         `SRMR fit` = ifelse(`SRMR fit` == 1, "*", NA)) %>%
+  dplyr::select(-all_four, -rmsea_and_srmr, -tli_and_srmr, -cfi_and_srmr)
+
+```
+
+```{r}
+save(fit_results_2, file = "../data/analyses/fit_results_2.RData")
+#load("../data/analyses/fit_results_2.RData")
+```
+
+# Measurement Invariance
+
+Between groups: gender and median age. 
+
+Tests of measurement invariance (configural, metric, and scalar) using the cutoffs on the change in goodness-of-fit indices rather than a likelihood ratio test, which is highly senstive to sample size (Cheung & Rensvold, 2002). Cutoffs for configural invariance provided by Hu and Bentler (1999: same criteria as CFA fits above) and for metric and scalar invariance provided by Cheung & Rensvold (2002: ΔRMSEA <= 0.01 & ΔCLI <= -0.015; see also Chen, 2007 for very similar reccomendations). MI tests are conducted using the same methods as the CFAs: by assuming data is ordinal (e.g., likert data) using the distribution free DWLS estimator plus robust effect size estimates (i.e., estimator = "WLSMV").
+
+By split scales
+
+```{r}
+
+# i originally used measurementInvarianceCat() but it gave convergence issues with many models. the following post suggested this has been observed before (https://groups.google.com/forum/#!topic/lavaan/aGCVepFrcCs) . to maintain a uniform strategy across all scales, i changed to a manual CFA contraint strategy below.
+
+# nb the below has returned unstable results (NA and Inf in random cells) when run on a windows box but never on a mac. I rarely use windows so won't spend time tracking down the issue.
+
+mi_auto_via_cutoffs <- function(data, model, scale, group) {
+  require(lavaan)
+  require(tidyverse)
+
+  config <- data %>%
+    cfa(model = model,
+        data  = .,
+        order = c("1", "2", "3", "4", "5", "6"),  # treat responses as ordinal given likert scales
+        # orthogonal = TRUE,  # for scales with subscales, treat the latent variables as orthogonal rather than correlated by uncommenting this. produces poorer outcomes across all measures.
+        estimator = "WLSMV",  # diagonally weighted least squares (DWLS) + robust sem estimation. Change to "ML" or one of its robust variants (e.g., "MLM") for maximum liklihood estimation. produces poorer outcomes across all measures.
+        group = group)
+
+  weak <- data %>%
+    cfa(model = model,
+        data  = .,
+        order = c("1", "2", "3", "4", "5", "6"),  # treat responses as ordinal given likert scales
+        # orthogonal = TRUE,  # for scales with subscales, treat the latent variables as orthogonal rather than correlated by uncommenting this. produces poorer outcomes across all measures.
+        estimator = "WLSMV",  # diagonally weighted least squares (DWLS) + robust sem estimation. Change to "ML" or one of its robust variants (e.g., "MLM") for maximum liklihood estimation. produces poorer outcomes across all measures.
+        group = group,
+        group.equal = "loadings")
+
+  strong <- data %>%
+    cfa(model = model,
+        data  = .,
+        order = c("1", "2", "3", "4", "5", "6"),  # treat responses as ordinal given likert scales
+        # orthogonal = TRUE,  # for scales with subscales, treat the latent variables as orthogonal rather than correlated by uncommenting this. produces poorer outcomes across all measures.
+        estimator = "WLSMV",  # diagonally weighted least squares (DWLS) + robust sem estimation. Change to "ML" or one of its robust variants (e.g., "MLM") for maximum liklihood estimation. produces poorer outcomes across all measures.
+        group = group,
+        group.equal = c( "loadings", "intercepts"))
+
+  MI_tests <- compareFit(config, weak, strong, nested = TRUE) %>%
+    summary() %>%
+    rownames_to_column(var = "model") %>%
+    mutate(RMSEA = as.numeric(as.character(str_remove(rmsea, "†"))),
+           CFI   = as.numeric(as.character(str_remove(cfi, "†"))),
+           TLI = as.numeric(as.character(str_remove(tli, "†"))),
+           SRMR   = as.numeric(as.character(str_remove(srmr, "†")))) %>%
+    select(model, RMSEA, CFI, TLI, SRMR) %>%
+    mutate(delta_RMSEA = RMSEA - lag(RMSEA),
+           delta_CFI = CFI - lag(CFI),
+           MI = ifelse(model == "config",
+                       ifelse((SRMR <= 0.09 & CFI >= .95) |
+                                (SRMR <= 0.09 & TLI >= .95) |
+                                (SRMR <= 0.09 & RMSEA <= .06), 1, 0),
+                       ifelse(delta_RMSEA > 0.01 |
+                                delta_CFI < -0.015, 0, 1)),
+           MI_failed = ifelse(MI == 0, as.character(model), NA)) %>%
+    round_df(3) %>%
+    mutate(Scale = scale,
+           Group = group)
+
+  return(MI_tests)
+}
+
+# mi for gender
+MI_sex_bfi_e    <- bfi_e_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = bfi_e_model,    scale = "bfi_e",    group = "sex")
+MI_sex_bfi_c    <- bfi_c_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = bfi_c_model,    scale = "bfi_c",    group = "sex")
+MI_sex_bfi_n    <- bfi_n_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = bfi_n_model,    scale = "bfi_n",    group = "sex")
+MI_sex_bfi_a    <- bfi_a_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = bfi_a_model,    scale = "bfi_a",    group = "sex")
+MI_sex_bfi_o    <- bfi_o_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = bfi_o_model,    scale = "bfi_o",    group = "sex")
+MI_sex_bidr_im  <- bidr_im_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = bidr_im_model,  scale = "bidr_im",  group = "sex")
+MI_sex_bidr_sde <- bidr_sde_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = bidr_sde_model, scale = "bidr_sde", group = "sex")
+MI_sex_bjw      <- bjw_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = bjw_model,      scale = "bjw",      group = "sex")
+MI_sex_brs      <- brs_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = brs_model,      scale = "brs",      group = "sex")
+MI_sex_he       <- he_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = he_model,       scale = "he",       group = "sex")
+MI_sex_icat_o   <- icat_o_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = icat_o_model,   scale = "icat_o",   group = "sex")
+MI_sex_icat_s   <- icat_s_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = icat_s_model,   scale = "icat_s",   group = "sex")
+MI_sex_nfc      <- nfc_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = nfc_model,      scale = "nfc",      group = "sex")
+MI_sex_nfcc_pdc <- nfcc_pdc_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = nfcc_pdc_model, scale = "nfcc_pdc", group = "sex")
+MI_sex_nfcc_ao  <- nfcc_ao_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = nfcc_ao_model,  scale = "nfcc_ao",  group = "sex")
+MI_sex_pe       <- pe_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = pe_model,       scale = "pe",       group = "sex")
+MI_sex_pns      <- pns_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = pns_model,      scale = "pns",      group = "sex")
+MI_sex_rse      <- rse_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = rse_model,      scale = "rse",      group = "sex")
+MI_sex_rwa      <- rwa_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = rwa_model,      scale = "rwa",      group = "sex")
+MI_sex_sdo      <- sdo_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = sdo_model,      scale = "sdo",      group = "sex")
+MI_sex_sm       <- sm_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = sm_model,       scale = "sm",       group = "sex")
+MI_sex_soc_ic   <- soc_ic_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = soc_ic_model,   scale = "soc_ic",   group = "sex")
+MI_sex_soc_pe   <- soc_pe_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = soc_pe_model,   scale = "soc_pe",   group = "sex")
+
+# mi for median age
+MI_age_bfi_e    <- bfi_e_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = bfi_e_model,    scale = "bfi_e",    group = "age")
+MI_age_bfi_c    <- bfi_c_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = bfi_c_model,    scale = "bfi_c",    group = "age")
+MI_age_bfi_n    <- bfi_n_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = bfi_n_model,    scale = "bfi_n",    group = "age")
+MI_age_bfi_a    <- bfi_a_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = bfi_a_model,    scale = "bfi_a",    group = "age")
+MI_age_bfi_o    <- bfi_o_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = bfi_o_model,    scale = "bfi_o",    group = "age")
+MI_age_bidr_im  <- bidr_im_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = bidr_im_model,  scale = "bidr_im",  group = "age")
+MI_age_bidr_sde <- bidr_sde_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = bidr_sde_model, scale = "bidr_sde", group = "age")
+MI_age_bjw      <- bjw_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = bjw_model,      scale = "bjw",      group = "age")
+MI_age_brs      <- brs_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = brs_model,      scale = "brs",      group = "age")
+MI_age_he       <- he_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = he_model,       scale = "he",       group = "age")
+MI_age_icat_o   <- icat_o_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = icat_o_model,   scale = "icat_o",   group = "age")
+MI_age_icat_s   <- icat_s_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = icat_s_model,   scale = "icat_s",   group = "age")
+MI_age_nfc      <- nfc_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = nfc_model,      scale = "nfc",      group = "age")
+MI_age_nfcc_pdc <- nfcc_pdc_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = nfcc_pdc_model, scale = "nfcc_pdc", group = "age")
+MI_age_nfcc_ao  <- nfcc_ao_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = nfcc_ao_model,  scale = "nfcc_ao",  group = "age")
+MI_age_pe       <- pe_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = pe_model,       scale = "pe",       group = "age")
+MI_age_pns      <- pns_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = pns_model,      scale = "pns",      group = "age")
+MI_age_rse      <- rse_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = rse_model,      scale = "rse",      group = "age")
+MI_age_rwa      <- rwa_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = rwa_model,      scale = "rwa",      group = "age")
+MI_age_sdo      <- sdo_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = sdo_model,      scale = "sdo",      group = "age")
+MI_age_sm       <- sm_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = sm_model,       scale = "sm",       group = "age")
+MI_age_soc_ic   <- soc_ic_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = soc_ic_model,   scale = "soc_ic",   group = "age")
+MI_age_soc_pe   <- soc_pe_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = soc_pe_model,   scale = "soc_pe",   group = "age")
+
+# combine
+MI_combined_temp <-
+  rbind(MI_sex_bfi_e, MI_sex_bfi_c, MI_sex_bfi_n, MI_sex_bfi_a, 
+        MI_sex_bfi_o, MI_sex_bidr_im, MI_sex_bidr_sde, MI_sex_bjw, MI_sex_brs,
+        MI_sex_he, MI_sex_icat_o, MI_sex_icat_s, MI_sex_nfc, MI_sex_nfcc_pdc, MI_sex_nfcc_ao,
+        MI_sex_pe, MI_sex_pns, MI_sex_rse, MI_sex_rwa, MI_sex_sdo, MI_sex_sm, MI_sex_soc_ic, MI_sex_soc_pe, 
+        MI_age_bfi_e, MI_age_bfi_c, MI_age_bfi_n, MI_age_bfi_a, 
+        MI_age_bfi_o, MI_age_bidr_im, MI_age_bidr_sde, MI_age_bjw,
+        MI_age_brs, MI_age_he, MI_age_icat_o, MI_age_icat_s, MI_age_nfc, MI_age_nfcc_pdc,
+        MI_age_nfcc_ao, MI_age_pe, MI_age_pns, MI_age_rse, MI_age_rwa, MI_age_sdo,
+        MI_age_sm, MI_age_soc_ic, MI_age_soc_pe) %>%
+  mutate(Scale = dplyr::recode(Scale,
+                               "bfi_e"    = "Big 5 Inventory - E",
+                               "bfi_c"    = "Big 5 Inventory - C",
+                               "bfi_n"    = "Big 5 Inventory - N",
+                               "bfi_a"    = "Big 5 Inventory - A",
+                               "bfi_o"    = "Big 5 Inventory - O",
+                               "bidr_im"  = "Balanced Inventory of Desirable Responding - Impression Management",
+                               "bidr_sde" = "Balanced Inventory of Desirable Responding - Self Deception",
+                               "bjw"      = "Belief in a Just World: General Just World Scale",
+                               "brs"      = "Bayesian Racism",
+                               "he"       = "Humanitarianism-Egalitarianism",
+                               "icat_o"   = "Intuitions about Controllability and Awareness of Thoughts - Others",
+                               "icat_s"   = "Intuitions about Controllability and Awareness of Thoughts - Self",
+                               "nfc"      = "Need for Cognition",
+                               "nfcc_pdc" = "Need for Cognitive Closure - P,D,CM",
+                               "nfcc_ao"  = "Need for Cognitive Closure - O,A",
+                               "pe"       = "Protestant Ethic",
+                               "pns"      = "Personal Need for Structure",
+                               "rse"      = "Rosenberg Self-Esteem",
+                               "rwa"      = "Ring-Wing Authoritarianism",
+                               "sdo"      = "Social Dominance Orientation",
+                               "sm"       = "Self-Monitoring",
+                               "soc_ic"   = "Spheres of Control - Interpersonal Control",
+                               "soc_pe"   = "Spheres of Control - Personal Efficacy"))
+
+# summarize
+MI_temp_1 <- MI_combined_temp %>%
+  filter(MI == 0) %>%
+  mutate(MI_failed = as.character(MI_failed)) %>%
+  group_by(Scale, Group) %>%
+  summarize(MI_failed = list(MI_failed)) %>%  # solution to summarize strings: https://github.com/tidyverse/dplyr/issues/832 nb requirement to convert to character previously
+  ungroup() %>%
+  mutate(MI_failed = str_replace_all(MI_failed, "c\\(", ""),
+         MI_failed = str_replace_all(MI_failed, "\\)", ""),
+         MI_failed = str_replace_all(MI_failed, "\", \"", ", "),
+         MI_failed = str_replace_all(MI_failed, "\"", "")) %>%
+  spread(Group, MI_failed) %>%
+  rename(MI_failed_age = age,
+         MI_failed_gender = sex)
+
+MI_temp_2 <- MI_combined_temp %>%
+  group_by(Scale, Group) %>%
+  summarise(MI = min(MI, na.rm = TRUE)) %>%
+  ungroup() %>%
+  spread(Group, MI) %>%
+  rename(MI_age = age,
+         MI_gender = sex)
+
+MI_combined <- full_join(MI_temp_2, MI_temp_1, by = "Scale")
+
+```
+
+```{r}
+save(MI_combined_temp, file = "../data/analyses/MI_combined_full.RData")
+write_csv(MI_combined_temp, "../data/analyses/MI_combined_full.csv", na = "")
+#load("../data/analyses/MI_combined_full.RData")
+
+save(MI_combined, file = "../data/analyses/MI_combined.RData")
+#load("../data/analyses/MI_combined.RData")
+```
+
+By full scales
+
+```{r}
+
+# mi tests cannot be run on ordinal data when there are variables that have no occurances of some response options. Running mi_auto_via_cutoffs() belwo diagnoses such issues, down to the item and response option that is missing.
+# to recify this, we recode a single response on these items from a proximal response to the missing one. For example, if there are no "1"s in the item "bfi_c3", we recode one "2" to a "1". This has minimal impact on the data given the number of participants and items per scale.
+
+# mi for gender
+MI_sex_bidr <- bidr_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = bidr_model, scale = "bidr", group = "sex")
+
+MI_sex_icat <- icat_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = icat_model, scale = "icat", group = "sex")
+
+MI_sex_nfcc <- nfcc_data %>% dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = nfcc_model, scale = "nfcc", group = "sex")
+
+MI_sex_soc  <- soc_data %>%  dplyr::select(-age) %>%
+  mi_auto_via_cutoffs(data = ., model = soc_model,  scale = "soc",  group = "sex")
+
+# mi for median age
+MI_age_bidr <- bidr_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = bidr_model, scale = "bidr", group = "age")
+
+MI_age_icat <- icat_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = icat_model, scale = "icat", group = "age")
+
+MI_age_nfcc <- nfcc_data %>% dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = nfcc_model, scale = "nfcc", group = "age")
+
+MI_age_soc  <- soc_data %>%  dplyr::select(-sex) %>%
+  mi_auto_via_cutoffs(data = ., model = soc_model,  scale = "soc",  group = "age")
+
+# combine
+MI_combined_temp_2 <-
+  rbind(MI_sex_bidr, MI_sex_icat, MI_sex_nfcc, MI_sex_soc,
+        MI_age_bidr, MI_age_icat, MI_age_nfcc, MI_age_soc) %>%
+  mutate(Scale = dplyr::recode(Scale,
+                               "bidr"  = "Balanced Inventory of Desirable Responding",
+                               "icat"   = "Intuitions about Controllability and Awareness of Thoughts",
+                               "nfcc" = "Need for Cognitive Closure",
+                               "soc"   = "Spheres of Control"))
+
+# summarize
+MI_temp_1 <- MI_combined_temp_2 %>%
+  filter(MI == 0) %>%
+  mutate(MI_failed = as.character(MI_failed)) %>%
+  group_by(Scale, Group) %>%
+  summarize(MI_failed = list(MI_failed)) %>%  # solution to summarize strings: https://github.com/tidyverse/dplyr/issues/832 nb requirement to convert to character previously
+  ungroup() %>%
+  mutate(MI_failed = str_replace_all(MI_failed, "c\\(", ""),
+         MI_failed = str_replace_all(MI_failed, "\\)", ""),
+         MI_failed = str_replace_all(MI_failed, "\", \"", ", "),
+         MI_failed = str_replace_all(MI_failed, "\"", "")) %>%
+  spread(Group, MI_failed) %>%
+  rename(MI_failed_age = age,
+         MI_failed_gender = sex)
+
+MI_temp_2 <- MI_combined_temp_2 %>%
+  group_by(Scale, Group) %>%
+  summarise(MI = min(MI, na.rm = TRUE)) %>%
+  ungroup() %>%
+  spread(Group, MI) %>%
+  rename(MI_age = age,
+         MI_gender = sex)
+
+MI_combined_2 <- full_join(MI_temp_2, MI_temp_1, by = "Scale")
+
+```
+
+```{r}
+save(MI_combined_temp_2, file = "../data/analyses/MI_combined_full_2.RData")
+write_csv(MI_combined_temp_2, "../data/analyses/MI_combined_full_2.csv", na = "")
+#load("../data/analyses/MI_combined_full_2.RData")
+
+save(MI_combined_2, file = "../data/analyses/MI_combined_2.RData")
+#load("../data/analyses/MI_combined_2.RData")
+```
+
+# Combined table of results
+
+```{r}
+
+combined_split_scales <- fit_results %>%
+  left_join(MI_combined,           by = "Scale") %>%
+  left_join(dist_results,          by = "Scale") %>%
+  left_join(consistency_results,   by = "Scale") %>%
+  left_join(dependability_results, by = "Scale") %>%
+  left_join(stability_results,     by = "Scale")
+
+combined_full_scales <- fit_results_2 %>%
+  left_join(MI_combined_2, by = "Scale") %>%
+  left_join(dist_results_2,  by = "Scale") %>%
+  left_join(consistency_results, by = "Scale") %>%
+  dplyr::mutate(`Test-retest dependability n` = NA, 
+                `Test-retest dependability r` = NA, 
+                `dependability r lower` = NA, 
+                `dependability r upper` = NA,
+                `Test-retest stability n` = NA, 
+                `Test-retest stability r` = NA,
+                `stability r lower` = NA, 
+                `stability r upper` = NA)
+
+combined_results <- 
+  # combine split and full scales
+  rbind(combined_split_scales, combined_full_scales) %>%
+  # combine MI varaibles
+  dplyr::mutate(MI_age    = ifelse(MI_age == 1,       "Passed", "Failed"),
+                MI_gender = ifelse(MI_gender == 1,    "Passed", "Failed"),
+                MI        = ifelse(MI_age == "Passed" & MI_gender == "Passed", "Passed", "Failed"),
+                MI_age    = forcats::fct_relevel(as.factor(MI_age),    "Passed", "Failed"),
+                MI_gender = forcats::fct_relevel(as.factor(MI_gender), "Passed", "Failed"),
+                MI        = forcats::fct_relevel(as.factor(MI),        "Passed", "Failed")) %>%
+  # apply cutoffs to reliability metrics
+  dplyr::mutate(alpha_fit = ifelse(alpha >= .7, "*", NA),
+                omega_t_fit = ifelse(omega_t >= .7, "*", NA),
+                omega_h_fit = ifelse(omega_h >= .7, "*", NA),
+                `Dependability fit` = ifelse(`Test-retest dependability r` >= .7, "*", NA),
+                `Stability fit` = ifelse(`Test-retest stability r` >= .7, "*", NA),
+                `Overall scale evaluation` = ifelse(omega_t >= .7 &
+                                                      (`Test-retest dependability r` >= .7 |
+                                                         is.na(`Test-retest dependability r`)) &
+                                                      (`Test-retest stability r` >= .7 |
+                                                         is.na(`Test-retest stability r`)) &
+                                                      (`Model fit` == "Unequivocally good" | 
+                                                         `Model fit` == "Mixed") &
+                                                      MI == "Passed", "Good", "Questionable")) %>%
+  # reorder columns
+  dplyr::select(Scale, n, Factors, Items, 
+                M, SD, Skewness, Kurtosis, 
+                alpha, alpha_fit, alpha_ci_lwr, alpha_ci_upr, 
+                omega_t, omega_t_fit, omega_t_ci_lwr, omega_t_ci_upr, 
+                omega_h, omega_h_fit, omega_h_ci_lwr, omega_h_ci_upr, 
+                `Test-retest dependability n`, `Test-retest dependability r`, `Dependability fit`,
+                `dependability r lower`, `dependability r upper`, 
+                `Test-retest stability n`, `Test-retest stability r`, `Stability fit`,
+                `stability r lower`, `stability r upper`, 
+                chisq, `chisq/df`, df, p, 
+                CFI, `CFI fit`, TLI, `TLI fit`, RMSEA, `RMSEA fit`, lower, upper, 
+                SRMR, `SRMR fit`, `Model fit`, 
+                MI_age, MI_failed_age, MI_gender, MI_failed_gender, MI, `Overall scale evaluation`) %>%
+  # add changes as end column
+  left_join(changes, by = "Scale") %>%
+  # rename
+  dplyr::rename(`Changes from original scale` = Changes,
+                `α` = alpha,
+                `α fit` = alpha_fit,
+                `α lower` = alpha_ci_lwr,
+                `α upper` = alpha_ci_upr,
+                `ω_t` = omega_t,
+                `ω_t fit` = omega_t_fit,
+                `ω_t_lwr` = omega_t_ci_lwr,
+                `ω_t_upr` = omega_t_ci_upr,
+                `ω_h` = omega_h,
+                `ω_h fit` = omega_h_fit,
+                `ω_h_lwr` = omega_h_ci_lwr,
+                `ω_h_upr` = omega_h_ci_upr,
+                `χ^2` = chisq,
+                `χ^2/df` = `chisq/df`,
+                `RMSEA lower` = lower,
+                `RMSEA upper` = upper,
+                `MI median age` = MI_age,
+                `MI median age tests failed` = MI_failed_age,
+                `MI gender` = MI_gender, 
+                `MI gender tests failed` = MI_failed_gender) %>%
+  arrange(Scale)
+
+# write to disk
+save(combined_results, file = "results.Rdata")
+write_csv(combined_results, "results.csv", na = "")
+#load("combined_results.Rdata")
+
+```

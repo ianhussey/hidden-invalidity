@@ -1,0 +1,208 @@
+---
+title: "Format results for publication"
+author: "Ian Hussey"
+output:
+  html_document:
+    code_folding: hide
+    highlight: haddock
+    theme: flatly
+    toc: yes
+    toc_float: yes
+---
+
+```{r, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+
+```
+
+```{r}
+
+# dependencies
+library(tidyverse)
+library(ggalluvial)
+library(patchwork)
+library(knitr)
+library(kableExtra)
+
+# options
+options(knitr.table.format = "html") # necessary configuration of tables
+
+# disable scientific notation
+options(scipen = 999) 
+
+# get data
+load("results.RData")
+
+```
+
+# Summary table
+
+```{r}
+
+summaries_temp <- summary_table_quantitative %>%
+  filter(str_detect(Scale, "Summary")) %>%
+  select(-`N passed tests`, -Type)
+
+summary_table_descriptive <- combined_results %>%
+  mutate(`Internal consistency` = ifelse(ω_t >= 0.7, "Good", "Poor"),
+         `Test-retest reliability` = ifelse(`Test-retest dependability r` >= 0.7 & 
+                                            `Test-retest stability r` >= 0.7, "Good", "Poor"),
+         `Factor structure` = ifelse(`Model fit` == "Unequivocally good", "Good", as.character(`Model fit`)),
+         `Measurement invariance` = ifelse(MI == "Passed", "Good", 
+                                           ifelse(MI == "Failed", "Poor", NA))) %>%
+  select(Scale, `Internal consistency`, `Test-retest reliability`, `Factor structure`,
+         `Measurement invariance`, `Overall scale evaluation`) %>%
+  rbind(summaries_temp)
+
+# write to disk
+write_csv(summary_table_descriptive, "summary_table.csv", na = "-")
+
+# print
+summary_table_descriptive %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE)
+
+```
+
+# Alluvial plots
+
+```{r}
+
+# subset
+alluvial_full_scale_data <- summary_table_quantitative %>%
+  filter(Type == "Full" & !str_detect(Scale, "Summary")) %>%
+  select(`Internal consistency`, `Test-retest reliability`, 
+         `Factor structure`, `Measurement invariance`) %>%
+  dplyr::count(`Internal consistency`, 
+               `Test-retest reliability`, 
+               `Factor structure`, 
+               `Measurement invariance`) %>%
+  rownames_to_column() %>%
+  tidyr::gather(key = "metric", 
+                value = "validity", 
+                c("Internal consistency", 
+                  "Test-retest reliability", 
+                  "Factor structure", 
+                  "Measurement invariance")) %>%
+  mutate(validity = ifelse(is.na(validity), 2, validity),
+         validity = dplyr::recode(validity, 
+                                  `0` = "Fail",
+                                  `1` = "Pass",
+                                  `2` = "NA"),
+         validity = forcats::fct_relevel(as.factor(validity),
+                                         "Fail", "NA", "Pass"),
+         metric = dplyr::recode(as.character(metric), 
+                                "Internal consistency" = "Internal\nconsistency", 
+                                "Test-retest reliability" = "Test-retest\nreliability", 
+                                "Factor structure" = "Factor\nstructure", 
+                                "Measurement invariance" = "Measurement\ninvariance"),
+         metric = forcats::fct_relevel(as.factor(metric),
+                                       "Internal\nconsistency", 
+                                       "Test-retest\nreliability", 
+                                       "Factor\nstructure", 
+                                       "Measurement\ninvariance"))
+
+# alluvial plot with flow
+p1 <- ggplot(alluvial_full_scale_data,
+       aes(x = metric, 
+           stratum = validity, 
+           alluvium = rowname,
+           weight = n,
+           fill = validity, 
+           label = validity)) +
+  geom_flow(alpha = .5) +
+  geom_stratum(alpha = .8) +
+  theme_classic() +
+  geom_text(stat = "stratum", size = 3) + # , angle = 90
+  theme(legend.position = "none") +
+  ylab("Count") +
+  xlab("") +
+  scale_fill_viridis_d(option = "viridis", direction = -1, begin = 0.2, end = 1) +
+  ggtitle("Full scales")
+
+```
+
+```{r}
+
+# subset
+alluvial_split_scale_data <- summary_table_quantitative %>%
+  filter(Type == "Split" & !str_detect(Scale, "Summary")) %>%
+  select(`Internal consistency`, `Test-retest reliability`, 
+         `Factor structure`, `Measurement invariance`) %>%
+  dplyr::count(`Internal consistency`, 
+               `Test-retest reliability`, 
+               `Factor structure`, 
+               `Measurement invariance`) %>%
+  rownames_to_column() %>%
+  tidyr::gather(key = "metric", 
+                value = "validity", 
+                c("Internal consistency", 
+                  "Test-retest reliability", 
+                  "Factor structure", 
+                  "Measurement invariance")) %>%
+  mutate(validity = ifelse(is.na(validity), 2, validity),
+         validity = dplyr::recode(validity, 
+                                  `0` = "Fail",
+                                  `1` = "Pass",
+                                  `2` = "NA"),
+         validity = forcats::fct_relevel(as.factor(validity),
+                                         "Fail", "NA", "Pass"),
+         metric = dplyr::recode(as.character(metric), 
+                                "Internal consistency" = "Internal\nconsistency", 
+                                "Test-retest reliability" = "Test-retest\nreliability", 
+                                "Factor structure" = "Factor\nstructure", 
+                                "Measurement invariance" = "Measurement\ninvariance"),
+         metric = forcats::fct_relevel(as.factor(metric),
+                                       "Internal\nconsistency", 
+                                       "Test-retest\nreliability", 
+                                       "Factor\nstructure", 
+                                       "Measurement\ninvariance"))
+
+# alluvial plot with flow
+p2 <- ggplot(alluvial_split_scale_data,
+       aes(x = metric, 
+           stratum = validity, 
+           alluvium = rowname,
+           weight = n,
+           fill = validity, 
+           label = validity)) +
+  geom_flow(alpha = .5) +
+  geom_stratum(alpha = .8) +
+  theme_classic() +
+  geom_text(stat = "stratum", size = 3) + # , angle = 90
+  theme(legend.position = "none") +
+  ylab("Count") +
+  xlab("Structural validity metric") +
+  scale_fill_viridis_d(option = "viridis", direction = -1, begin = 0.2, end = 1) +
+  ggtitle("Split scales")
+
+```
+
+```{r fig.height=8, fig.width=7}
+
+p_combined <- p1 + p2 + plot_layout(ncol = 1)
+p_combined
+
+```
+
+# Supplementary materials
+
+```{r}
+
+mi_results <- rbind(read.csv("../data/analyses/MI_combined_full.csv"),
+                    read.csv("../data/analyses/MI_combined_full_2.csv")) %>%
+  mutate(Scale = as.character(Scale),
+         model = as.character(model),
+         model = dplyr::recode(model, "config" = 1, "weak" = 2, "strong" = 3)) %>%
+  arrange(Scale, Group, model) %>%
+  select(Scale, Group, model, RMSEA, CFI, TLI, SRMR, delta_RMSEA, delta_CFI, MI, MI_failed) %>%
+  mutate(model = dplyr::recode(model, "1" = "configural", "2" = "metric", "3" = "scalar"),
+         MI_failed = dplyr::recode(MI_failed, "config" = "configural", "weak" = "metric", "strong" = "scalar"))
+
+write_csv(mi_results, "measurement_invariance_full_results.csv")
+
+```
+
