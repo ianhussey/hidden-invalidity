@@ -21,12 +21,12 @@ Include only participants with complete individual differences data, fluent engl
 library(tidyverse)
 
 # get data
-#load("~/git/Attitudes-2.0/data/processed/attitudes_2.0_data.RData")
-load("~/git/Attitudes-2.0/data/subsets/attitudes_2.0_subset_exploratory.RData")
+load("~/git/AIID-study/data/processed/AIID_data.RData")
+#load("~/git/AIID-study/data/subsets/AIID_subset_exploratory.RData")
 
 # trim data 
-#trimmed_data <- attitudes_2.0_data %>%
-trimmed_data <- attitudes_2.0_subset_exploratory %>%
+trimmed_data <- AIID_data %>%
+#trimmed_data <- AIID_subset_exploratory %>%
 
   # only complete data
   filter(complete_individual_differences_data == TRUE) %>%
