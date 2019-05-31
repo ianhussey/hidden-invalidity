@@ -1,0 +1,109 @@
+test,df.scaled,cfi.scaled,tli.scaled,rmsea.scaled,srmr,MI_delta,Scale,group
+fit_metric - fit_configural,7,0.042,0.078,-0.03,0.002,Passed,Big 5 Inventory - E,sex
+fit_scalar - fit_scalar,7,-0.007,0.007,-0.003,0.001,Passed,Big 5 Inventory - E,sex
+fit_metric - fit_configural,8,0.031,0.055,-0.018,0.002,Passed,Big 5 Inventory - C,sex
+fit_scalar - fit_scalar,8,-0.005,0.006,-0.002,0.001,Passed,Big 5 Inventory - C,sex
+fit_metric - fit_configural,7,0.032,0.061,-0.022,0.001,Passed,Big 5 Inventory - N,sex
+fit_scalar - fit_scalar,7,-0.011,0.001,-0.001,0.003,Passed,Big 5 Inventory - N,sex
+fit_metric - fit_configural,8,0.023,0.046,-0.014,0.001,Passed,Big 5 Inventory - A,sex
+fit_scalar - fit_scalar,8,-0.014,-0.003,0.001,0.003,Passed,Big 5 Inventory - A,sex
+fit_metric - fit_configural,9,0.035,0.065,-0.014,0.002,Passed,Big 5 Inventory - O,sex
+fit_scalar - fit_scalar,9,-0.043,-0.028,0.006,0.006,Failed,Big 5 Inventory - O,sex
+fit_metric - fit_configural,17,0.017,0.026,-0.005,0.001,Passed,Balanced Inventory of Desirable Responding - Impression Management,sex
+fit_scalar - fit_scalar,17,-0.032,-0.026,0.005,0.005,Failed,Balanced Inventory of Desirable Responding - Impression Management,sex
+fit_metric - fit_configural,17,0.031,0.054,-0.006,0.001,Passed,Balanced Inventory of Desirable Responding - Self Deception,sex
+fit_scalar - fit_scalar,17,-0.03,-0.014,0.001,0.002,Failed,Balanced Inventory of Desirable Responding - Self Deception,sex
+fit_metric - fit_configural,5,0.009,0.026,-0.015,0,Passed,Belief in a Just World: General Just World Scale,sex
+fit_scalar - fit_scalar,5,-0.014,-0.007,0.005,0.005,Passed,Belief in a Just World: General Just World Scale,sex
+fit_metric - fit_configural,15,0.006,0.016,-0.004,0.006,Passed,Bayesian Racism,sex
+fit_scalar - fit_scalar,15,-0.018,-0.011,0.003,0.003,Failed,Bayesian Racism,sex
+fit_metric - fit_configural,9,0.046,0.077,-0.014,0.003,Passed,Humanitarianism-Egalitarianism,sex
+fit_scalar - fit_scalar,9,-0.019,-0.006,0.001,0.002,Failed,Humanitarianism-Egalitarianism,sex
+fit_metric - fit_configural,8,0.05,0.101,-0.018,0,Passed,Intuitions about Controllability and Awareness of Thoughts - Others,sex
+fit_scalar - fit_scalar,8,-0.015,0.012,-0.002,0.002,Passed,Intuitions about Controllability and Awareness of Thoughts - Others,sex
+fit_metric - fit_configural,8,0.037,0.08,-0.018,0,Passed,Intuitions about Controllability and Awareness of Thoughts - Self,sex
+fit_scalar - fit_scalar,8,-0.006,0.017,-0.004,0.001,Passed,Intuitions about Controllability and Awareness of Thoughts - Self,sex
+fit_metric - fit_configural,17,0.025,0.034,-0.009,0.002,Passed,Need for Cognition,sex
+fit_scalar - fit_scalar,17,-0.008,-0.004,0.001,0.002,Passed,Need for Cognition,sex
+fit_metric - fit_configural,20,0.01,0.021,-0.003,0,Passed,"Need for Cognitive Closure - P,D,CM",sex
+fit_scalar - fit_scalar,20,-0.01,-0.001,0,0.001,Passed,"Need for Cognitive Closure - P,D,CM",sex
+fit_metric - fit_configural,13,0.019,0.031,-0.007,0,Passed,"Need for Cognitive Closure - O,A",sex
+fit_scalar - fit_scalar,13,-0.018,-0.012,0.003,0.003,Failed,"Need for Cognitive Closure - O,A",sex
+fit_metric - fit_configural,10,0.031,0.055,-0.013,0.001,Passed,Protestant Ethic,sex
+fit_scalar - fit_scalar,10,-0.008,0.005,-0.001,0.001,Passed,Protestant Ethic,sex
+fit_metric - fit_configural,11,0.042,0.063,-0.018,0.002,Passed,Personal Need for Structure,sex
+fit_scalar - fit_scalar,11,-0.005,0.005,-0.002,0.001,Passed,Personal Need for Structure,sex
+fit_metric - fit_configural,9,0.1,0.142,-0.037,0.002,Passed,Rosenberg Self-Esteem,sex
+fit_scalar - fit_scalar,9,-0.006,0.005,-0.002,0.001,Passed,Rosenberg Self-Esteem,sex
+fit_metric - fit_configural,19,0.082,0.099,-0.023,0.002,Passed,Ring-Wing Authoritarianism,sex
+fit_scalar - fit_scalar,19,-0.007,0,-0,0.002,Passed,Ring-Wing Authoritarianism,sex
+fit_metric - fit_configural,11,0.044,0.07,-0.015,0,Passed,Social Dominance Orientation,sex
+fit_scalar - fit_scalar,11,-0.006,0.007,-0.002,0.001,Passed,Social Dominance Orientation,sex
+fit_metric - fit_configural,17,0.059,0.099,-0.01,0.001,Passed,Self-Monitoring,sex
+fit_scalar - fit_scalar,17,-0.024,0.003,-0,0.002,Failed,Self-Monitoring,sex
+fit_metric - fit_configural,8,0.025,0.048,-0.014,0,Passed,Spheres of Control - Interpersonal Control,sex
+fit_scalar - fit_scalar,8,-0.012,-0.001,0,0.002,Passed,Spheres of Control - Interpersonal Control,sex
+fit_metric - fit_configural,9,0.028,0.073,-0.009,0.001,Passed,Spheres of Control - Personal Efficacy,sex
+fit_scalar - fit_scalar,9,-0.08,-0.053,0.007,0.007,Failed,Spheres of Control - Personal Efficacy,sex
+fit_metric - fit_configural,34,0.024,0.028,-0.003,0.003,Passed,bidr,sex
+fit_scalar - fit_scalar,34,-0.02,-0.017,0.002,0.002,Failed,bidr,sex
+fit_metric - fit_configural,16,0.056,0.074,-0.013,0.002,Passed,icat,sex
+fit_scalar - fit_scalar,16,0.002,0.01,-0.002,0,Passed,icat,sex
+fit_metric - fit_configural,33,0.025,0.031,-0.003,0.002,Passed,nfcc,sex
+fit_scalar - fit_scalar,33,-0.001,0.003,-0,0.001,Passed,nfcc,sex
+fit_metric - fit_configural,17,0.022,0.034,-0.005,0.004,Passed,soc,sex
+fit_scalar - fit_scalar,17,-0.008,-0,0,0.002,Passed,soc,sex
+fit_metric - fit_configural,7,0.045,0.081,-0.032,0.001,Passed,Big 5 Inventory - E,age
+fit_scalar - fit_scalar,7,-0.013,-0.001,0,0.003,Passed,Big 5 Inventory - E,age
+fit_metric - fit_configural,8,0.029,0.054,-0.017,0.001,Passed,Big 5 Inventory - C,age
+fit_scalar - fit_scalar,8,-0.013,-0.003,0.001,0.003,Passed,Big 5 Inventory - C,age
+fit_metric - fit_configural,7,0.026,0.054,-0.02,0.002,Passed,Big 5 Inventory - N,age
+fit_scalar - fit_scalar,7,-0.022,-0.01,0.004,0.005,Failed,Big 5 Inventory - N,age
+fit_metric - fit_configural,8,0.02,0.044,-0.013,0.001,Passed,Big 5 Inventory - A,age
+fit_scalar - fit_scalar,8,-0.013,-0,0,0.002,Passed,Big 5 Inventory - A,age
+fit_metric - fit_configural,9,0.036,0.068,-0.014,0.001,Passed,Big 5 Inventory - O,age
+fit_scalar - fit_scalar,9,-0.041,-0.024,0.005,0.006,Failed,Big 5 Inventory - O,age
+fit_metric - fit_configural,17,0.015,0.024,-0.005,0.001,Passed,Balanced Inventory of Desirable Responding - Impression Management,age
+fit_scalar - fit_scalar,17,-0.027,-0.021,0.004,0.004,Failed,Balanced Inventory of Desirable Responding - Impression Management,age
+fit_metric - fit_configural,17,0.032,0.054,-0.006,0,Passed,Balanced Inventory of Desirable Responding - Self Deception,age
+fit_scalar - fit_scalar,17,-0.035,-0.019,0.002,0.003,Failed,Balanced Inventory of Desirable Responding - Self Deception,age
+fit_metric - fit_configural,5,0.003,0.017,-0.01,0.002,Passed,Belief in a Just World: General Just World Scale,age
+fit_scalar - fit_scalar,5,-0.039,-0.034,0.018,0.012,Failed,Belief in a Just World: General Just World Scale,age
+fit_metric - fit_configural,15,0.027,0.039,-0.009,0.002,Passed,Bayesian Racism,age
+fit_scalar - fit_scalar,15,-0.009,-0.002,0.001,0.002,Passed,Bayesian Racism,age
+fit_metric - fit_configural,9,0.043,0.072,-0.014,0.003,Passed,Humanitarianism-Egalitarianism,age
+fit_scalar - fit_scalar,9,-0.042,-0.03,0.006,0.005,Failed,Humanitarianism-Egalitarianism,age
+fit_metric - fit_configural,8,0.035,0.084,-0.014,0.002,Passed,Intuitions about Controllability and Awareness of Thoughts - Others,age
+fit_scalar - fit_scalar,8,-0.018,0.01,-0.002,0.002,Failed,Intuitions about Controllability and Awareness of Thoughts - Others,age
+fit_metric - fit_configural,8,0.033,0.074,-0.017,0.001,Passed,Intuitions about Controllability and Awareness of Thoughts - Self,age
+fit_scalar - fit_scalar,8,-0.027,-0.005,0.001,0.004,Failed,Intuitions about Controllability and Awareness of Thoughts - Self,age
+fit_metric - fit_configural,17,0.021,0.029,-0.008,0.003,Passed,Need for Cognition,age
+fit_scalar - fit_scalar,17,-0.012,-0.007,0.002,0.002,Passed,Need for Cognition,age
+fit_metric - fit_configural,20,0.008,0.019,-0.003,0,Passed,"Need for Cognitive Closure - P,D,CM",age
+fit_scalar - fit_scalar,20,-0.018,-0.01,0.001,0.002,Failed,"Need for Cognitive Closure - P,D,CM",age
+fit_metric - fit_configural,13,0.017,0.028,-0.007,0.001,Passed,"Need for Cognitive Closure - O,A",age
+fit_scalar - fit_scalar,13,-0.018,-0.012,0.003,0.003,Failed,"Need for Cognitive Closure - O,A",age
+fit_metric - fit_configural,10,0.032,0.056,-0.013,0.001,Passed,Protestant Ethic,age
+fit_scalar - fit_scalar,10,-0.016,-0.003,0.001,0.002,Failed,Protestant Ethic,age
+fit_metric - fit_configural,11,0.04,0.061,-0.017,0.003,Passed,Personal Need for Structure,age
+fit_scalar - fit_scalar,11,-0.015,-0.005,0.002,0.003,Passed,Personal Need for Structure,age
+fit_metric - fit_configural,9,0.084,0.124,-0.031,0.006,Passed,Rosenberg Self-Esteem,age
+fit_scalar - fit_scalar,9,-0.012,0.001,-0,0.002,Passed,Rosenberg Self-Esteem,age
+fit_metric - fit_configural,19,0.073,0.09,-0.02,0.002,Passed,Ring-Wing Authoritarianism,age
+fit_scalar - fit_scalar,19,-0.012,-0.005,0.001,0.003,Passed,Ring-Wing Authoritarianism,age
+fit_metric - fit_configural,11,0.035,0.059,-0.013,0.001,Passed,Social Dominance Orientation,age
+fit_scalar - fit_scalar,11,-0.023,-0.01,0.002,0.004,Failed,Social Dominance Orientation,age
+fit_metric - fit_configural,17,0.054,0.093,-0.009,0.001,Passed,Self-Monitoring,age
+fit_scalar - fit_scalar,17,-0.014,0.014,-0.001,0.001,Passed,Self-Monitoring,age
+fit_metric - fit_configural,8,0.023,0.046,-0.013,0.001,Passed,Spheres of Control - Interpersonal Control,age
+fit_scalar - fit_scalar,8,-0.009,0.002,-0.001,0.002,Passed,Spheres of Control - Interpersonal Control,age
+fit_metric - fit_configural,9,0.025,0.071,-0.009,0.001,Passed,Spheres of Control - Personal Efficacy,age
+fit_scalar - fit_scalar,9,-0.023,0.007,-0.001,0.002,Failed,Spheres of Control - Personal Efficacy,age
+fit_metric - fit_configural,34,0.011,0.016,-0.002,0.004,Passed,bidr,age
+fit_scalar - fit_scalar,34,-0.017,-0.013,0.001,0.002,Failed,bidr,age
+fit_metric - fit_configural,16,0.028,0.042,-0.008,0.007,Passed,icat,age
+fit_scalar - fit_scalar,16,-0.009,-0,0,0.002,Passed,icat,age
+fit_metric - fit_configural,33,0.018,0.025,-0.003,0.003,Passed,nfcc,age
+fit_scalar - fit_scalar,33,-0.004,0,-0,0.001,Passed,nfcc,age
+fit_metric - fit_configural,17,-0.002,0.007,-0.001,0.006,Passed,soc,age
+fit_scalar - fit_scalar,17,-0.002,0.006,-0.001,0.001,Passed,soc,age
