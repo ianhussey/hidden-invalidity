@@ -503,7 +503,7 @@ soc_model <- "IC =~ soc_ic1 + soc_ic2 + soc_ic3 + soc_ic4 + soc_ic5 + soc_ic6 + 
 
 ```
 
-# CFA
+# Effect size for CFA fit
 
 ```{r}
 
@@ -820,9 +820,7 @@ latent_observed_soc <- soc_data %>%
 
 ```
 
-## Effect size for CFA fit
-
-I.e., Correlations between latent and observed scores, and misclassification rate between them
+## Correlations between latent and observed scores, and misclassification rate between them
 
 Cut points for classifications are of course arbitrary and hard to know what researchers might use. For illustration, we use the mean of the scale (i.e., 0 on the scaled and centered variable) to show the rate of incongruent conclusions when using the observed sum score vs. the latent mean for decision making.
 
@@ -1011,7 +1009,7 @@ latent_observed_correlation_results <-
   mutate(percent_misclassification = round(percent_misclassification, 1))
 
 # write to disk
-write_csv(latent_observed_correlation_results, "results/latent_observed_correlations.csv")
+write_csv(latent_observed_correlation_results, "results/supplementary_results_effect_sizes_cfa_fits.csv")
 
 latent_observed_correlation_results %>%
   kable() %>%
@@ -1019,7 +1017,7 @@ latent_observed_correlation_results %>%
 
 ```
 
-# Measurement invariance
+# Effect size for measurement invariance
 
 ```{r}
 
@@ -1337,11 +1335,7 @@ constrained_latent_observed_soc <- soc_data %>%
 
 ```
 
-## Effect size for measurement invariance
-
-THESE SHOULD BE FIT TO THE FULLY CONSTRAINED MI MODELS
-
-Between-group differences on the latent vs. the observed scales.
+## Between-group differences on the latent vs. the observed scales.
 
 ```{r}
   
@@ -1811,7 +1805,7 @@ group_differences_results <-
   arrange(Scale)
 
 # write to disk
-write_csv(group_differences_results, "results/group_differences_on_latent_vs_observed.csv")
+write_csv(group_differences_results, "results/supplementary_results_effect_sizes_measurement_invariance.csv")
 
 # summarize
 summary <- group_differences_results %>%
