@@ -1,5 +1,5 @@
 ---
-title: "Assessing the psychometric properties of 15 scales from social and personality psychology in a large internet sample"
+title: "Hidden invalidity among fifteen commonly used measures in social and personality psychology"
 subtitle: "Supplementary materials"
 author: "Ian Hussey^[Ghent University. Email: ian.hussey@ugent.be]"
 date: "`r format(Sys.time(), '%d %B %Y')`"
@@ -820,15 +820,15 @@ latent_observed_soc <- soc_data %>%
 
 ```
 
-# Latent observed correlations and misclassifications
+## Effect size for CFA fit
 
-Impact of measurement model on sum scores (i.e., effect sizes for cfa fit).
+I.e., Correlations between latent and observed scores, and misclassification rate between them
 
 Cut points for classifications are of course arbitrary and hard to know what researchers might use. For illustration, we use the mean of the scale (i.e., 0 on the scaled and centered variable) to show the rate of incongruent conclusions when using the observed sum score vs. the latent mean for decision making.
 
 ```{r}
 
-misclassification_rate <- function(data) {
+percent_misclassification <- function(data) {
   data %>%
     mutate(latent_std = as.numeric(scale(latent)),
            observed_std = as.numeric(scale(observed)),
@@ -952,477 +952,833 @@ latent_observed_correlation_results <-
                           cor.test(latent_observed_sm$latent, latent_observed_sm$observed)$conf.int[2],
                           cor.test(latent_observed_soc_ic$latent, latent_observed_soc_ic$observed)$conf.int[2],
                           cor.test(latent_observed_soc_pe$latent, latent_observed_soc_pe$observed)$conf.int[2]),
-             misclassification_rate = c(misclassification_rate(latent_observed_bfi_a),
-                                        misclassification_rate(latent_observed_bfi_c),
-                                        misclassification_rate(latent_observed_bfi_e),
-                                        misclassification_rate(latent_observed_bfi_n),
-                                        misclassification_rate(latent_observed_bfi_o),
-                                        misclassification_rate(latent_observed_bidr_im),
-                                        misclassification_rate(latent_observed_bidr_sde),
-                                        misclassification_rate(latent_observed_bjw),
-                                        misclassification_rate(latent_observed_brs),
-                                        misclassification_rate(latent_observed_he),
-                                        misclassification_rate(latent_observed_icat_o),
-                                        misclassification_rate(latent_observed_icat_s),
-                                        misclassification_rate(latent_observed_nfc),
-                                        misclassification_rate(latent_observed_nfcc_p_temp),
-                                        misclassification_rate(latent_observed_nfcc_d_temp),
-                                        misclassification_rate(latent_observed_nfcc_c_temp),
-                                        misclassification_rate(latent_observed_nfcc_a_temp),
-                                        misclassification_rate(latent_observed_nfcc_o_temp),
-                                        misclassification_rate(latent_observed_pe),
-                                        misclassification_rate(latent_observed_pns),
-                                        misclassification_rate(latent_observed_rse),
-                                        misclassification_rate(latent_observed_rwa),
-                                        misclassification_rate(latent_observed_sdo),
-                                        misclassification_rate(latent_observed_sm),
-                                        misclassification_rate(latent_observed_soc_ic),
-                                        misclassification_rate(latent_observed_soc_pe))) %>%
-  round_df(3)
+             percent_misclassification = c(percent_misclassification(latent_observed_bfi_a),
+                                        percent_misclassification(latent_observed_bfi_c),
+                                        percent_misclassification(latent_observed_bfi_e),
+                                        percent_misclassification(latent_observed_bfi_n),
+                                        percent_misclassification(latent_observed_bfi_o),
+                                        percent_misclassification(latent_observed_bidr_im),
+                                        percent_misclassification(latent_observed_bidr_sde),
+                                        percent_misclassification(latent_observed_bjw),
+                                        percent_misclassification(latent_observed_brs),
+                                        percent_misclassification(latent_observed_he),
+                                        percent_misclassification(latent_observed_icat_o),
+                                        percent_misclassification(latent_observed_icat_s),
+                                        percent_misclassification(latent_observed_nfc),
+                                        percent_misclassification(latent_observed_nfcc_p_temp),
+                                        percent_misclassification(latent_observed_nfcc_d_temp),
+                                        percent_misclassification(latent_observed_nfcc_c_temp),
+                                        percent_misclassification(latent_observed_nfcc_a_temp),
+                                        percent_misclassification(latent_observed_nfcc_o_temp),
+                                        percent_misclassification(latent_observed_pe),
+                                        percent_misclassification(latent_observed_pns),
+                                        percent_misclassification(latent_observed_rse),
+                                        percent_misclassification(latent_observed_rwa),
+                                        percent_misclassification(latent_observed_sdo),
+                                        percent_misclassification(latent_observed_sm),
+                                        percent_misclassification(latent_observed_soc_ic),
+                                        percent_misclassification(latent_observed_soc_pe))) %>%
+  round_df(3) %>%
+  mutate(Scale = dplyr::recode(scale_name,
+                               "bfi_e"    = "Big 5 Inventory - E",
+                               "bfi_c"    = "Big 5 Inventory - C",
+                               "bfi_n"    = "Big 5 Inventory - N",
+                               "bfi_a"    = "Big 5 Inventory - A",
+                               "bfi_o"    = "Big 5 Inventory - O",
+                               "bidr_im"  = "Balanced Inventory of Desirable Responding - Impression Management",
+                               "bidr_sde" = "Balanced Inventory of Desirable Responding - Self Deception",
+                               "bjw"      = "Belief in a Just World: General Just World Scale",
+                               "brs"      = "Bayesian Racism",
+                               "he"       = "Humanitarianism-Egalitarianism",
+                               "icat_o"   = "Intuitions about Controllability and Awareness of Thoughts - Others",
+                               "icat_s"   = "Intuitions about Controllability and Awareness of Thoughts - Self",
+                               "nfc"      = "Need for Cognition",
+                               "nfcc_p" = "Need for Cognitive Closure - P",
+                               "nfcc_d" = "Need for Cognitive Closure - D",
+                               "nfcc_c" = "Need for Cognitive Closure - CM",
+                               "nfcc_a"  = "Need for Cognitive Closure - A",
+                               "nfcc_o"  = "Need for Cognitive Closure - O",
+                               "pe"       = "Protestant Ethic",
+                               "pns"      = "Personal Need for Structure",
+                               "rse"      = "Rosenberg Self-Esteem",
+                               "rwa"      = "Ring-Wing Authoritarianism",
+                               "sdo"      = "Social Dominance Orientation",
+                               "sm"       = "Self-Monitoring",
+                               "soc_ic"   = "Spheres of Control - Interpersonal Control",
+                               "soc_pe"   = "Spheres of Control - Personal Efficacy")) %>%
+  arrange(Scale) %>%
+  select(Scale, r, r_ci_lwr, r_ci_upr, percent_misclassification) %>%
+  mutate(percent_misclassification = round(percent_misclassification, 1))
 
 # write to disk
-write_csv(latent_observed_correlation_results, "latent_observed_correlation_results.csv")
+write_csv(latent_observed_correlation_results, "results/latent_observed_correlations.csv")
+
+latent_observed_correlation_results %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE)
 
 ```
 
-# Group differences
+# Measurement invariance
 
-impact of measurement model on mean group differences (ie effect sizes for MI)
+```{r}
+
+## fit a CFA and return its model fit statistics
+constrained_cfa_fit <- function(data, model) {
+  require(lavaan)
+  require(tidyverse)
+  
+  # fit cfa
+  cfa_data <- data %>%
+    dplyr::select(-sex, -age)
+  
+  # sem model
+  fit <- cfa(model, 
+             data = cfa_data, 
+             order = c("1", "2", "3", "4", "5", "6"),
+             estimator = "WLSMV",
+             group.equal = c("loadings", "intercepts")) 
+  
+  return(fit)
+}
+
+```
+
+## By split scales
+
+```{r}
+
+# fit models
+bfi_e_fit_constrained    <- constrained_cfa_fit(data = bfi_e_data,    model = bfi_e_model)
+bfi_c_fit_constrained    <- constrained_cfa_fit(data = bfi_c_data,    model = bfi_c_model)
+bfi_n_fit_constrained    <- constrained_cfa_fit(data = bfi_n_data,    model = bfi_n_model)
+bfi_a_fit_constrained    <- constrained_cfa_fit(data = bfi_a_data,    model = bfi_a_model)
+bfi_o_fit_constrained    <- constrained_cfa_fit(data = bfi_o_data,    model = bfi_o_model)
+bidr_im_fit_constrained  <- constrained_cfa_fit(data = bidr_im_data,  model = bidr_im_model)
+bidr_sde_fit_constrained <- constrained_cfa_fit(data = bidr_sde_data, model = bidr_sde_model)
+bjw_fit_constrained      <- constrained_cfa_fit(data = bjw_data,      model = bjw_model)
+brs_fit_constrained      <- constrained_cfa_fit(data = brs_data,      model = brs_model)
+he_fit_constrained       <- constrained_cfa_fit(data = he_data,       model = he_model)
+icat_o_fit_constrained   <- constrained_cfa_fit(data = icat_o_data,   model = icat_o_model)
+icat_s_fit_constrained   <- constrained_cfa_fit(data = icat_s_data,   model = icat_s_model)
+nfc_fit_constrained      <- constrained_cfa_fit(data = nfc_data,      model = nfc_model)
+nfcc_pdc_fit_constrained <- constrained_cfa_fit(data = nfcc_pdc_data, model = nfcc_pdc_model)
+nfcc_ao_fit_constrained  <- constrained_cfa_fit(data = nfcc_ao_data,  model = nfcc_ao_model)
+pe_fit_constrained       <- constrained_cfa_fit(data = pe_data,       model = pe_model)
+pns_fit_constrained      <- constrained_cfa_fit(data = pns_data,      model = pns_model)
+rse_fit_constrained      <- constrained_cfa_fit(data = rse_data,      model = rse_model)
+rwa_fit_constrained      <- constrained_cfa_fit(data = rwa_data,      model = rwa_model)
+sdo_fit_constrained      <- constrained_cfa_fit(data = sdo_data,      model = sdo_model)
+sm_fit_constrained       <- constrained_cfa_fit(data = sm_data,       model = sm_model)
+soc_ic_fit_constrained   <- constrained_cfa_fit(data = soc_ic_data,   model = soc_ic_model)
+soc_pe_fit_constrained   <- constrained_cfa_fit(data = soc_pe_data,   model = soc_pe_model)
+
+
+# calculate latent and observed sum scores
+constrained_latent_observed_bfi_e <- bfi_e_data %>%
+  mutate(latent = as.data.frame(lavPredict(bfi_e_fit_constrained))$E) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(bfi_e1, bfi_e2, bfi_e3, bfi_e4, bfi_e5, bfi_e6, bfi_e7, bfi_e8))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_bfi_c <- bfi_c_data %>%
+  mutate(latent = as.data.frame(lavPredict(bfi_c_fit_constrained))$C) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(bfi_c1, bfi_c2, bfi_c3, bfi_c4, bfi_c5, bfi_c6, bfi_c7, bfi_c8, bfi_c9))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_bfi_n <- bfi_n_data %>%
+  mutate(latent = as.data.frame(lavPredict(bfi_n_fit_constrained))$N) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(bfi_n1, bfi_n2, bfi_n3, bfi_n4, bfi_n5, bfi_n6, bfi_n7, bfi_n8))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_bfi_a <- bfi_a_data %>%
+  mutate(latent = as.data.frame(lavPredict(bfi_a_fit_constrained))$A) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(bfi_a1, bfi_a2, bfi_a3, bfi_a4, bfi_a5, bfi_a6, bfi_a7, bfi_a8, bfi_a9))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_bfi_o <- bfi_o_data %>%
+  mutate(latent = as.data.frame(lavPredict(bfi_o_fit_constrained))$O) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(bfi_o1, bfi_o2, bfi_o3, bfi_o4, bfi_o5, bfi_o6, bfi_o7, bfi_o8, bfi_o9, bfi_o10))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_bidr_im <- bidr_im_data %>%
+  mutate(latent = as.data.frame(lavPredict(bidr_im_fit_constrained))$IM) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(bidr_im1, bidr_im2, bidr_im3, bidr_im4, bidr_im5, bidr_im6, bidr_im7, bidr_im8, bidr_im9, bidr_im10, bidr_im11, bidr_im12, bidr_im13, bidr_im14, bidr_im15, bidr_im16, bidr_im17, bidr_im18))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_bidr_sde <- bidr_sde_data %>%
+  mutate(latent = as.data.frame(lavPredict(bidr_sde_fit_constrained))$SDE) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(bidr_sde1, bidr_sde2, bidr_sde3, bidr_sde4, bidr_sde5, bidr_sde6, bidr_sde7, bidr_sde8, bidr_sde9, bidr_sde10, bidr_sde11, bidr_sde12, bidr_sde13, bidr_sde14, bidr_sde15, bidr_sde16, bidr_sde17, bidr_sde18))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_bjw <- bjw_data %>%
+  mutate(latent = as.data.frame(lavPredict(bjw_fit_constrained))$BJW) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(bjw1, bjw2, bjw3, bjw4, bjw5, bjw6))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_brs <- brs_data %>%
+  mutate(latent = as.data.frame(lavPredict(brs_fit_constrained))$BRS) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(brs1, brs2, brs3, brs4, brs5, brs6, brs7, brs8, brs9, brs10, brs11, brs12, brs13, brs14, brs15, brs16))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_he <- he_data %>%
+  mutate(latent = as.data.frame(lavPredict(he_fit_constrained))$HE) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(he1, he2, he3, he4, he5, he6, he7, he8, he9, he10))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_icat_o <- icat_o_data %>%
+  mutate(latent = as.data.frame(lavPredict(icat_o_fit_constrained))$ICAT_O) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(icat_o1, icat_o2, icat_o3, icat_o4, icat_o5, icat_o6, icat_o7, icat_o8, icat_o9))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_icat_s <- icat_s_data %>%
+  mutate(latent = as.data.frame(lavPredict(icat_s_fit_constrained))$ICAT_S) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(icat_s1, icat_s2, icat_s3, icat_s4, icat_s5, icat_s6, icat_s7, icat_s8, icat_s9))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_nfc <- nfc_data %>%
+  mutate(latent = as.data.frame(lavPredict(nfc_fit_constrained))$NFC) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(nfc1, nfc2, nfc3, nfc4, nfc5, nfc6, nfc7, nfc8, nfc9, nfc10, nfc11, nfc12, nfc13, nfc14, nfc15, nfc16, nfc17, nfc18))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_nfcc_pdc <- nfcc_pdc_data %>%
+  mutate(latent_P = as.data.frame(lavPredict(nfcc_pdc_fit_constrained))$P,
+         latent_D = as.data.frame(lavPredict(nfcc_pdc_fit_constrained))$D,
+         latent_C = as.data.frame(lavPredict(nfcc_pdc_fit_constrained))$C) %>%
+  rowwise() %>%
+  mutate(observed_P = mean(c(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8)),
+         observed_D = mean(c(nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7)),
+         observed_C = mean(c(nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent_P, latent_D, latent_C, 
+         observed_P, observed_D, observed_C)
+
+constrained_latent_observed_nfcc_ao <- nfcc_ao_data %>%
+  mutate(latent_A = as.data.frame(lavPredict(nfcc_ao_fit_constrained))$A,
+         latent_O = as.data.frame(lavPredict(nfcc_ao_fit_constrained))$O) %>%
+  rowwise() %>%
+  mutate(observed_A = mean(c(nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8)),
+         observed_O = mean(c(nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent_A, latent_O, 
+         observed_A, observed_O)
+
+constrained_latent_observed_pe <- pe_data %>%
+  mutate(latent = as.data.frame(lavPredict(pe_fit_constrained))$PE) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(pe1, pe2, pe3, pe4, pe5, pe6, pe7, pe8, pe9, pe10, pe11))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_pns <- pns_data %>%
+  mutate(latent = as.data.frame(lavPredict(pns_fit_constrained))$PNS) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(pns1, pns2, pns3, pns4, pns5, pns6, pns7, pns8, pns9, pns10, pns11, pns12))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_rse <- rse_data %>%
+  mutate(latent = as.data.frame(lavPredict(rse_fit_constrained))$RSE) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(rse1, rse2, rse3, rse4, rse5, rse6, rse7, rse8, rse9, rse10))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_rwa <- rwa_data %>%
+  mutate(latent = as.data.frame(lavPredict(rwa_fit_constrained))$RWA) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(rwa1, rwa2, rwa3, rwa4, rwa5, rwa6, rwa7, rwa8, rwa9, rwa10, rwa11, rwa12, rwa13, rwa14, rwa15, rwa16, rwa17, rwa18, rwa19, rwa20))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_sdo <- sdo_data %>%
+  mutate(latent = as.data.frame(lavPredict(sdo_fit_constrained))$SDO) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(sdo1, sdo2, sdo3, sdo4, sdo5, sdo6, sdo7, sdo8, sdo9, sdo10, sdo11, sdo12))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_sm <- sm_data %>%
+  mutate(latent = as.data.frame(lavPredict(sm_fit_constrained))$SM) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, sm10, sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_soc_ic <- soc_ic_data %>%
+  mutate(latent = as.data.frame(lavPredict(soc_ic_fit_constrained))$IC) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(soc_ic1, soc_ic2, soc_ic3, soc_ic4, soc_ic5, soc_ic6, soc_ic7, soc_ic8, soc_ic9))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_soc_pe <- soc_pe_data %>%
+  mutate(latent = as.data.frame(lavPredict(soc_pe_fit_constrained))$PE) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(soc_pe1, soc_pe2, soc_pe3, soc_pe4, soc_pe5, soc_pe6, soc_pe7, soc_pe8, soc_pe9, soc_pe10))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+```
+
+## By full scales
+
+```{r}
+
+# fit models
+bidr_fit_constrained <- constrained_cfa_fit(data = bidr_data, model = bidr_model)
+icat_fit_constrained <- constrained_cfa_fit(data = icat_data, model = icat_model)
+nfcc_fit_constrained <- constrained_cfa_fit(data = nfcc_data, model = nfcc_model)
+soc_fit_constrained  <- constrained_cfa_fit(data = soc_data,  model = soc_model)
+
+# full scales
+constrained_latent_observed_bidr <- bidr_data %>%
+  mutate(latent_IM = as.data.frame(lavPredict(bidr_fit_constrained))$IM,
+         latent_SDE = as.data.frame(lavPredict(bidr_fit_constrained))$SDE) %>%
+  rowwise() %>%
+  mutate(observed_IM = mean(c(bidr_im1, bidr_im2, bidr_im3, bidr_im4, bidr_im5, bidr_im6, bidr_im7,
+                              bidr_im8, bidr_im9, bidr_im10, bidr_im11, bidr_im12, bidr_im13, 
+                              bidr_im14, bidr_im15, bidr_im16, bidr_im17, bidr_im18)),
+         observed_SDE = mean(c(bidr_sde1, bidr_sde2, bidr_sde3, bidr_sde4, bidr_sde5, bidr_sde6, bidr_sde7,
+                               bidr_sde8, bidr_sde9, bidr_sde10, bidr_sde11, bidr_sde12, bidr_sde13,
+                               bidr_sde14, bidr_sde15, bidr_sde16, bidr_sde17, bidr_sde18))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent_IM, latent_SDE, observed_IM, observed_SDE)
+
+constrained_latent_observed_icat <- icat_data %>%
+  mutate(latent_O = as.data.frame(lavPredict(icat_fit_constrained))$ICAT_O,
+         latent_S = as.data.frame(lavPredict(icat_fit_constrained))$ICAT_S) %>%
+  rowwise() %>%
+  mutate(observed_O = mean(c(icat_o1, icat_o2, icat_o3, icat_o4, icat_o5, icat_o6, icat_o7, icat_o8, icat_o9)),
+         observed_S = mean(c(icat_s1, icat_s2, icat_s3, icat_s4, icat_s5, icat_s6, icat_s7, icat_s8, icat_s9))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent_O, latent_S, 
+         observed_O, observed_S)
+
+constrained_latent_observed_nfcc <- nfcc_data %>%
+  mutate(latent_P = as.data.frame(lavPredict(nfcc_fit_constrained))$P,
+         latent_D = as.data.frame(lavPredict(nfcc_fit_constrained))$D,
+         latent_C = as.data.frame(lavPredict(nfcc_fit_constrained))$C,
+         latent_A = as.data.frame(lavPredict(nfcc_fit_constrained))$A,
+         latent_O = as.data.frame(lavPredict(nfcc_fit_constrained))$O) %>%
+  rowwise() %>%
+  mutate(observed_P = mean(c(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8)),
+         observed_D = mean(c(nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7)),
+         observed_C = mean(c(nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8)),
+         observed_A = mean(c(nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8)),
+         observed_O = mean(c(nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent_P, latent_D, latent_C, 
+         latent_A, latent_O, 
+         observed_P, observed_D, observed_C,
+         observed_A, observed_O)
+
+constrained_latent_observed_soc <- soc_data %>%
+  mutate(latent_IC = as.data.frame(lavPredict(soc_fit_constrained))$IC,
+         latent_PE = as.data.frame(lavPredict(soc_fit_constrained))$PE) %>%
+  rowwise() %>%
+  mutate(observed_IC = mean(c(soc_ic1, soc_ic2, soc_ic3, soc_ic4, soc_ic5, soc_ic6, soc_ic7, soc_ic8, soc_ic9)),
+         observed_PE = mean(c(soc_pe1, soc_pe2, soc_pe3, soc_pe4, soc_pe5, soc_pe6, soc_pe7, soc_pe8, soc_pe9, soc_pe10))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent_IC, latent_PE,
+         observed_IC, observed_PE)
+
+```
+
+## Effect size for measurement invariance
+
+THESE SHOULD BE FIT TO THE FULLY CONSTRAINED MI MODELS
+
+Between-group differences on the latent vs. the observed scales.
 
 ```{r}
   
-es_latent_sex_bfi_e      <- effsize::cohen.d(latent ~ sex,     data = latent_observed_bfi_e)
-es_latent_sex_bfi_c      <- effsize::cohen.d(latent ~ sex,     data = latent_observed_bfi_c)
-es_latent_sex_bfi_n      <- effsize::cohen.d(latent ~ sex,     data = latent_observed_bfi_n)
-es_latent_sex_bfi_a      <- effsize::cohen.d(latent ~ sex,     data = latent_observed_bfi_a)
-es_latent_sex_bfi_o      <- effsize::cohen.d(latent ~ sex,     data = latent_observed_bfi_o)
-es_latent_sex_bidr_im    <- effsize::cohen.d(latent ~ sex,     data = latent_observed_bidr_im)
-es_latent_sex_bidr_sde   <- effsize::cohen.d(latent ~ sex,     data = latent_observed_bidr_sde)
-es_latent_sex_bjw        <- effsize::cohen.d(latent ~ sex,     data = latent_observed_bjw)
-es_latent_sex_brs        <- effsize::cohen.d(latent ~ sex,     data = latent_observed_brs)
-es_latent_sex_he         <- effsize::cohen.d(latent ~ sex,     data = latent_observed_he)
-es_latent_sex_icat_o     <- effsize::cohen.d(latent ~ sex,     data = latent_observed_icat_o)
-es_latent_sex_icat_s     <- effsize::cohen.d(latent ~ sex,     data = latent_observed_icat_s)
-es_latent_sex_nfc        <- effsize::cohen.d(latent ~ sex,     data = latent_observed_nfc)
-es_latent_sex_nfcc_p     <- effsize::cohen.d(latent_P ~ sex,   data = latent_observed_nfcc_pdc)
-es_latent_sex_nfcc_d     <- effsize::cohen.d(latent_D ~ sex,   data = latent_observed_nfcc_pdc)
-es_latent_sex_nfcc_c     <- effsize::cohen.d(latent_C ~ sex,   data = latent_observed_nfcc_pdc)
-es_latent_sex_nfcc_a     <- effsize::cohen.d(latent_A ~ sex,   data = latent_observed_nfcc_ao)
-es_latent_sex_nfcc_o     <- effsize::cohen.d(latent_O ~ sex,   data = latent_observed_nfcc_ao)
-es_latent_sex_pe         <- effsize::cohen.d(latent ~ sex,     data = latent_observed_pe)
-es_latent_sex_pns        <- effsize::cohen.d(latent ~ sex,     data = latent_observed_pns)
-es_latent_sex_rse        <- effsize::cohen.d(latent ~ sex,     data = latent_observed_rse)
-es_latent_sex_rwa        <- effsize::cohen.d(latent ~ sex,     data = latent_observed_rwa)
-es_latent_sex_sdo        <- effsize::cohen.d(latent ~ sex,     data = latent_observed_sdo)
-es_latent_sex_sm         <- effsize::cohen.d(latent ~ sex,     data = latent_observed_sm)
-es_latent_sex_soc_ic     <- effsize::cohen.d(latent ~ sex,     data = latent_observed_soc_ic)
-es_latent_sex_soc_pe     <- effsize::cohen.d(latent ~ sex,     data = latent_observed_soc_pe)
+es_constrained_latent_sex_bfi_e      <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_bfi_e)
+es_constrained_latent_sex_bfi_c      <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_bfi_c)
+es_constrained_latent_sex_bfi_n      <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_bfi_n)
+es_constrained_latent_sex_bfi_a      <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_bfi_a)
+es_constrained_latent_sex_bfi_o      <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_bfi_o)
+es_constrained_latent_sex_bidr_im    <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_bidr_im)
+es_constrained_latent_sex_bidr_sde   <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_bidr_sde)
+es_constrained_latent_sex_bjw        <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_bjw)
+es_constrained_latent_sex_brs        <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_brs)
+es_constrained_latent_sex_he         <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_he)
+es_constrained_latent_sex_icat_o     <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_icat_o)
+es_constrained_latent_sex_icat_s     <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_icat_s)
+es_constrained_latent_sex_nfc        <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_nfc)
+es_constrained_latent_sex_nfcc_p     <- effsize::cohen.d(latent_P ~ sex,   data = constrained_latent_observed_nfcc_pdc)
+es_constrained_latent_sex_nfcc_d     <- effsize::cohen.d(latent_D ~ sex,   data = constrained_latent_observed_nfcc_pdc)
+es_constrained_latent_sex_nfcc_c     <- effsize::cohen.d(latent_C ~ sex,   data = constrained_latent_observed_nfcc_pdc)
+es_constrained_latent_sex_nfcc_a     <- effsize::cohen.d(latent_A ~ sex,   data = constrained_latent_observed_nfcc_ao)
+es_constrained_latent_sex_nfcc_o     <- effsize::cohen.d(latent_O ~ sex,   data = constrained_latent_observed_nfcc_ao)
+es_constrained_latent_sex_pe         <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_pe)
+es_constrained_latent_sex_pns        <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_pns)
+es_constrained_latent_sex_rse        <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_rse)
+es_constrained_latent_sex_rwa        <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_rwa)
+es_constrained_latent_sex_sdo        <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_sdo)
+es_constrained_latent_sex_sm         <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_sm)
+es_constrained_latent_sex_soc_ic     <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_soc_ic)
+es_constrained_latent_sex_soc_pe     <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_soc_pe)
 
-es_latent_age_bfi_e      <- effsize::cohen.d(latent ~ age,     data = latent_observed_bfi_e)
-es_latent_age_bfi_c      <- effsize::cohen.d(latent ~ age,     data = latent_observed_bfi_c)
-es_latent_age_bfi_n      <- effsize::cohen.d(latent ~ age,     data = latent_observed_bfi_n)
-es_latent_age_bfi_a      <- effsize::cohen.d(latent ~ age,     data = latent_observed_bfi_a)
-es_latent_age_bfi_o      <- effsize::cohen.d(latent ~ age,     data = latent_observed_bfi_o)
-es_latent_age_bidr_im    <- effsize::cohen.d(latent ~ age,     data = latent_observed_bidr_im)
-es_latent_age_bidr_sde   <- effsize::cohen.d(latent ~ age,     data = latent_observed_bidr_sde)
-es_latent_age_bjw        <- effsize::cohen.d(latent ~ age,     data = latent_observed_bjw)
-es_latent_age_brs        <- effsize::cohen.d(latent ~ age,     data = latent_observed_brs)
-es_latent_age_he         <- effsize::cohen.d(latent ~ age,     data = latent_observed_he)
-es_latent_age_icat_o     <- effsize::cohen.d(latent ~ age,     data = latent_observed_icat_o)
-es_latent_age_icat_s     <- effsize::cohen.d(latent ~ age,     data = latent_observed_icat_s)
-es_latent_age_nfc        <- effsize::cohen.d(latent ~ age,     data = latent_observed_nfc)
-es_latent_age_nfcc_p     <- effsize::cohen.d(latent_P ~ age,   data = latent_observed_nfcc_pdc)
-es_latent_age_nfcc_d     <- effsize::cohen.d(latent_D ~ age,   data = latent_observed_nfcc_pdc)
-es_latent_age_nfcc_c     <- effsize::cohen.d(latent_C ~ age,   data = latent_observed_nfcc_pdc)
-es_latent_age_nfcc_a     <- effsize::cohen.d(latent_A ~ age,   data = latent_observed_nfcc_ao)
-es_latent_age_nfcc_o     <- effsize::cohen.d(latent_O ~ age,   data = latent_observed_nfcc_ao)
-es_latent_age_pe         <- effsize::cohen.d(latent ~ age,     data = latent_observed_pe)
-es_latent_age_pns        <- effsize::cohen.d(latent ~ age,     data = latent_observed_pns)
-es_latent_age_rse        <- effsize::cohen.d(latent ~ age,     data = latent_observed_rse)
-es_latent_age_rwa        <- effsize::cohen.d(latent ~ age,     data = latent_observed_rwa)
-es_latent_age_sdo        <- effsize::cohen.d(latent ~ age,     data = latent_observed_sdo)
-es_latent_age_sm         <- effsize::cohen.d(latent ~ age,     data = latent_observed_sm)
-es_latent_age_soc_ic     <- effsize::cohen.d(latent ~ age,     data = latent_observed_soc_ic)
-es_latent_age_soc_pe     <- effsize::cohen.d(latent ~ age,     data = latent_observed_soc_pe)
+es_constrained_latent_age_bfi_e      <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_bfi_e)
+es_constrained_latent_age_bfi_c      <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_bfi_c)
+es_constrained_latent_age_bfi_n      <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_bfi_n)
+es_constrained_latent_age_bfi_a      <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_bfi_a)
+es_constrained_latent_age_bfi_o      <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_bfi_o)
+es_constrained_latent_age_bidr_im    <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_bidr_im)
+es_constrained_latent_age_bidr_sde   <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_bidr_sde)
+es_constrained_latent_age_bjw        <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_bjw)
+es_constrained_latent_age_brs        <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_brs)
+es_constrained_latent_age_he         <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_he)
+es_constrained_latent_age_icat_o     <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_icat_o)
+es_constrained_latent_age_icat_s     <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_icat_s)
+es_constrained_latent_age_nfc        <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_nfc)
+es_constrained_latent_age_nfcc_p     <- effsize::cohen.d(latent_P ~ age,   data = constrained_latent_observed_nfcc_pdc)
+es_constrained_latent_age_nfcc_d     <- effsize::cohen.d(latent_D ~ age,   data = constrained_latent_observed_nfcc_pdc)
+es_constrained_latent_age_nfcc_c     <- effsize::cohen.d(latent_C ~ age,   data = constrained_latent_observed_nfcc_pdc)
+es_constrained_latent_age_nfcc_a     <- effsize::cohen.d(latent_A ~ age,   data = constrained_latent_observed_nfcc_ao)
+es_constrained_latent_age_nfcc_o     <- effsize::cohen.d(latent_O ~ age,   data = constrained_latent_observed_nfcc_ao)
+es_constrained_latent_age_pe         <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_pe)
+es_constrained_latent_age_pns        <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_pns)
+es_constrained_latent_age_rse        <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_rse)
+es_constrained_latent_age_rwa        <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_rwa)
+es_constrained_latent_age_sdo        <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_sdo)
+es_constrained_latent_age_sm         <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_sm)
+es_constrained_latent_age_soc_ic     <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_soc_ic)
+es_constrained_latent_age_soc_pe     <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_soc_pe)
 
-es_observed_sex_bfi_e    <- effsize::cohen.d(observed ~ sex,   data = latent_observed_bfi_e)
-es_observed_sex_bfi_c    <- effsize::cohen.d(observed ~ sex,   data = latent_observed_bfi_c)
-es_observed_sex_bfi_n    <- effsize::cohen.d(observed ~ sex,   data = latent_observed_bfi_n)
-es_observed_sex_bfi_a    <- effsize::cohen.d(observed ~ sex,   data = latent_observed_bfi_a)
-es_observed_sex_bfi_o    <- effsize::cohen.d(observed ~ sex,   data = latent_observed_bfi_o)
-es_observed_sex_bidr_im  <- effsize::cohen.d(observed ~ sex,   data = latent_observed_bidr_im)
-es_observed_sex_bidr_sde <- effsize::cohen.d(observed ~ sex,   data = latent_observed_bidr_sde)
-es_observed_sex_bjw      <- effsize::cohen.d(observed ~ sex,   data = latent_observed_bjw)
-es_observed_sex_brs      <- effsize::cohen.d(observed ~ sex,   data = latent_observed_brs)
-es_observed_sex_he       <- effsize::cohen.d(observed ~ sex,   data = latent_observed_he)
-es_observed_sex_icat_o   <- effsize::cohen.d(observed ~ sex,   data = latent_observed_icat_o)
-es_observed_sex_icat_s   <- effsize::cohen.d(observed ~ sex,   data = latent_observed_icat_s)
-es_observed_sex_nfc      <- effsize::cohen.d(observed ~ sex,   data = latent_observed_nfc)
-es_observed_sex_nfcc_p   <- effsize::cohen.d(observed_P ~ sex, data = latent_observed_nfcc_pdc)
-es_observed_sex_nfcc_d   <- effsize::cohen.d(observed_D ~ sex, data = latent_observed_nfcc_pdc)
-es_observed_sex_nfcc_c   <- effsize::cohen.d(observed_C ~ sex, data = latent_observed_nfcc_pdc)
-es_observed_sex_nfcc_a   <- effsize::cohen.d(observed_A ~ sex, data = latent_observed_nfcc_ao)
-es_observed_sex_nfcc_o   <- effsize::cohen.d(observed_O ~ sex, data = latent_observed_nfcc_ao)
-es_observed_sex_pe       <- effsize::cohen.d(observed ~ sex,   data = latent_observed_pe)
-es_observed_sex_pns      <- effsize::cohen.d(observed ~ sex,   data = latent_observed_pns)
-es_observed_sex_rse      <- effsize::cohen.d(observed ~ sex,   data = latent_observed_rse)
-es_observed_sex_rwa      <- effsize::cohen.d(observed ~ sex,   data = latent_observed_rwa)
-es_observed_sex_sdo      <- effsize::cohen.d(observed ~ sex,   data = latent_observed_sdo)
-es_observed_sex_sm       <- effsize::cohen.d(observed ~ sex,   data = latent_observed_sm)
-es_observed_sex_soc_ic   <- effsize::cohen.d(observed ~ sex,   data = latent_observed_soc_ic)
-es_observed_sex_soc_pe   <- effsize::cohen.d(observed ~ sex,   data = latent_observed_soc_pe)
+es_constrained_observed_sex_bfi_e    <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_bfi_e)
+es_constrained_observed_sex_bfi_c    <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_bfi_c)
+es_constrained_observed_sex_bfi_n    <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_bfi_n)
+es_constrained_observed_sex_bfi_a    <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_bfi_a)
+es_constrained_observed_sex_bfi_o    <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_bfi_o)
+es_constrained_observed_sex_bidr_im  <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_bidr_im)
+es_constrained_observed_sex_bidr_sde <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_bidr_sde)
+es_constrained_observed_sex_bjw      <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_bjw)
+es_constrained_observed_sex_brs      <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_brs)
+es_constrained_observed_sex_he       <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_he)
+es_constrained_observed_sex_icat_o   <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_icat_o)
+es_constrained_observed_sex_icat_s   <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_icat_s)
+es_constrained_observed_sex_nfc      <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_nfc)
+es_constrained_observed_sex_nfcc_p   <- effsize::cohen.d(observed_P ~ sex, data = constrained_latent_observed_nfcc_pdc)
+es_constrained_observed_sex_nfcc_d   <- effsize::cohen.d(observed_D ~ sex, data = constrained_latent_observed_nfcc_pdc)
+es_constrained_observed_sex_nfcc_c   <- effsize::cohen.d(observed_C ~ sex, data = constrained_latent_observed_nfcc_pdc)
+es_constrained_observed_sex_nfcc_a   <- effsize::cohen.d(observed_A ~ sex, data = constrained_latent_observed_nfcc_ao)
+es_constrained_observed_sex_nfcc_o   <- effsize::cohen.d(observed_O ~ sex, data = constrained_latent_observed_nfcc_ao)
+es_constrained_observed_sex_pe       <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_pe)
+es_constrained_observed_sex_pns      <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_pns)
+es_constrained_observed_sex_rse      <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_rse)
+es_constrained_observed_sex_rwa      <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_rwa)
+es_constrained_observed_sex_sdo      <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_sdo)
+es_constrained_observed_sex_sm       <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_sm)
+es_constrained_observed_sex_soc_ic   <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_soc_ic)
+es_constrained_observed_sex_soc_pe   <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_soc_pe)
 
-es_observed_age_bfi_e    <- effsize::cohen.d(observed ~ age,   data = latent_observed_bfi_e)
-es_observed_age_bfi_c    <- effsize::cohen.d(observed ~ age,   data = latent_observed_bfi_c)
-es_observed_age_bfi_n    <- effsize::cohen.d(observed ~ age,   data = latent_observed_bfi_n)
-es_observed_age_bfi_a    <- effsize::cohen.d(observed ~ age,   data = latent_observed_bfi_a)
-es_observed_age_bfi_o    <- effsize::cohen.d(observed ~ age,   data = latent_observed_bfi_o)
-es_observed_age_bidr_im  <- effsize::cohen.d(observed ~ age,   data = latent_observed_bidr_im)
-es_observed_age_bidr_sde <- effsize::cohen.d(observed ~ age,   data = latent_observed_bidr_sde)
-es_observed_age_bjw      <- effsize::cohen.d(observed ~ age,   data = latent_observed_bjw)
-es_observed_age_brs      <- effsize::cohen.d(observed ~ age,   data = latent_observed_brs)
-es_observed_age_he       <- effsize::cohen.d(observed ~ age,   data = latent_observed_he)
-es_observed_age_icat_o   <- effsize::cohen.d(observed ~ age,   data = latent_observed_icat_o)
-es_observed_age_icat_s   <- effsize::cohen.d(observed ~ age,   data = latent_observed_icat_s)
-es_observed_age_nfc      <- effsize::cohen.d(observed ~ age,   data = latent_observed_nfc)
-es_observed_age_nfcc_p   <- effsize::cohen.d(observed_P ~ age, data = latent_observed_nfcc_pdc)
-es_observed_age_nfcc_d   <- effsize::cohen.d(observed_D ~ age, data = latent_observed_nfcc_pdc)
-es_observed_age_nfcc_c   <- effsize::cohen.d(observed_C ~ age, data = latent_observed_nfcc_pdc)
-es_observed_age_nfcc_a   <- effsize::cohen.d(observed_A ~ age, data = latent_observed_nfcc_ao)
-es_observed_age_nfcc_o   <- effsize::cohen.d(observed_O ~ age, data = latent_observed_nfcc_ao)
-es_observed_age_pe       <- effsize::cohen.d(observed ~ age,   data = latent_observed_pe)
-es_observed_age_pns      <- effsize::cohen.d(observed ~ age,   data = latent_observed_pns)
-es_observed_age_rse      <- effsize::cohen.d(observed ~ age,   data = latent_observed_rse)
-es_observed_age_rwa      <- effsize::cohen.d(observed ~ age,   data = latent_observed_rwa)
-es_observed_age_sdo      <- effsize::cohen.d(observed ~ age,   data = latent_observed_sdo)
-es_observed_age_sm       <- effsize::cohen.d(observed ~ age,   data = latent_observed_sm)
-es_observed_age_soc_ic   <- effsize::cohen.d(observed ~ age,   data = latent_observed_soc_ic)
-es_observed_age_soc_pe   <- effsize::cohen.d(observed ~ age,   data = latent_observed_soc_pe)
+es_constrained_observed_age_bfi_e    <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_bfi_e)
+es_constrained_observed_age_bfi_c    <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_bfi_c)
+es_constrained_observed_age_bfi_n    <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_bfi_n)
+es_constrained_observed_age_bfi_a    <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_bfi_a)
+es_constrained_observed_age_bfi_o    <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_bfi_o)
+es_constrained_observed_age_bidr_im  <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_bidr_im)
+es_constrained_observed_age_bidr_sde <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_bidr_sde)
+es_constrained_observed_age_bjw      <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_bjw)
+es_constrained_observed_age_brs      <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_brs)
+es_constrained_observed_age_he       <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_he)
+es_constrained_observed_age_icat_o   <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_icat_o)
+es_constrained_observed_age_icat_s   <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_icat_s)
+es_constrained_observed_age_nfc      <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_nfc)
+es_constrained_observed_age_nfcc_p   <- effsize::cohen.d(observed_P ~ age, data = constrained_latent_observed_nfcc_pdc)
+es_constrained_observed_age_nfcc_d   <- effsize::cohen.d(observed_D ~ age, data = constrained_latent_observed_nfcc_pdc)
+es_constrained_observed_age_nfcc_c   <- effsize::cohen.d(observed_C ~ age, data = constrained_latent_observed_nfcc_pdc)
+es_constrained_observed_age_nfcc_a   <- effsize::cohen.d(observed_A ~ age, data = constrained_latent_observed_nfcc_ao)
+es_constrained_observed_age_nfcc_o   <- effsize::cohen.d(observed_O ~ age, data = constrained_latent_observed_nfcc_ao)
+es_constrained_observed_age_pe       <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_pe)
+es_constrained_observed_age_pns      <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_pns)
+es_constrained_observed_age_rse      <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_rse)
+es_constrained_observed_age_rwa      <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_rwa)
+es_constrained_observed_age_sdo      <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_sdo)
+es_constrained_observed_age_sm       <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_sm)
+es_constrained_observed_age_soc_ic   <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_soc_ic)
+es_constrained_observed_age_soc_pe   <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_soc_pe)
   
 
 group_differences_results <- 
   data.frame(scale_name = c("bfi_a", "bfi_c", "bfi_e", "bfi_n", "bfi_o", "bidr_im", "bidr_sde", "bjw", "brs", "he", "icat_o", "icat_s", "nfc", "nfcc_a", "nfcc_c", "nfcc_d", "nfcc_o", "nfcc_p", "pe", "pns", "rse", "rwa", "sdo", "sm", "soc_ic", "soc_pe"),
              group_comparison = c("age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex"),
-             latent_cohens_d = c(es_latent_age_bfi_a$estimate,
-                                 es_latent_age_bfi_c$estimate,
-                                 es_latent_age_bfi_e$estimate,
-                                 es_latent_age_bfi_n$estimate,
-                                 es_latent_age_bfi_o$estimate,
-                                 es_latent_age_bidr_im$estimate,
-                                 es_latent_age_bidr_sde$estimate,
-                                 es_latent_age_bjw$estimate,
-                                 es_latent_age_brs$estimate,
-                                 es_latent_age_he$estimate,
-                                 es_latent_age_icat_o$estimate,
-                                 es_latent_age_icat_s$estimate,
-                                 es_latent_age_nfc$estimate,
-                                 es_latent_age_nfcc_a$estimate,
-                                 es_latent_age_nfcc_c$estimate,
-                                 es_latent_age_nfcc_d$estimate,
-                                 es_latent_age_nfcc_o$estimate,
-                                 es_latent_age_nfcc_p$estimate,
-                                 es_latent_age_pe$estimate,
-                                 es_latent_age_pns$estimate,
-                                 es_latent_age_rse$estimate,
-                                 es_latent_age_rwa$estimate,
-                                 es_latent_age_sdo$estimate,
-                                 es_latent_age_sm$estimate,
-                                 es_latent_age_soc_ic$estimate,
-                                 es_latent_age_soc_pe$estimate,
-                                 es_latent_sex_bfi_a$estimate,
-                                 es_latent_sex_bfi_c$estimate,
-                                 es_latent_sex_bfi_e$estimate,
-                                 es_latent_sex_bfi_n$estimate,
-                                 es_latent_sex_bfi_o$estimate,
-                                 es_latent_sex_bidr_im$estimate,
-                                 es_latent_sex_bidr_sde$estimate,
-                                 es_latent_sex_bjw$estimate,
-                                 es_latent_sex_brs$estimate,
-                                 es_latent_sex_he$estimate,
-                                 es_latent_sex_icat_o$estimate,
-                                 es_latent_sex_icat_s$estimate,
-                                 es_latent_sex_nfc$estimate,
-                                 es_latent_sex_nfcc_a$estimate,
-                                 es_latent_sex_nfcc_c$estimate,
-                                 es_latent_sex_nfcc_d$estimate,
-                                 es_latent_sex_nfcc_o$estimate,
-                                 es_latent_sex_nfcc_p$estimate,
-                                 es_latent_sex_pe$estimate,
-                                 es_latent_sex_pns$estimate,
-                                 es_latent_sex_rse$estimate,
-                                 es_latent_sex_rwa$estimate,
-                                 es_latent_sex_sdo$estimate,
-                                 es_latent_sex_sm$estimate,
-                                 es_latent_sex_soc_ic$estimate,
-                                 es_latent_sex_soc_pe$estimate),
-             latent_cohens_d_ci_lwr = c(es_latent_age_bfi_a$conf.int[1],
-                                        es_latent_age_bfi_c$conf.int[1],
-                                        es_latent_age_bfi_e$conf.int[1],
-                                        es_latent_age_bfi_n$conf.int[1],
-                                        es_latent_age_bfi_o$conf.int[1],
-                                        es_latent_age_bidr_im$conf.int[1],
-                                        es_latent_age_bidr_sde$conf.int[1],
-                                        es_latent_age_bjw$conf.int[1],
-                                        es_latent_age_brs$conf.int[1],
-                                        es_latent_age_he$conf.int[1],
-                                        es_latent_age_icat_o$conf.int[1],
-                                        es_latent_age_icat_s$conf.int[1],
-                                        es_latent_age_nfc$conf.int[1],
-                                        es_latent_age_nfcc_a$conf.int[1],
-                                        es_latent_age_nfcc_c$conf.int[1],
-                                        es_latent_age_nfcc_d$conf.int[1],
-                                        es_latent_age_nfcc_o$conf.int[1],
-                                        es_latent_age_nfcc_p$conf.int[1],
-                                        es_latent_age_pe$conf.int[1],
-                                        es_latent_age_pns$conf.int[1],
-                                        es_latent_age_rse$conf.int[1],
-                                        es_latent_age_rwa$conf.int[1],
-                                        es_latent_age_sdo$conf.int[1],
-                                        es_latent_age_sm$conf.int[1],
-                                        es_latent_age_soc_ic$conf.int[1],
-                                        es_latent_age_soc_pe$conf.int[1],
-                                        es_latent_sex_bfi_a$conf.int[1],
-                                        es_latent_sex_bfi_c$conf.int[1],
-                                        es_latent_sex_bfi_e$conf.int[1],
-                                        es_latent_sex_bfi_n$conf.int[1],
-                                        es_latent_sex_bfi_o$conf.int[1],
-                                        es_latent_sex_bidr_im$conf.int[1],
-                                        es_latent_sex_bidr_sde$conf.int[1],
-                                        es_latent_sex_bjw$conf.int[1],
-                                        es_latent_sex_brs$conf.int[1],
-                                        es_latent_sex_he$conf.int[1],
-                                        es_latent_sex_icat_o$conf.int[1],
-                                        es_latent_sex_icat_s$conf.int[1],
-                                        es_latent_sex_nfc$conf.int[1],
-                                        es_latent_sex_nfcc_a$conf.int[1],
-                                        es_latent_sex_nfcc_c$conf.int[1],
-                                        es_latent_sex_nfcc_d$conf.int[1],
-                                        es_latent_sex_nfcc_o$conf.int[1],
-                                        es_latent_sex_nfcc_p$conf.int[1],
-                                        es_latent_sex_pe$conf.int[1],
-                                        es_latent_sex_pns$conf.int[1],
-                                        es_latent_sex_rse$conf.int[1],
-                                        es_latent_sex_rwa$conf.int[1],
-                                        es_latent_sex_sdo$conf.int[1],
-                                        es_latent_sex_sm$conf.int[1],
-                                        es_latent_sex_soc_ic$conf.int[1],
-                                        es_latent_sex_soc_pe$conf.int[1]),
-             latent_cohens_d_ci_upr = c(es_latent_age_bfi_a$conf.int[2],
-                                        es_latent_age_bfi_c$conf.int[2],
-                                        es_latent_age_bfi_e$conf.int[2],
-                                        es_latent_age_bfi_n$conf.int[2],
-                                        es_latent_age_bfi_o$conf.int[2],
-                                        es_latent_age_bidr_im$conf.int[2],
-                                        es_latent_age_bidr_sde$conf.int[2],
-                                        es_latent_age_bjw$conf.int[2],
-                                        es_latent_age_brs$conf.int[2],
-                                        es_latent_age_he$conf.int[2],
-                                        es_latent_age_icat_o$conf.int[2],
-                                        es_latent_age_icat_s$conf.int[2],
-                                        es_latent_age_nfc$conf.int[2],
-                                        es_latent_age_nfcc_a$conf.int[2],
-                                        es_latent_age_nfcc_c$conf.int[2],
-                                        es_latent_age_nfcc_d$conf.int[2],
-                                        es_latent_age_nfcc_o$conf.int[2],
-                                        es_latent_age_nfcc_p$conf.int[2],
-                                        es_latent_age_pe$conf.int[2],
-                                        es_latent_age_pns$conf.int[2],
-                                        es_latent_age_rse$conf.int[2],
-                                        es_latent_age_rwa$conf.int[2],
-                                        es_latent_age_sdo$conf.int[2],
-                                        es_latent_age_sm$conf.int[2],
-                                        es_latent_age_soc_ic$conf.int[2],
-                                        es_latent_age_soc_pe$conf.int[2],
-                                        es_latent_sex_bfi_a$conf.int[2],
-                                        es_latent_sex_bfi_c$conf.int[2],
-                                        es_latent_sex_bfi_e$conf.int[2],
-                                        es_latent_sex_bfi_n$conf.int[2],
-                                        es_latent_sex_bfi_o$conf.int[2],
-                                        es_latent_sex_bidr_im$conf.int[2],
-                                        es_latent_sex_bidr_sde$conf.int[2],
-                                        es_latent_sex_bjw$conf.int[2],
-                                        es_latent_sex_brs$conf.int[2],
-                                        es_latent_sex_he$conf.int[2],
-                                        es_latent_sex_icat_o$conf.int[2],
-                                        es_latent_sex_icat_s$conf.int[2],
-                                        es_latent_sex_nfc$conf.int[2],
-                                        es_latent_sex_nfcc_a$conf.int[2],
-                                        es_latent_sex_nfcc_c$conf.int[2],
-                                        es_latent_sex_nfcc_d$conf.int[2],
-                                        es_latent_sex_nfcc_o$conf.int[2],
-                                        es_latent_sex_nfcc_p$conf.int[2],
-                                        es_latent_sex_pe$conf.int[2],
-                                        es_latent_sex_pns$conf.int[2],
-                                        es_latent_sex_rse$conf.int[2],
-                                        es_latent_sex_rwa$conf.int[2],
-                                        es_latent_sex_sdo$conf.int[2],
-                                        es_latent_sex_sm$conf.int[2],
-                                        es_latent_sex_soc_ic$conf.int[2],
-                                        es_latent_sex_soc_pe$conf.int[2]),
-             observed_cohens_d = c(es_observed_age_bfi_a$estimate,
-                                   es_observed_age_bfi_c$estimate,
-                                   es_observed_age_bfi_e$estimate,
-                                   es_observed_age_bfi_n$estimate,
-                                   es_observed_age_bfi_o$estimate,
-                                   es_observed_age_bidr_im$estimate,
-                                   es_observed_age_bidr_sde$estimate,
-                                   es_observed_age_bjw$estimate,
-                                   es_observed_age_brs$estimate,
-                                   es_observed_age_he$estimate,
-                                   es_observed_age_icat_o$estimate,
-                                   es_observed_age_icat_s$estimate,
-                                   es_observed_age_nfc$estimate,
-                                   es_observed_age_nfcc_a$estimate,
-                                   es_observed_age_nfcc_c$estimate,
-                                   es_observed_age_nfcc_d$estimate,
-                                   es_observed_age_nfcc_o$estimate,
-                                   es_observed_age_nfcc_p$estimate,
-                                   es_observed_age_pe$estimate,
-                                   es_observed_age_pns$estimate,
-                                   es_observed_age_rse$estimate,
-                                   es_observed_age_rwa$estimate,
-                                   es_observed_age_sdo$estimate,
-                                   es_observed_age_sm$estimate,
-                                   es_observed_age_soc_ic$estimate,
-                                   es_observed_age_soc_pe$estimate,
-                                   es_observed_sex_bfi_a$estimate,
-                                   es_observed_sex_bfi_c$estimate,
-                                   es_observed_sex_bfi_e$estimate,
-                                   es_observed_sex_bfi_n$estimate,
-                                   es_observed_sex_bfi_o$estimate,
-                                   es_observed_sex_bidr_im$estimate,
-                                   es_observed_sex_bidr_sde$estimate,
-                                   es_observed_sex_bjw$estimate,
-                                   es_observed_sex_brs$estimate,
-                                   es_observed_sex_he$estimate,
-                                   es_observed_sex_icat_o$estimate,
-                                   es_observed_sex_icat_s$estimate,
-                                   es_observed_sex_nfc$estimate,
-                                   es_observed_sex_nfcc_a$estimate,
-                                   es_observed_sex_nfcc_c$estimate,
-                                   es_observed_sex_nfcc_d$estimate,
-                                   es_observed_sex_nfcc_o$estimate,
-                                   es_observed_sex_nfcc_p$estimate,
-                                   es_observed_sex_pe$estimate,
-                                   es_observed_sex_pns$estimate,
-                                   es_observed_sex_rse$estimate,
-                                   es_observed_sex_rwa$estimate,
-                                   es_observed_sex_sdo$estimate,
-                                   es_observed_sex_sm$estimate,
-                                   es_observed_sex_soc_ic$estimate,
-                                   es_observed_sex_soc_pe$estimate),
-             observed_cohens_d_ci_lwr = c(es_observed_age_bfi_a$conf.int[1],
-                                          es_observed_age_bfi_c$conf.int[1],
-                                          es_observed_age_bfi_e$conf.int[1],
-                                          es_observed_age_bfi_n$conf.int[1],
-                                          es_observed_age_bfi_o$conf.int[1],
-                                          es_observed_age_bidr_im$conf.int[1],
-                                          es_observed_age_bidr_sde$conf.int[1],
-                                          es_observed_age_bjw$conf.int[1],
-                                          es_observed_age_brs$conf.int[1],
-                                          es_observed_age_he$conf.int[1],
-                                          es_observed_age_icat_o$conf.int[1],
-                                          es_observed_age_icat_s$conf.int[1],
-                                          es_observed_age_nfc$conf.int[1],
-                                          es_observed_age_nfcc_a$conf.int[1],
-                                          es_observed_age_nfcc_c$conf.int[1],
-                                          es_observed_age_nfcc_d$conf.int[1],
-                                          es_observed_age_nfcc_o$conf.int[1],
-                                          es_observed_age_nfcc_p$conf.int[1],
-                                          es_observed_age_pe$conf.int[1],
-                                          es_observed_age_pns$conf.int[1],
-                                          es_observed_age_rse$conf.int[1],
-                                          es_observed_age_rwa$conf.int[1],
-                                          es_observed_age_sdo$conf.int[1],
-                                          es_observed_age_sm$conf.int[1],
-                                          es_observed_age_soc_ic$conf.int[1],
-                                          es_observed_age_soc_pe$conf.int[1],
-                                          es_observed_sex_bfi_a$conf.int[1],
-                                          es_observed_sex_bfi_c$conf.int[1],
-                                          es_observed_sex_bfi_e$conf.int[1],
-                                          es_observed_sex_bfi_n$conf.int[1],
-                                          es_observed_sex_bfi_o$conf.int[1],
-                                          es_observed_sex_bidr_im$conf.int[1],
-                                          es_observed_sex_bidr_sde$conf.int[1],
-                                          es_observed_sex_bjw$conf.int[1],
-                                          es_observed_sex_brs$conf.int[1],
-                                          es_observed_sex_he$conf.int[1],
-                                          es_observed_sex_icat_o$conf.int[1],
-                                          es_observed_sex_icat_s$conf.int[1],
-                                          es_observed_sex_nfc$conf.int[1],
-                                          es_observed_sex_nfcc_a$conf.int[1],
-                                          es_observed_sex_nfcc_c$conf.int[1],
-                                          es_observed_sex_nfcc_d$conf.int[1],
-                                          es_observed_sex_nfcc_o$conf.int[1],
-                                          es_observed_sex_nfcc_p$conf.int[1],
-                                          es_observed_sex_pe$conf.int[1],
-                                          es_observed_sex_pns$conf.int[1],
-                                          es_observed_sex_rse$conf.int[1],
-                                          es_observed_sex_rwa$conf.int[1],
-                                          es_observed_sex_sdo$conf.int[1],
-                                          es_observed_sex_sm$conf.int[1],
-                                          es_observed_sex_soc_ic$conf.int[1],
-                                          es_observed_sex_soc_pe$conf.int[1]),
-             observed_cohens_d_ci_upr = c(es_observed_age_bfi_a$conf.int[2],
-                                          es_observed_age_bfi_c$conf.int[2],
-                                          es_observed_age_bfi_e$conf.int[2],
-                                          es_observed_age_bfi_n$conf.int[2],
-                                          es_observed_age_bfi_o$conf.int[2],
-                                          es_observed_age_bidr_im$conf.int[2],
-                                          es_observed_age_bidr_sde$conf.int[2],
-                                          es_observed_age_bjw$conf.int[2],
-                                          es_observed_age_brs$conf.int[2],
-                                          es_observed_age_he$conf.int[2],
-                                          es_observed_age_icat_o$conf.int[2],
-                                          es_observed_age_icat_s$conf.int[2],
-                                          es_observed_age_nfc$conf.int[2],
-                                          es_observed_age_nfcc_a$conf.int[2],
-                                          es_observed_age_nfcc_c$conf.int[2],
-                                          es_observed_age_nfcc_d$conf.int[2],
-                                          es_observed_age_nfcc_o$conf.int[2],
-                                          es_observed_age_nfcc_p$conf.int[2],
-                                          es_observed_age_pe$conf.int[2],
-                                          es_observed_age_pns$conf.int[2],
-                                          es_observed_age_rse$conf.int[2],
-                                          es_observed_age_rwa$conf.int[2],
-                                          es_observed_age_sdo$conf.int[2],
-                                          es_observed_age_sm$conf.int[2],
-                                          es_observed_age_soc_ic$conf.int[2],
-                                          es_observed_age_soc_pe$conf.int[2],
-                                          es_observed_sex_bfi_a$conf.int[2],
-                                          es_observed_sex_bfi_c$conf.int[2],
-                                          es_observed_sex_bfi_e$conf.int[2],
-                                          es_observed_sex_bfi_n$conf.int[2],
-                                          es_observed_sex_bfi_o$conf.int[2],
-                                          es_observed_sex_bidr_im$conf.int[2],
-                                          es_observed_sex_bidr_sde$conf.int[2],
-                                          es_observed_sex_bjw$conf.int[2],
-                                          es_observed_sex_brs$conf.int[2],
-                                          es_observed_sex_he$conf.int[2],
-                                          es_observed_sex_icat_o$conf.int[2],
-                                          es_observed_sex_icat_s$conf.int[2],
-                                          es_observed_sex_nfc$conf.int[2],
-                                          es_observed_sex_nfcc_a$conf.int[2],
-                                          es_observed_sex_nfcc_c$conf.int[2],
-                                          es_observed_sex_nfcc_d$conf.int[2],
-                                          es_observed_sex_nfcc_o$conf.int[2],
-                                          es_observed_sex_nfcc_p$conf.int[2],
-                                          es_observed_sex_pe$conf.int[2],
-                                          es_observed_sex_pns$conf.int[2],
-                                          es_observed_sex_rse$conf.int[2],
-                                          es_observed_sex_rwa$conf.int[2],
-                                          es_observed_sex_sdo$conf.int[2],
-                                          es_observed_sex_sm$conf.int[2],
-                                          es_observed_sex_soc_ic$conf.int[2],
-                                          es_observed_sex_soc_pe$conf.int[2])) %>%
+             latent_cohens_d = c(es_constrained_latent_age_bfi_a$estimate,
+                                 es_constrained_latent_age_bfi_c$estimate,
+                                 es_constrained_latent_age_bfi_e$estimate,
+                                 es_constrained_latent_age_bfi_n$estimate,
+                                 es_constrained_latent_age_bfi_o$estimate,
+                                 es_constrained_latent_age_bidr_im$estimate,
+                                 es_constrained_latent_age_bidr_sde$estimate,
+                                 es_constrained_latent_age_bjw$estimate,
+                                 es_constrained_latent_age_brs$estimate,
+                                 es_constrained_latent_age_he$estimate,
+                                 es_constrained_latent_age_icat_o$estimate,
+                                 es_constrained_latent_age_icat_s$estimate,
+                                 es_constrained_latent_age_nfc$estimate,
+                                 es_constrained_latent_age_nfcc_a$estimate,
+                                 es_constrained_latent_age_nfcc_c$estimate,
+                                 es_constrained_latent_age_nfcc_d$estimate,
+                                 es_constrained_latent_age_nfcc_o$estimate,
+                                 es_constrained_latent_age_nfcc_p$estimate,
+                                 es_constrained_latent_age_pe$estimate,
+                                 es_constrained_latent_age_pns$estimate,
+                                 es_constrained_latent_age_rse$estimate,
+                                 es_constrained_latent_age_rwa$estimate,
+                                 es_constrained_latent_age_sdo$estimate,
+                                 es_constrained_latent_age_sm$estimate,
+                                 es_constrained_latent_age_soc_ic$estimate,
+                                 es_constrained_latent_age_soc_pe$estimate,
+                                 es_constrained_latent_sex_bfi_a$estimate,
+                                 es_constrained_latent_sex_bfi_c$estimate,
+                                 es_constrained_latent_sex_bfi_e$estimate,
+                                 es_constrained_latent_sex_bfi_n$estimate,
+                                 es_constrained_latent_sex_bfi_o$estimate,
+                                 es_constrained_latent_sex_bidr_im$estimate,
+                                 es_constrained_latent_sex_bidr_sde$estimate,
+                                 es_constrained_latent_sex_bjw$estimate,
+                                 es_constrained_latent_sex_brs$estimate,
+                                 es_constrained_latent_sex_he$estimate,
+                                 es_constrained_latent_sex_icat_o$estimate,
+                                 es_constrained_latent_sex_icat_s$estimate,
+                                 es_constrained_latent_sex_nfc$estimate,
+                                 es_constrained_latent_sex_nfcc_a$estimate,
+                                 es_constrained_latent_sex_nfcc_c$estimate,
+                                 es_constrained_latent_sex_nfcc_d$estimate,
+                                 es_constrained_latent_sex_nfcc_o$estimate,
+                                 es_constrained_latent_sex_nfcc_p$estimate,
+                                 es_constrained_latent_sex_pe$estimate,
+                                 es_constrained_latent_sex_pns$estimate,
+                                 es_constrained_latent_sex_rse$estimate,
+                                 es_constrained_latent_sex_rwa$estimate,
+                                 es_constrained_latent_sex_sdo$estimate,
+                                 es_constrained_latent_sex_sm$estimate,
+                                 es_constrained_latent_sex_soc_ic$estimate,
+                                 es_constrained_latent_sex_soc_pe$estimate),
+             latent_cohens_d_ci_lwr = c(es_constrained_latent_age_bfi_a$conf.int[1],
+                                        es_constrained_latent_age_bfi_c$conf.int[1],
+                                        es_constrained_latent_age_bfi_e$conf.int[1],
+                                        es_constrained_latent_age_bfi_n$conf.int[1],
+                                        es_constrained_latent_age_bfi_o$conf.int[1],
+                                        es_constrained_latent_age_bidr_im$conf.int[1],
+                                        es_constrained_latent_age_bidr_sde$conf.int[1],
+                                        es_constrained_latent_age_bjw$conf.int[1],
+                                        es_constrained_latent_age_brs$conf.int[1],
+                                        es_constrained_latent_age_he$conf.int[1],
+                                        es_constrained_latent_age_icat_o$conf.int[1],
+                                        es_constrained_latent_age_icat_s$conf.int[1],
+                                        es_constrained_latent_age_nfc$conf.int[1],
+                                        es_constrained_latent_age_nfcc_a$conf.int[1],
+                                        es_constrained_latent_age_nfcc_c$conf.int[1],
+                                        es_constrained_latent_age_nfcc_d$conf.int[1],
+                                        es_constrained_latent_age_nfcc_o$conf.int[1],
+                                        es_constrained_latent_age_nfcc_p$conf.int[1],
+                                        es_constrained_latent_age_pe$conf.int[1],
+                                        es_constrained_latent_age_pns$conf.int[1],
+                                        es_constrained_latent_age_rse$conf.int[1],
+                                        es_constrained_latent_age_rwa$conf.int[1],
+                                        es_constrained_latent_age_sdo$conf.int[1],
+                                        es_constrained_latent_age_sm$conf.int[1],
+                                        es_constrained_latent_age_soc_ic$conf.int[1],
+                                        es_constrained_latent_age_soc_pe$conf.int[1],
+                                        es_constrained_latent_sex_bfi_a$conf.int[1],
+                                        es_constrained_latent_sex_bfi_c$conf.int[1],
+                                        es_constrained_latent_sex_bfi_e$conf.int[1],
+                                        es_constrained_latent_sex_bfi_n$conf.int[1],
+                                        es_constrained_latent_sex_bfi_o$conf.int[1],
+                                        es_constrained_latent_sex_bidr_im$conf.int[1],
+                                        es_constrained_latent_sex_bidr_sde$conf.int[1],
+                                        es_constrained_latent_sex_bjw$conf.int[1],
+                                        es_constrained_latent_sex_brs$conf.int[1],
+                                        es_constrained_latent_sex_he$conf.int[1],
+                                        es_constrained_latent_sex_icat_o$conf.int[1],
+                                        es_constrained_latent_sex_icat_s$conf.int[1],
+                                        es_constrained_latent_sex_nfc$conf.int[1],
+                                        es_constrained_latent_sex_nfcc_a$conf.int[1],
+                                        es_constrained_latent_sex_nfcc_c$conf.int[1],
+                                        es_constrained_latent_sex_nfcc_d$conf.int[1],
+                                        es_constrained_latent_sex_nfcc_o$conf.int[1],
+                                        es_constrained_latent_sex_nfcc_p$conf.int[1],
+                                        es_constrained_latent_sex_pe$conf.int[1],
+                                        es_constrained_latent_sex_pns$conf.int[1],
+                                        es_constrained_latent_sex_rse$conf.int[1],
+                                        es_constrained_latent_sex_rwa$conf.int[1],
+                                        es_constrained_latent_sex_sdo$conf.int[1],
+                                        es_constrained_latent_sex_sm$conf.int[1],
+                                        es_constrained_latent_sex_soc_ic$conf.int[1],
+                                        es_constrained_latent_sex_soc_pe$conf.int[1]),
+             latent_cohens_d_ci_upr = c(es_constrained_latent_age_bfi_a$conf.int[2],
+                                        es_constrained_latent_age_bfi_c$conf.int[2],
+                                        es_constrained_latent_age_bfi_e$conf.int[2],
+                                        es_constrained_latent_age_bfi_n$conf.int[2],
+                                        es_constrained_latent_age_bfi_o$conf.int[2],
+                                        es_constrained_latent_age_bidr_im$conf.int[2],
+                                        es_constrained_latent_age_bidr_sde$conf.int[2],
+                                        es_constrained_latent_age_bjw$conf.int[2],
+                                        es_constrained_latent_age_brs$conf.int[2],
+                                        es_constrained_latent_age_he$conf.int[2],
+                                        es_constrained_latent_age_icat_o$conf.int[2],
+                                        es_constrained_latent_age_icat_s$conf.int[2],
+                                        es_constrained_latent_age_nfc$conf.int[2],
+                                        es_constrained_latent_age_nfcc_a$conf.int[2],
+                                        es_constrained_latent_age_nfcc_c$conf.int[2],
+                                        es_constrained_latent_age_nfcc_d$conf.int[2],
+                                        es_constrained_latent_age_nfcc_o$conf.int[2],
+                                        es_constrained_latent_age_nfcc_p$conf.int[2],
+                                        es_constrained_latent_age_pe$conf.int[2],
+                                        es_constrained_latent_age_pns$conf.int[2],
+                                        es_constrained_latent_age_rse$conf.int[2],
+                                        es_constrained_latent_age_rwa$conf.int[2],
+                                        es_constrained_latent_age_sdo$conf.int[2],
+                                        es_constrained_latent_age_sm$conf.int[2],
+                                        es_constrained_latent_age_soc_ic$conf.int[2],
+                                        es_constrained_latent_age_soc_pe$conf.int[2],
+                                        es_constrained_latent_sex_bfi_a$conf.int[2],
+                                        es_constrained_latent_sex_bfi_c$conf.int[2],
+                                        es_constrained_latent_sex_bfi_e$conf.int[2],
+                                        es_constrained_latent_sex_bfi_n$conf.int[2],
+                                        es_constrained_latent_sex_bfi_o$conf.int[2],
+                                        es_constrained_latent_sex_bidr_im$conf.int[2],
+                                        es_constrained_latent_sex_bidr_sde$conf.int[2],
+                                        es_constrained_latent_sex_bjw$conf.int[2],
+                                        es_constrained_latent_sex_brs$conf.int[2],
+                                        es_constrained_latent_sex_he$conf.int[2],
+                                        es_constrained_latent_sex_icat_o$conf.int[2],
+                                        es_constrained_latent_sex_icat_s$conf.int[2],
+                                        es_constrained_latent_sex_nfc$conf.int[2],
+                                        es_constrained_latent_sex_nfcc_a$conf.int[2],
+                                        es_constrained_latent_sex_nfcc_c$conf.int[2],
+                                        es_constrained_latent_sex_nfcc_d$conf.int[2],
+                                        es_constrained_latent_sex_nfcc_o$conf.int[2],
+                                        es_constrained_latent_sex_nfcc_p$conf.int[2],
+                                        es_constrained_latent_sex_pe$conf.int[2],
+                                        es_constrained_latent_sex_pns$conf.int[2],
+                                        es_constrained_latent_sex_rse$conf.int[2],
+                                        es_constrained_latent_sex_rwa$conf.int[2],
+                                        es_constrained_latent_sex_sdo$conf.int[2],
+                                        es_constrained_latent_sex_sm$conf.int[2],
+                                        es_constrained_latent_sex_soc_ic$conf.int[2],
+                                        es_constrained_latent_sex_soc_pe$conf.int[2]),
+             observed_cohens_d = c(es_constrained_observed_age_bfi_a$estimate,
+                                   es_constrained_observed_age_bfi_c$estimate,
+                                   es_constrained_observed_age_bfi_e$estimate,
+                                   es_constrained_observed_age_bfi_n$estimate,
+                                   es_constrained_observed_age_bfi_o$estimate,
+                                   es_constrained_observed_age_bidr_im$estimate,
+                                   es_constrained_observed_age_bidr_sde$estimate,
+                                   es_constrained_observed_age_bjw$estimate,
+                                   es_constrained_observed_age_brs$estimate,
+                                   es_constrained_observed_age_he$estimate,
+                                   es_constrained_observed_age_icat_o$estimate,
+                                   es_constrained_observed_age_icat_s$estimate,
+                                   es_constrained_observed_age_nfc$estimate,
+                                   es_constrained_observed_age_nfcc_a$estimate,
+                                   es_constrained_observed_age_nfcc_c$estimate,
+                                   es_constrained_observed_age_nfcc_d$estimate,
+                                   es_constrained_observed_age_nfcc_o$estimate,
+                                   es_constrained_observed_age_nfcc_p$estimate,
+                                   es_constrained_observed_age_pe$estimate,
+                                   es_constrained_observed_age_pns$estimate,
+                                   es_constrained_observed_age_rse$estimate,
+                                   es_constrained_observed_age_rwa$estimate,
+                                   es_constrained_observed_age_sdo$estimate,
+                                   es_constrained_observed_age_sm$estimate,
+                                   es_constrained_observed_age_soc_ic$estimate,
+                                   es_constrained_observed_age_soc_pe$estimate,
+                                   es_constrained_observed_sex_bfi_a$estimate,
+                                   es_constrained_observed_sex_bfi_c$estimate,
+                                   es_constrained_observed_sex_bfi_e$estimate,
+                                   es_constrained_observed_sex_bfi_n$estimate,
+                                   es_constrained_observed_sex_bfi_o$estimate,
+                                   es_constrained_observed_sex_bidr_im$estimate,
+                                   es_constrained_observed_sex_bidr_sde$estimate,
+                                   es_constrained_observed_sex_bjw$estimate,
+                                   es_constrained_observed_sex_brs$estimate,
+                                   es_constrained_observed_sex_he$estimate,
+                                   es_constrained_observed_sex_icat_o$estimate,
+                                   es_constrained_observed_sex_icat_s$estimate,
+                                   es_constrained_observed_sex_nfc$estimate,
+                                   es_constrained_observed_sex_nfcc_a$estimate,
+                                   es_constrained_observed_sex_nfcc_c$estimate,
+                                   es_constrained_observed_sex_nfcc_d$estimate,
+                                   es_constrained_observed_sex_nfcc_o$estimate,
+                                   es_constrained_observed_sex_nfcc_p$estimate,
+                                   es_constrained_observed_sex_pe$estimate,
+                                   es_constrained_observed_sex_pns$estimate,
+                                   es_constrained_observed_sex_rse$estimate,
+                                   es_constrained_observed_sex_rwa$estimate,
+                                   es_constrained_observed_sex_sdo$estimate,
+                                   es_constrained_observed_sex_sm$estimate,
+                                   es_constrained_observed_sex_soc_ic$estimate,
+                                   es_constrained_observed_sex_soc_pe$estimate),
+             observed_cohens_d_ci_lwr = c(es_constrained_observed_age_bfi_a$conf.int[1],
+                                          es_constrained_observed_age_bfi_c$conf.int[1],
+                                          es_constrained_observed_age_bfi_e$conf.int[1],
+                                          es_constrained_observed_age_bfi_n$conf.int[1],
+                                          es_constrained_observed_age_bfi_o$conf.int[1],
+                                          es_constrained_observed_age_bidr_im$conf.int[1],
+                                          es_constrained_observed_age_bidr_sde$conf.int[1],
+                                          es_constrained_observed_age_bjw$conf.int[1],
+                                          es_constrained_observed_age_brs$conf.int[1],
+                                          es_constrained_observed_age_he$conf.int[1],
+                                          es_constrained_observed_age_icat_o$conf.int[1],
+                                          es_constrained_observed_age_icat_s$conf.int[1],
+                                          es_constrained_observed_age_nfc$conf.int[1],
+                                          es_constrained_observed_age_nfcc_a$conf.int[1],
+                                          es_constrained_observed_age_nfcc_c$conf.int[1],
+                                          es_constrained_observed_age_nfcc_d$conf.int[1],
+                                          es_constrained_observed_age_nfcc_o$conf.int[1],
+                                          es_constrained_observed_age_nfcc_p$conf.int[1],
+                                          es_constrained_observed_age_pe$conf.int[1],
+                                          es_constrained_observed_age_pns$conf.int[1],
+                                          es_constrained_observed_age_rse$conf.int[1],
+                                          es_constrained_observed_age_rwa$conf.int[1],
+                                          es_constrained_observed_age_sdo$conf.int[1],
+                                          es_constrained_observed_age_sm$conf.int[1],
+                                          es_constrained_observed_age_soc_ic$conf.int[1],
+                                          es_constrained_observed_age_soc_pe$conf.int[1],
+                                          es_constrained_observed_sex_bfi_a$conf.int[1],
+                                          es_constrained_observed_sex_bfi_c$conf.int[1],
+                                          es_constrained_observed_sex_bfi_e$conf.int[1],
+                                          es_constrained_observed_sex_bfi_n$conf.int[1],
+                                          es_constrained_observed_sex_bfi_o$conf.int[1],
+                                          es_constrained_observed_sex_bidr_im$conf.int[1],
+                                          es_constrained_observed_sex_bidr_sde$conf.int[1],
+                                          es_constrained_observed_sex_bjw$conf.int[1],
+                                          es_constrained_observed_sex_brs$conf.int[1],
+                                          es_constrained_observed_sex_he$conf.int[1],
+                                          es_constrained_observed_sex_icat_o$conf.int[1],
+                                          es_constrained_observed_sex_icat_s$conf.int[1],
+                                          es_constrained_observed_sex_nfc$conf.int[1],
+                                          es_constrained_observed_sex_nfcc_a$conf.int[1],
+                                          es_constrained_observed_sex_nfcc_c$conf.int[1],
+                                          es_constrained_observed_sex_nfcc_d$conf.int[1],
+                                          es_constrained_observed_sex_nfcc_o$conf.int[1],
+                                          es_constrained_observed_sex_nfcc_p$conf.int[1],
+                                          es_constrained_observed_sex_pe$conf.int[1],
+                                          es_constrained_observed_sex_pns$conf.int[1],
+                                          es_constrained_observed_sex_rse$conf.int[1],
+                                          es_constrained_observed_sex_rwa$conf.int[1],
+                                          es_constrained_observed_sex_sdo$conf.int[1],
+                                          es_constrained_observed_sex_sm$conf.int[1],
+                                          es_constrained_observed_sex_soc_ic$conf.int[1],
+                                          es_constrained_observed_sex_soc_pe$conf.int[1]),
+             observed_cohens_d_ci_upr = c(es_constrained_observed_age_bfi_a$conf.int[2],
+                                          es_constrained_observed_age_bfi_c$conf.int[2],
+                                          es_constrained_observed_age_bfi_e$conf.int[2],
+                                          es_constrained_observed_age_bfi_n$conf.int[2],
+                                          es_constrained_observed_age_bfi_o$conf.int[2],
+                                          es_constrained_observed_age_bidr_im$conf.int[2],
+                                          es_constrained_observed_age_bidr_sde$conf.int[2],
+                                          es_constrained_observed_age_bjw$conf.int[2],
+                                          es_constrained_observed_age_brs$conf.int[2],
+                                          es_constrained_observed_age_he$conf.int[2],
+                                          es_constrained_observed_age_icat_o$conf.int[2],
+                                          es_constrained_observed_age_icat_s$conf.int[2],
+                                          es_constrained_observed_age_nfc$conf.int[2],
+                                          es_constrained_observed_age_nfcc_a$conf.int[2],
+                                          es_constrained_observed_age_nfcc_c$conf.int[2],
+                                          es_constrained_observed_age_nfcc_d$conf.int[2],
+                                          es_constrained_observed_age_nfcc_o$conf.int[2],
+                                          es_constrained_observed_age_nfcc_p$conf.int[2],
+                                          es_constrained_observed_age_pe$conf.int[2],
+                                          es_constrained_observed_age_pns$conf.int[2],
+                                          es_constrained_observed_age_rse$conf.int[2],
+                                          es_constrained_observed_age_rwa$conf.int[2],
+                                          es_constrained_observed_age_sdo$conf.int[2],
+                                          es_constrained_observed_age_sm$conf.int[2],
+                                          es_constrained_observed_age_soc_ic$conf.int[2],
+                                          es_constrained_observed_age_soc_pe$conf.int[2],
+                                          es_constrained_observed_sex_bfi_a$conf.int[2],
+                                          es_constrained_observed_sex_bfi_c$conf.int[2],
+                                          es_constrained_observed_sex_bfi_e$conf.int[2],
+                                          es_constrained_observed_sex_bfi_n$conf.int[2],
+                                          es_constrained_observed_sex_bfi_o$conf.int[2],
+                                          es_constrained_observed_sex_bidr_im$conf.int[2],
+                                          es_constrained_observed_sex_bidr_sde$conf.int[2],
+                                          es_constrained_observed_sex_bjw$conf.int[2],
+                                          es_constrained_observed_sex_brs$conf.int[2],
+                                          es_constrained_observed_sex_he$conf.int[2],
+                                          es_constrained_observed_sex_icat_o$conf.int[2],
+                                          es_constrained_observed_sex_icat_s$conf.int[2],
+                                          es_constrained_observed_sex_nfc$conf.int[2],
+                                          es_constrained_observed_sex_nfcc_a$conf.int[2],
+                                          es_constrained_observed_sex_nfcc_c$conf.int[2],
+                                          es_constrained_observed_sex_nfcc_d$conf.int[2],
+                                          es_constrained_observed_sex_nfcc_o$conf.int[2],
+                                          es_constrained_observed_sex_nfcc_p$conf.int[2],
+                                          es_constrained_observed_sex_pe$conf.int[2],
+                                          es_constrained_observed_sex_pns$conf.int[2],
+                                          es_constrained_observed_sex_rse$conf.int[2],
+                                          es_constrained_observed_sex_rwa$conf.int[2],
+                                          es_constrained_observed_sex_sdo$conf.int[2],
+                                          es_constrained_observed_sex_sm$conf.int[2],
+                                          es_constrained_observed_sex_soc_ic$conf.int[2],
+                                          es_constrained_observed_sex_soc_pe$conf.int[2])) %>%
   mutate(observed_latent_cohens_d_diff = observed_cohens_d - latent_cohens_d,
          abs_observed_latent_cohens_d_diff = abs(observed_latent_cohens_d_diff),
-         observed_cohens_d_percentage_error = (abs_observed_latent_cohens_d_diff / observed_cohens_d)*100,
-         abs_observed_cohens_d_percentage_error = abs(observed_cohens_d_percentage_error),
          sig_change = ifelse((latent_cohens_d > observed_cohens_d_ci_lwr & 
-                                latent_cohens_d > observed_cohens_d_ci_upr) |
+                                latent_cohens_d > observed_cohens_d_ci_upr & 
+                                observed_cohens_d < latent_cohens_d_ci_lwr & 
+                                observed_cohens_d < latent_cohens_d_ci_upr) |
                                (latent_cohens_d < observed_cohens_d_ci_lwr & 
-                                latent_cohens_d < observed_cohens_d_ci_upr), TRUE, FALSE)) %>%
+                                latent_cohens_d < observed_cohens_d_ci_upr & 
+                                observed_cohens_d > latent_cohens_d_ci_lwr & 
+                                observed_cohens_d > latent_cohens_d_ci_upr), TRUE, FALSE)) %>%
   round_df(3) %>%
   mutate(Scale = dplyr::recode(scale_name,
                                "bfi_e"    = "Big 5 Inventory - E",
@@ -1454,17 +1810,39 @@ group_differences_results <-
   select(-scale_name) %>%
   arrange(Scale)
 
-temp <- group_differences_results %>%
-  select(Scale, 
+# write to disk
+write_csv(group_differences_results, "results/group_differences_on_latent_vs_observed.csv")
+
+# summarize
+summary <- group_differences_results %>%
+  select(Scale,
          group_comparison,
-         observed_cohens_d, 
-         latent_cohens_d, 
-         observed_latent_cohens_d_diff,
-         observed_cohens_d_percentage_error,
+         observed_cohens_d,
+         latent_cohens_d,
+         abs_observed_latent_cohens_d_diff,
          sig_change)
 
-# write to disk
-write_csv(group_differences_results, "group_differences_results.csv")
+summary %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE)
+
+```
+
+```{r fig.height=12, fig.width=7}
+
+p1 <- ggplot(summary, aes(observed_cohens_d, latent_cohens_d, color = sig_change)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "darkgrey") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "darkgrey") +
+  geom_abline(slope = 1) +
+  geom_point() +
+  scale_color_viridis_d(begin = 0.3, end = 0.7)
+
+p2 <- ggplot(summary, aes(abs_observed_latent_cohens_d_diff, fill = "dummy")) +
+  geom_density(alpha = 0.7) +
+  scale_fill_viridis_d(begin = 0.7, end = 0.7) + 
+  theme(legend.position = "none")  
+
+p1 / p2
 
 ```
 

@@ -1481,7 +1481,7 @@ mi_via_cutoffs <- function(data, model, scale, group) {
         order = c("1", "2", "3", "4", "5", "6"),
         estimator = "WLSMV",
         group = group,
-        group.equal = c( "loadings", "intercepts"))
+        group.equal = c("loadings", "intercepts"))
   
   # summarize these cfa fit indices, and their change across nested models
   results <- compareFit(fit_configural, fit_metric, fit_scalar, nested = TRUE) %>%
