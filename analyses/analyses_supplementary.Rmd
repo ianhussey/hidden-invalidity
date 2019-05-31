@@ -27,7 +27,7 @@ library(timesavers)
 library(plotrix)
 
 # get data
-load("../data/processed/trimmed_data.RData")
+load("../data/trimmed_data.RData")
 
 # trim to include only the first timepoint per user_id per scale
 # ie exclude repeat participations on the same scale
@@ -35,7 +35,12 @@ trimmed_first_timepoint_per_user_per_scale <- trimmed_data %>%
   arrange(user_id, individual_differences_measure, datetime_ymdhms) %>%
   mutate(combined_var = paste0(user_id, individual_differences_measure)) %>%
   filter(combined_var != lag(combined_var)) %>%
-  dplyr::select(-combined_var)
+  dplyr::select(-combined_var) 
+
+median_age <- trimmed_first_timepoint_per_user_per_scale %>%
+  summarize(median_age = median(age, na.rm = TRUE)) %>%
+  pull(median_age) %>%
+  as.numeric()
 
 ```
 
