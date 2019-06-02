@@ -13,12 +13,11 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] patchwork_0.0.1  ggalluvial_0.9.1 rsample_0.0.4    psych_1.8.12    
- [5] lubridate_1.7.4  plotrix_3.7-4    moments_0.14     timesavers_0.1.3
- [9] kableExtra_1.0.1 knitr_1.23       semTools_0.5-1   lavaan_0.6-3    
-[13] forcats_0.4.0    stringr_1.4.0    dplyr_0.8.0.1    purrr_0.3.2     
-[17] readr_1.3.1      tidyr_0.8.3      tibble_2.1.1     ggplot2_3.1.1   
-[21] tidyverse_1.2.1 
+ [1] ggalluvial_0.9.1 rsample_0.0.4    psych_1.8.12     lubridate_1.7.4 
+ [5] plotrix_3.7-4    moments_0.14     kableExtra_1.0.1 knitr_1.23      
+ [9] semTools_0.5-1   lavaan_0.6-3     forcats_0.4.0    stringr_1.4.0   
+[13] dplyr_0.8.0.1    purrr_0.3.2      readr_1.3.1      tidyr_0.8.3     
+[17] tibble_2.1.1     ggplot2_3.1.1    tidyverse_1.2.1 
 
 loaded via a namespace (and not attached):
  [1] tidyselect_0.2.5  xfun_0.7          haven_2.1.0      

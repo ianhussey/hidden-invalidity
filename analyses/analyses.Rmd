@@ -55,7 +55,6 @@ library(lavaan)
 library(semTools)
 library(knitr)
 library(kableExtra)
-library(timesavers)  # library(devtools); install_github("ianhussey/timesavers")
 library(moments)
 library(plotrix)
 library(lubridate)
@@ -63,7 +62,14 @@ library(psych)
 library(rsample)
 library(purrr)
 library(ggalluvial)
-library(patchwork)
+
+# functions
+# rounds all numeric variables in a dataframe to the desired number of places. Non-numeric variables will be ignored.
+round_df <- function(df, digits) {
+  nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
+  df[,nums] <- round(df[,nums], digits = digits)
+  (df)
+}
 
 # options
 options(knitr.table.format = "html") # necessary configuration of tables
@@ -117,8 +123,6 @@ median_age <- trimmed_first_timepoint_per_user_per_scale %>%
   summarize(median_age = median(mean_age_by_participant)) %>%
   pull(median_age) %>%
   round(0)
-
-# split scales
 
 bfi_e_data <- trimmed_first_timepoint_per_user_per_scale %>%
   dplyr::select(bfi_e1, bfi_e2, bfi_e3, bfi_e4, bfi_e5, bfi_e6, bfi_e7, bfi_e8, sex, age) %>%

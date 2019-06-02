@@ -394,7 +394,6 @@ div.tocify {
 <span class="kw">library</span>(semTools)
 <span class="kw">library</span>(knitr)
 <span class="kw">library</span>(kableExtra)
-<span class="kw">library</span>(timesavers)  <span class="co"># library(devtools); install_github(&quot;ianhussey/timesavers&quot;)</span>
 <span class="kw">library</span>(moments)
 <span class="kw">library</span>(plotrix)
 <span class="kw">library</span>(lubridate)
@@ -402,7 +401,14 @@ div.tocify {
 <span class="kw">library</span>(rsample)
 <span class="kw">library</span>(purrr)
 <span class="kw">library</span>(ggalluvial)
-<span class="kw">library</span>(patchwork)
+
+<span class="co"># functions</span>
+<span class="co"># rounds all numeric variables in a dataframe to the desired number of places. Non-numeric variables will be ignored.</span>
+round_df &lt;-<span class="st"> </span><span class="cf">function</span>(df, digits) {
+  nums &lt;-<span class="st"> </span><span class="kw">vapply</span>(df, is.numeric, <span class="dt">FUN.VALUE =</span> <span class="kw">logical</span>(<span class="dv">1</span>))
+  df[,nums] &lt;-<span class="st"> </span><span class="kw">round</span>(df[,nums], <span class="dt">digits =</span> digits)
+  (df)
+}
 
 <span class="co"># options</span>
 <span class="kw">options</span>(<span class="dt">knitr.table.format =</span> <span class="st">&quot;html&quot;</span>) <span class="co"># necessary configuration of tables</span>
@@ -448,8 +454,6 @@ median_age &lt;-<span class="st"> </span>trimmed_first_timepoint_per_user_per_sc
 <span class="st">  </span><span class="kw">summarize</span>(<span class="dt">median_age =</span> <span class="kw">median</span>(mean_age_by_participant)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">pull</span>(median_age) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">round</span>(<span class="dv">0</span>)
-
-<span class="co"># split scales</span>
 
 bfi_e_data &lt;-<span class="st"> </span>trimmed_first_timepoint_per_user_per_scale <span class="op">%&gt;%</span>
 <span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(bfi_e1, bfi_e2, bfi_e3, bfi_e4, bfi_e5, bfi_e6, bfi_e7, bfi_e8, sex, age) <span class="op">%&gt;%</span>

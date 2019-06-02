@@ -1,0 +1,7 @@
+Scale,group,test,chisq,df,fit_chisq_p_value,cfi,tli,rmsea,srmr,df_change,cfi_change,tli_change,rmsea_change,srmr_change,MI_test
+Need for Cognition,median_age,fit_configural,368.111,270,< .0001,0.936,0.927,0.045,0.062,NA,NA,NA,NA,NA,Mixed
+Need for Cognition,median_age,fit_metric,369.05,287,0.0008,0.946,0.943,0.04,0.072,17,0.011,0.016,-0.005,0.011,Passed
+Need for Cognition,median_age,fit_scalar,387.71,304,0.0008,0.945,0.945,0.039,0.074,17,-0.001,0.002,-0.001,0.001,Passed
+Need for Cognition,sex,fit_configural,332.288,270,0.0058,0.961,0.956,0.036,0.06,NA,NA,NA,NA,NA,Good
+Need for Cognition,sex,fit_metric,389.992,287,< .0001,0.935,0.931,0.045,0.075,17,-0.026,-0.025,0.009,0.016,Failed
+Need for Cognition,sex,fit_scalar,413.938,304,< .0001,0.931,0.93,0.045,0.077,17,-0.004,-0.001,0,0.002,Passed
