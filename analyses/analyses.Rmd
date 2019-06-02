@@ -13,13 +13,8 @@ output:
 
 # To do
 
-- when this is solid, make sure stats are produced for all the remaining scales. some are now missing. this also fucks with the alluvial plot.
-- NFCC_A_subscale is all NA. check original data processing. nb "#pearson_r_estimate(data = dependability_data, Scale = "NFCC_A")," and "#pearson_r_estimate(data = stability_data, Scale = "NFCC_A")," are commented out
-- combine tables and below needs work, as ive broken sth. N and MI seem to be broken.
-- re boot the internal consistencies
-- measurement_invariance_full_results writes appreviated scale names to disk. fix?
-- based on this, check that the summary table counts are right (ie no double counting)
-- should plots, tables etc split by full/split scales or not? does the full table mention this distinction?
+- add supplementary materials in here?
+- make a stripped down version of the analysis script for others to use.
 
 # Decision making criteria
 
@@ -109,15 +104,11 @@ trimmed_first_timepoint_per_user_per_scale <- trimmed_data %>%
 # manually compiled data on k items, k factors, and changes made to scales compared to original publications.
 additional_scale_data <- read.csv("../data/additional_scale_data.csv")
 
-
-count(trimmed_data, NFCC_A_subscale)
-
 ```
 
 ## Subset data
 
 ```{r}
-
 
 # find median age to split by.
 # Because individuals can participate more than once, and their age is recorded as age at participation, repeat participations
@@ -179,7 +170,8 @@ bjw_data <- trimmed_first_timepoint_per_user_per_scale %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
 brs_data <- trimmed_first_timepoint_per_user_per_scale %>%
-  dplyr::select(brs1, brs2, brs3, brs4, brs5, brs6, brs7, brs8, brs9, brs10, brs11, brs12, brs13, brs14, brs15, brs16, sex, age) %>%
+  dplyr::select(brs1, brs2, brs3, brs4, brs5, brs6, brs7, brs8, brs9, brs10, 
+                brs11, brs12, brs13, brs14, brs15, brs16, sex, age) %>%
   na.omit() %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
@@ -487,7 +479,34 @@ n_per_scale <- trimmed_first_timepoint_per_user_per_scale %>%
                                "NFCC, Part 2" = "NFCC-AO")) %>%
   full_join(joiner_data_frame, by = "Scale") %>%
   select(-Scale) %>%
-  rename(Scale = Scales_all) 
+  rename(Scale = Scales_all)  %>%
+  mutate(Scale = dplyr::recode(Scale,
+                               "BFI-E"    = "Big 5 Inventory - E",
+                               "BFI-C"    = "Big 5 Inventory - C",
+                               "BFI-N"    = "Big 5 Inventory - N",
+                               "BFI-A"    = "Big 5 Inventory - A",
+                               "BFI-O"    = "Big 5 Inventory - O",
+                               "BIDR-IM"  = "Balanced Inventory of Desirable Responding - Impression Management",
+                               "BIDR-SDE" = "Balanced Inventory of Desirable Responding - Self Deception",
+                               "BJW"      = "Belief in a Just World: General Just World Scale",
+                               "BRS"      = "Bayesian Racism",
+                               "HE"       = "Humanitarianism-Egalitarianism",
+                               "ICAT-O"   = "Intuitions about Controllability and Awareness of Thoughts - Others",
+                               "ICAT-S"   = "Intuitions about Controllability and Awareness of Thoughts - Self",
+                               "NFC"      = "Need for Cognition",
+                               "NFCC-P"  = "Need for Cognitive Closure - P",
+                               "NFCC-D"  = "Need for Cognitive Closure - D",
+                               "NFCC-C"  = "Need for Cognitive Closure - C",
+                               "NFCC-A"  = "Need for Cognitive Closure - A",
+                               "NFCC-O"  = "Need for Cognitive Closure - O",
+                               "PE"       = "Protestant Ethic",
+                               "PNS"      = "Personal Need for Structure",
+                               "RSE"      = "Rosenberg Self-Esteem",
+                               "RWA"      = "Ring-Wing Authoritarianism",
+                               "SDO"      = "Social Dominance Orientation",
+                               "SM"       = "Self-Monitoring",
+                               "SOC-IC"   = "Spheres of Control - Interpersonal Control",
+                               "SOC-PE"   = "Spheres of Control - Personal Efficacy"))
 
 ```
 
@@ -576,8 +595,6 @@ soc_ic_model <- "IC =~ soc_ic1 + soc_ic2 + soc_ic3 + soc_ic4 + soc_ic5 +
 soc_pe_model <- "PE =~ soc_pe1 + soc_pe2 + soc_pe3 + soc_pe4 + soc_pe5 + 
                        soc_pe6 + soc_pe7 + soc_pe8 + soc_pe9 + soc_pe10" 
 
-distinct(trimmed_data, nfcc_a10)
-
 ```
 
 # Demographics
@@ -659,7 +676,8 @@ trimmed_first_timepoint_per_user_per_scale %>%
          BFI_E_subscale, BFI_C_subscale, BFI_N_subscale, BFI_A_subscale, BFI_O_subscale, 
          NFCC_P_subscale, NFCC_D_subscale, NFCC_C_subscale, NFCC_O_subscale, NFCC_A_subscale) %>%
   gather(key = subscale, value = score, c(BFI_E_subscale, BFI_C_subscale, BFI_N_subscale, BFI_A_subscale, BFI_O_subscale, 
-                                          NFCC_P_subscale, NFCC_D_subscale, NFCC_C_subscale, NFCC_O_subscale, NFCC_A_subscale)) %>%
+                                          NFCC_P_subscale, NFCC_D_subscale, NFCC_C_subscale, 
+                                          NFCC_O_subscale, NFCC_A_subscale)) %>%
   na.omit() %>%
   ggplot() + 
   geom_density(aes(score)) +
@@ -747,207 +765,214 @@ fit_cfa <- function(data, model) {
 
 ```{r}
 
-# # NB Bootstrapping of the CIs takes time (30+ mins), so the results have been saved to disk to save others time. Uncomment the below code to redo the bootstrapping.
+# check if these scores have already been computed and saved to disk. If so, load them. If not, compute them. 
+# this is done because the execution time for these is long - in the case of A scores it can be several hours.
+if (exists(load("results/consistency_results.RData"))) {
+  
+  load("results/consistency_results.RData")
+  
+} else {
+  
+  
+  n_boots <- 1000
+  
+  # NB the below code isn't as elegant as I'd like, but works just fine. `model` should be passed as an argument among the three nested functions, but I couldn't work out how to get purrr::map() to take an argument for the function it applies to the bootstraps. Instead, model is defined as a global variable before each estimate_reliability() call. This variable scoping is fine statistically, but represents suboptimal coding afaik.
+  
+  # helper function
+  bootstrap_reliability_helper <- function(split, ...) {
+    
+    require(lavaan)
+    require(semTools)
+    require(tidyverse)
+    
+    fit_cfa(analysis(split), model) %>%
+      reliability() %>%
+      as.data.frame() %>%
+      rownames_to_column(var = "metric") %>%
+      select(metric, total) %>%
+      filter(metric %in% c("alpha",
+                           "omega2",
+                           "omega3")) %>%
+      mutate(metric = recode(metric,
+                             "alpha" = "alpha",
+                             "omega2" = "omega_t",
+                             "omega3" = "omega_h"))
+    
+  }
+  
+  # apply bootstrapping, then extract coefficients via percentile method
+  estimate_reliability <- function(data, scale, ...) {
+    
+    require(purrr)
+    require(rsample)
+    require(tidyverse)
+    require(timesavers)
+    
+    # create bootstraps using out of bag method. makes a df with values that are collapsed dfs.
+    boot_samples <- data %>%
+      bootstraps(., times = n_boots)
+    
+    # apply to each bootstrap
+    boots <- boot_samples %>%
+      mutate(reliability_results = map(splits, bootstrap_reliability_helper)) %>%
+      unnest(reliability_results)
+    
+    # find CIs using percentile method
+    boot_estimates <- boots %>%
+      group_by(metric) %>%
+      summarize(median   = quantile(total, 0.500),
+                ci_lower = quantile(total, 0.025),
+                ci_upper = quantile(total, 0.975)) %>%
+      round_df(3) %>%
+      mutate(Scale = scale)
+    
+    return(boot_estimates)
+  }
+  
+  model <- bfi_e_model
+  consistency_bfi_e    <- estimate_reliability(bfi_e_data,    "Big 5 Inventory - E")
+  
+  model <- bfi_c_model
+  consistency_bfi_c    <- estimate_reliability(bfi_c_data,    "Big 5 Inventory - C")
+  
+  model <- bfi_n_model
+  consistency_bfi_n    <- estimate_reliability(bfi_n_data,    "Big 5 Inventory - N")
+  
+  model <- bfi_a_model
+  consistency_bfi_a    <- estimate_reliability(bfi_a_data,    "Big 5 Inventory - A")
+  
+  model <- bfi_o_model
+  consistency_bfi_o    <- estimate_reliability(bfi_o_data,    "Big 5 Inventory - O")
+  
+  model <- bidr_im_model
+  consistency_bidr_im  <- estimate_reliability(bidr_im_data,  "Balanced Inventory of Desirable Responding - Impression Management")
+  
+  model <- bidr_sde_model
+  consistency_bidr_sde <- estimate_reliability(bidr_sde_data, "Balanced Inventory of Desirable Responding - Self Deception")
+  
+  model <- bjw_model
+  consistency_bjw      <- estimate_reliability(bjw_data,      "Belief in a Just World: General Just World Scale")
+  
+  model <- brs_model
+  consistency_brs      <- estimate_reliability(brs_data,      "Bayesian Racism")
+  
+  model <- he_model
+  consistency_he       <- estimate_reliability(he_data,       "Humanitarianism-Egalitarianism")
+  
+  model <- icat_o_model
+  consistency_icat_o   <- estimate_reliability(icat_o_data,   "Intuitions about Controllability and Awareness of Thoughts - Others")
+  
+  model <- icat_s_model
+  consistency_icat_s   <- estimate_reliability(icat_s_data,   "Intuitions about Controllability and Awareness of Thoughts - Self")
+  
+  model <- nfc_model
+  consistency_nfc      <- estimate_reliability(nfc_data,      "Need for Cognition")
+  
+  model <- nfcc_a_model
+  consistency_nfcc_a   <- estimate_reliability(nfcc_a_data,   "Need for Cognitive Closure - A")
+  
+  model <- nfcc_o_model
+  consistency_nfcc_o   <- estimate_reliability(nfcc_o_data,   "Need for Cognitive Closure - O")
+  
+  model <- nfcc_p_model
+  consistency_nfcc_p   <- estimate_reliability(nfcc_p_data,   "Need for Cognitive Closure - P")
+  
+  model <- nfcc_d_model
+  consistency_nfcc_d   <- estimate_reliability(nfcc_d_data,   "Need for Cognitive Closure - D")
+  
+  model <- nfcc_c_model
+  consistency_nfcc_c   <- estimate_reliability(nfcc_c_data,   "Need for Cognitive Closure - C")
+  
+  model <- pe_model
+  consistency_pe       <- estimate_reliability(pe_data,       "Protestant Ethic")
+  
+  model <- pns_model
+  consistency_pns      <- estimate_reliability(pns_data,      "Personal Need for Structure")
+  
+  model <- rse_model
+  consistency_rse      <- estimate_reliability(rse_data,      "Rosenberg Self-Esteem")
+  
+  model <- rwa_model
+  consistency_rwa      <- estimate_reliability(rwa_data,      "Ring-Wing Authoritarianism")
+  
+  model <- sdo_model
+  consistency_sdo      <- estimate_reliability(sdo_data,      "Social Dominance Orientation")
+  
+  model <- sm_model
+  consistency_sm       <- estimate_reliability(sm_data,       "Self-Monitoring")
+  
+  model <- soc_ic_model
+  consistency_soc_ic   <- estimate_reliability(soc_ic_data,   "Spheres of Control - Interpersonal Control")
+  
+  model <- soc_pe_model
+  consistency_soc_pe   <- estimate_reliability(soc_pe_data,   "Spheres of Control - Personal Efficacy")
+  
+  consistency_estimates_temp <- bind_rows(consistency_bfi_e,
+                                          consistency_bfi_c,
+                                          consistency_bfi_n,
+                                          consistency_bfi_a,
+                                          consistency_bfi_o,
+                                          consistency_bidr_im,
+                                          consistency_bidr_sde,
+                                          consistency_bjw,
+                                          consistency_brs,
+                                          consistency_he,
+                                          consistency_icat_o,
+                                          consistency_icat_s,
+                                          consistency_nfc,
+                                          consistency_nfcc_a,
+                                          consistency_nfcc_o,
+                                          consistency_nfcc_p,
+                                          consistency_nfcc_d,
+                                          consistency_nfcc_c,
+                                          consistency_pe,
+                                          consistency_pns,
+                                          consistency_rse,
+                                          consistency_rwa,
+                                          consistency_sdo,
+                                          consistency_sm,
+                                          consistency_soc_ic,
+                                          consistency_soc_pe)
+  
+  consistency_estimates_alpha <- consistency_estimates_temp %>%
+    filter(metric == "alpha") %>%
+    select(-metric) %>%
+    rename(alpha = median,
+           alpha_ci_lower = ci_lower,
+           alpha_ci_upper = ci_upper)
+  
+  consistency_estimates_omega_t <- consistency_estimates_temp %>%
+    filter(metric == "omega_t") %>%
+    select(-metric) %>%
+    rename(omega_t = median,
+           omega_t_ci_lower = ci_lower,
+           omega_t_ci_upper = ci_upper)
+  
+  consistency_estimates_omega_h <- consistency_estimates_temp %>%
+    filter(metric == "omega_h") %>%
+    select(-metric) %>%
+    rename(omega_h = median,
+           omega_h_ci_lower = ci_lower,
+           omega_h_ci_upper = ci_upper)
+  
+  consistency_results <- consistency_estimates_alpha %>%
+    left_join(consistency_estimates_omega_t, by = "Scale") %>%
+    left_join(consistency_estimates_omega_h, by = "Scale")
+  
+  # remove redundant objects to keep the environment tidy
+  rm(consistency_estimates_alpha, consistency_estimates_omega_t, consistency_estimates_omega_h,
+     consistency_bfi_e, consistency_bfi_c, consistency_bfi_n, consistency_bfi_a,
+     consistency_bfi_o, consistency_bidr_im, consistency_bidr_sde, consistency_bjw, consistency_brs, consistency_he,
+     consistency_icat_o, consistency_icat_s, consistency_nfc, consistency_nfcc_a, consistency_nfcc_o,
+     consistency_nfcc_p, consistency_nfcc_d, consistency_nfcc_c, consistency_pe, consistency_pns,
+     consistency_rse, consistency_rwa, consistency_sdo, consistency_sm, consistency_soc_ic, consistency_soc_pe)
 
-
-n_boots <- 1
-
-# NB the below code isn't as elegant as I'd like, but works just fine. `model` should be passed as an argument among the three nested functions, but I couldn't work out how to get purrr::map() to take an argument for the function it applies to the bootstraps. Instead, model is defined as a global variable before each estimate_reliability() call. This variable scoping is fine statistically, but represents suboptimal coding afaik. 
-
-# helper function
-bootstrap_reliability_helper <- function(split, ...) {
-
-  require(lavaan)
-  require(semTools)
-  require(tidyverse)
-
-  fit_cfa(analysis(split), model) %>%
-    reliability() %>%
-    as.data.frame() %>%
-    rownames_to_column(var = "metric") %>%
-    select(metric, total) %>%
-    filter(metric %in% c("alpha",
-                         "omega2",
-                         "omega3")) %>%
-    mutate(metric = recode(metric,
-                           "alpha" = "alpha",
-                           "omega2" = "omega_t",
-                           "omega3" = "omega_h"))
-
+  # save to disk
+  save(consistency_results, file = "results/consistency_results.RData")
+  #load("results/consistency_results.RData")
+  
 }
 
-# apply bootstrapping, then extract coefficients via percentile method
-estimate_reliability <- function(data, scale, ...) {
-
-  require(purrr)
-  require(rsample)
-  require(tidyverse)
-  require(timesavers)
-
-  # create bootstraps using out of bag method. makes a df with values that are collapsed dfs.
-  boot_samples <- data %>%
-    bootstraps(., times = n_boots)
-
-  # apply to each bootstrap
-  boots <- boot_samples %>%
-    mutate(reliability_results = map(splits, bootstrap_reliability_helper)) %>%
-    unnest(reliability_results)
-
-  # find CIs using percentile method
-  boot_estimates <- boots %>%
-    group_by(metric) %>%
-    summarize(median   = quantile(total, 0.500),
-              ci_lower = quantile(total, 0.025),
-              ci_upper = quantile(total, 0.975)) %>%
-    round_df(3) %>%
-    mutate(Scale = scale)
-
-  return(boot_estimates)
-}
-
-model <- bfi_e_model
-consistency_bfi_e    <- estimate_reliability(bfi_e_data,    "Big 5 Inventory - E")
-
-model <- bfi_c_model
-consistency_bfi_c    <- estimate_reliability(bfi_c_data,    "Big 5 Inventory - C")
-
-model <- bfi_n_model
-consistency_bfi_n    <- estimate_reliability(bfi_n_data,    "Big 5 Inventory - N")
-
-model <- bfi_a_model
-consistency_bfi_a    <- estimate_reliability(bfi_a_data,    "Big 5 Inventory - A")
-
-model <- bfi_o_model
-consistency_bfi_o    <- estimate_reliability(bfi_o_data,    "Big 5 Inventory - O")
-
-model <- bidr_im_model
-consistency_bidr_im  <- estimate_reliability(bidr_im_data,  "Balanced Inventory of Desirable Responding - Impression Management")
-
-model <- bidr_sde_model
-consistency_bidr_sde <- estimate_reliability(bidr_sde_data, "Balanced Inventory of Desirable Responding - Self Deception")
-
-model <- bjw_model
-consistency_bjw      <- estimate_reliability(bjw_data,      "Belief in a Just World: General Just World Scale")
-
-model <- brs_model
-consistency_brs      <- estimate_reliability(brs_data,      "Bayesian Racism")
-
-model <- he_model
-consistency_he       <- estimate_reliability(he_data,       "Humanitarianism-Egalitarianism")
-
-model <- icat_o_model
-consistency_icat_o   <- estimate_reliability(icat_o_data,   "Intuitions about Controllability and Awareness of Thoughts - Others")
-
-model <- icat_s_model
-consistency_icat_s   <- estimate_reliability(icat_s_data,   "Intuitions about Controllability and Awareness of Thoughts - Self")
-
-model <- nfc_model
-consistency_nfc      <- estimate_reliability(nfc_data,      "Need for Cognition")
-
-model <- nfcc_a_model
-consistency_nfcc_a   <- estimate_reliability(nfcc_a_data,   "Need for Cognitive Closure - A")
-
-model <- nfcc_o_model
-consistency_nfcc_o   <- estimate_reliability(nfcc_o_data,   "Need for Cognitive Closure - O")
-
-model <- nfcc_p_model
-consistency_nfcc_p   <- estimate_reliability(nfcc_p_data,   "Need for Cognitive Closure - P")
-
-model <- nfcc_d_model
-consistency_nfcc_d   <- estimate_reliability(nfcc_d_data,   "Need for Cognitive Closure - D")
-
-model <- nfcc_c_model
-consistency_nfcc_c   <- estimate_reliability(nfcc_c_data,   "Need for Cognitive Closure - C")
-
-model <- pe_model
-consistency_pe       <- estimate_reliability(pe_data,       "Protestant Ethic")
-
-model <- pns_model
-consistency_pns      <- estimate_reliability(pns_data,      "Personal Need for Structure")
-
-model <- rse_model
-consistency_rse      <- estimate_reliability(rse_data,      "Rosenberg Self-Esteem")
-
-model <- rwa_model
-consistency_rwa      <- estimate_reliability(rwa_data,      "Ring-Wing Authoritarianism")
-
-model <- sdo_model
-consistency_sdo      <- estimate_reliability(sdo_data,      "Social Dominance Orientation")
-
-model <- sm_model
-consistency_sm       <- estimate_reliability(sm_data,       "Self-Monitoring")
-
-model <- soc_ic_model
-consistency_soc_ic   <- estimate_reliability(soc_ic_data,   "Spheres of Control - Interpersonal Control")
-
-model <- soc_pe_model
-consistency_soc_pe   <- estimate_reliability(soc_pe_data,   "Spheres of Control - Personal Efficacy")
-
-consistency_estimates_temp <- bind_rows(consistency_bfi_e,
-                                        consistency_bfi_c,
-                                        consistency_bfi_n,
-                                        consistency_bfi_a,
-                                        consistency_bfi_o,
-                                        consistency_bidr_im,
-                                        consistency_bidr_sde,
-                                        consistency_bjw,
-                                        consistency_brs,
-                                        consistency_he,
-                                        consistency_icat_o,
-                                        consistency_icat_s,
-                                        consistency_nfc,
-                                        consistency_nfcc_a,
-                                        consistency_nfcc_o,
-                                        consistency_nfcc_p,
-                                        consistency_nfcc_d,
-                                        consistency_nfcc_c,
-                                        consistency_pe,
-                                        consistency_pns,
-                                        consistency_rse,
-                                        consistency_rwa,
-                                        consistency_sdo,
-                                        consistency_sm,
-                                        consistency_soc_ic,
-                                        consistency_soc_pe)
-
-consistency_estimates_alpha <- consistency_estimates_temp %>%
-  filter(metric == "alpha") %>%
-  select(-metric) %>%
-  rename(alpha = median,
-         alpha_ci_lower = ci_lower,
-         alpha_ci_upper = ci_upper)
-
-consistency_estimates_omega_t <- consistency_estimates_temp %>%
-  filter(metric == "omega_t") %>%
-  select(-metric) %>%
-  rename(omega_t = median,
-         omega_t_ci_lower = ci_lower,
-         omega_t_ci_upper = ci_upper)
-
-consistency_estimates_omega_h <- consistency_estimates_temp %>%
-  filter(metric == "omega_h") %>%
-  select(-metric) %>%
-  rename(omega_h = median,
-         omega_h_ci_lower = ci_lower,
-         omega_h_ci_upper = ci_upper)
-
-consistency_results <- consistency_estimates_alpha %>%
-  left_join(consistency_estimates_omega_t, by = "Scale") %>%
-  left_join(consistency_estimates_omega_h, by = "Scale")
-
-# remove redundant objects to keep the environment tidy
-rm(consistency_estimates_alpha, consistency_estimates_omega_t, consistency_estimates_omega_h,
-   consistency_bfi_e, consistency_bfi_c, consistency_bfi_n, consistency_bfi_a,
-   consistency_bfi_o, consistency_bidr_im, consistency_bidr_sde, consistency_bjw, consistency_brs, consistency_he,
-   consistency_icat_o, consistency_icat_s, consistency_nfc, consistency_nfcc_a, consistency_nfcc_o, 
-   consistency_nfcc_p, consistency_nfcc_d, consistency_nfcc_c, consistency_pe, consistency_pns,
-   consistency_rse, consistency_rwa, consistency_sdo, consistency_sm, consistency_soc_ic, consistency_soc_pe)
-
-```
-
-```{r}
-#save(consistency_results, file = "results/consistency_results.RData")
-load("results/consistency_results.RData")
 ```
 
 ## Test-retest reliability
@@ -998,7 +1023,7 @@ dependability_results <-
         pearson_r_estimate(data = dependability_data, Scale = "ICAT-O"),
         pearson_r_estimate(data = dependability_data, Scale = "ICAT-S"),
         pearson_r_estimate(data = dependability_data, Scale = "NFC"),
-        #pearson_r_estimate(data = dependability_data, Scale = "NFCC_A"),
+        pearson_r_estimate(data = dependability_data, Scale = "NFCC_A"),
         pearson_r_estimate(data = dependability_data, Scale = "NFCC_O"),
         pearson_r_estimate(data = dependability_data, Scale = "NFCC_P"),
         pearson_r_estimate(data = dependability_data, Scale = "NFCC_D"),
@@ -1014,7 +1039,34 @@ dependability_results <-
   rename(`Test-retest dependability r` = pearson_r,
          `dependability r lower` = pearson_r_ci_lwr,
          `dependability r upper` = pearson_r_ci_upr) %>%
-  full_join(n_per_scale_dependability, by = "Scale") 
+  full_join(n_per_scale_dependability, by = "Scale") %>%
+  mutate(Scale = dplyr::recode(Scale,
+                               "BFI_E"    = "Big 5 Inventory - E",
+                               "BFI_C"    = "Big 5 Inventory - C",
+                               "BFI_N"    = "Big 5 Inventory - N",
+                               "BFI_A"    = "Big 5 Inventory - A",
+                               "BFI_O"    = "Big 5 Inventory - O",
+                               "BIDR-IM"  = "Balanced Inventory of Desirable Responding - Impression Management",
+                               "BIDR-SDE" = "Balanced Inventory of Desirable Responding - Self Deception",
+                               "BJW"      = "Belief in a Just World: General Just World Scale",
+                               "BRS"      = "Bayesian Racism",
+                               "HE"       = "Humanitarianism-Egalitarianism",
+                               "ICAT-O"   = "Intuitions about Controllability and Awareness of Thoughts - Others",
+                               "ICAT-S"   = "Intuitions about Controllability and Awareness of Thoughts - Self",
+                               "NFC"      = "Need for Cognition",
+                               "NFCC_P"  = "Need for Cognitive Closure - P",
+                               "NFCC_D"  = "Need for Cognitive Closure - D",
+                               "NFCC_C"  = "Need for Cognitive Closure - C",
+                               "NFCC_A"  = "Need for Cognitive Closure - A",
+                               "NFCC_O"  = "Need for Cognitive Closure - O",
+                               "PE"       = "Protestant Ethic",
+                               "PNS"      = "Personal Need for Structure",
+                               "RSE"      = "Rosenberg Self-Esteem",
+                               "RWA"      = "Ring-Wing Authoritarianism",
+                               "SDO"      = "Social Dominance Orientation",
+                               "SM"       = "Self-Monitoring",
+                               "SOC-IC"   = "Spheres of Control - Interpersonal Control",
+                               "SOC-PE"   = "Spheres of Control - Personal Efficacy"))
 
 ```
 
@@ -1029,7 +1081,7 @@ stability_data <- two_timepoint_scores %>%
 n_per_scale_stability <- stability_data %>%
   count(individual_differences_measure) %>%
   rename(Scale = individual_differences_measure,
-         `Test-retest dependability n` = n)
+         `Test-retest stability n` = n)
 
 stability_results <-
   rbind(pearson_r_estimate(data = stability_data, Scale = "BFI_E"),
@@ -1045,7 +1097,7 @@ stability_results <-
         pearson_r_estimate(data = stability_data, Scale = "ICAT-O"),
         pearson_r_estimate(data = stability_data, Scale = "ICAT-S"),
         pearson_r_estimate(data = stability_data, Scale = "NFC"),
-        #pearson_r_estimate(data = stability_data, Scale = "NFCC_A"),
+        pearson_r_estimate(data = stability_data, Scale = "NFCC_A"),
         pearson_r_estimate(data = stability_data, Scale = "NFCC_O"),
         pearson_r_estimate(data = stability_data, Scale = "NFCC_P"),
         pearson_r_estimate(data = stability_data, Scale = "NFCC_D"),
@@ -1061,7 +1113,34 @@ stability_results <-
   rename(`Test-retest stability r` = pearson_r,
          `stability r lower` = pearson_r_ci_lwr,
          `stability r upper` = pearson_r_ci_upr) %>%
-  full_join(n_per_scale_stability, by = "Scale")
+  full_join(n_per_scale_stability, by = "Scale") %>%
+  mutate(Scale = dplyr::recode(Scale,
+                               "BFI_E"    = "Big 5 Inventory - E",
+                               "BFI_C"    = "Big 5 Inventory - C",
+                               "BFI_N"    = "Big 5 Inventory - N",
+                               "BFI_A"    = "Big 5 Inventory - A",
+                               "BFI_O"    = "Big 5 Inventory - O",
+                               "BIDR-IM"  = "Balanced Inventory of Desirable Responding - Impression Management",
+                               "BIDR-SDE" = "Balanced Inventory of Desirable Responding - Self Deception",
+                               "BJW"      = "Belief in a Just World: General Just World Scale",
+                               "BRS"      = "Bayesian Racism",
+                               "HE"       = "Humanitarianism-Egalitarianism",
+                               "ICAT-O"   = "Intuitions about Controllability and Awareness of Thoughts - Others",
+                               "ICAT-S"   = "Intuitions about Controllability and Awareness of Thoughts - Self",
+                               "NFC"      = "Need for Cognition",
+                               "NFCC_P"  = "Need for Cognitive Closure - P",
+                               "NFCC_D"  = "Need for Cognitive Closure - D",
+                               "NFCC_C"  = "Need for Cognitive Closure - C",
+                               "NFCC_A"  = "Need for Cognitive Closure - A",
+                               "NFCC_O"  = "Need for Cognitive Closure - O",
+                               "PE"       = "Protestant Ethic",
+                               "PNS"      = "Personal Need for Structure",
+                               "RSE"      = "Rosenberg Self-Esteem",
+                               "RWA"      = "Ring-Wing Authoritarianism",
+                               "SDO"      = "Social Dominance Orientation",
+                               "SM"       = "Self-Monitoring",
+                               "SOC-IC"   = "Spheres of Control - Interpersonal Control",
+                               "SOC-PE"   = "Spheres of Control - Personal Efficacy"))
 
 ```
 
@@ -1117,10 +1196,7 @@ cfi_fit_results <-
             cfa_fit_metrics(fit_cfa(sm_data,       sm_model),       scale = "Self-Monitoring"),
             cfa_fit_metrics(fit_cfa(soc_ic_data,   soc_ic_model),   scale = "Spheres of Control - Interpersonal Control"),
             cfa_fit_metrics(fit_cfa(soc_pe_data,   soc_pe_model),   scale = "Spheres of Control - Personal Efficacy")) %>%
-  round_df(3) %>%
-  # join other scale data in
-  left_join(n_per_scale, by = "Scale") %>% 
-  left_join(additional_scale_data, by = "Scale")
+  round_df(3)
 
 ```
 
@@ -1200,60 +1276,60 @@ mi_via_cutoffs <- function(data, model, scale, group) {
 }
 
 # mi for gender
-MI_sex_bfi_e    <- mi_via_cutoffs(data = bfi_e_data,    model = bfi_e_model,    scale = "bfi_e",    group = "sex")
-MI_sex_bfi_c    <- mi_via_cutoffs(data = bfi_c_data,    model = bfi_c_model,    scale = "bfi_c",    group = "sex")
-MI_sex_bfi_n    <- mi_via_cutoffs(data = bfi_n_data,    model = bfi_n_model,    scale = "bfi_n",    group = "sex")
-MI_sex_bfi_a    <- mi_via_cutoffs(data = bfi_a_data,    model = bfi_a_model,    scale = "bfi_a",    group = "sex")
-MI_sex_bfi_o    <- mi_via_cutoffs(data = bfi_o_data,    model = bfi_o_model,    scale = "bfi_o",    group = "sex")
-MI_sex_bidr_im  <- mi_via_cutoffs(data = bidr_im_data,  model = bidr_im_model,  scale = "bidr_im",  group = "sex")
-MI_sex_bidr_sde <- mi_via_cutoffs(data = bidr_sde_data, model = bidr_sde_model, scale = "bidr_sde", group = "sex")
-MI_sex_bjw      <- mi_via_cutoffs(data = bjw_data,      model = bjw_model,      scale = "bjw",      group = "sex")
-MI_sex_brs      <- mi_via_cutoffs(data = brs_data,      model = brs_model,      scale = "brs",      group = "sex")
-MI_sex_he       <- mi_via_cutoffs(data = he_data,       model = he_model,       scale = "he",       group = "sex")
-MI_sex_icat_o   <- mi_via_cutoffs(data = icat_o_data,   model = icat_o_model,   scale = "icat_o",   group = "sex")
-MI_sex_icat_s   <- mi_via_cutoffs(data = icat_s_data,   model = icat_s_model,   scale = "icat_s",   group = "sex")
-MI_sex_nfc      <- mi_via_cutoffs(data = nfc_data,      model = nfc_model,      scale = "nfc",      group = "sex")
-MI_sex_nfcc_a   <- mi_via_cutoffs(data = nfcc_a_data,   model = nfcc_a_model,   scale = "nfcc_a",   group = "sex")
-MI_sex_nfcc_o   <- mi_via_cutoffs(data = nfcc_o_data,   model = nfcc_o_model,   scale = "nfcc_o",   group = "sex")
-MI_sex_nfcc_p   <- mi_via_cutoffs(data = nfcc_p_data,   model = nfcc_p_model,   scale = "nfcc_p",   group = "sex")
-MI_sex_nfcc_d   <- mi_via_cutoffs(data = nfcc_d_data,   model = nfcc_d_model,   scale = "nfcc_d",   group = "sex")
-MI_sex_nfcc_c   <- mi_via_cutoffs(data = nfcc_c_data,   model = nfcc_c_model,   scale = "nfcc_c",   group = "sex")
-MI_sex_pe       <- mi_via_cutoffs(data = pe_data,       model = pe_model,       scale = "pe",       group = "sex")
-MI_sex_pns      <- mi_via_cutoffs(data = pns_data,      model = pns_model,      scale = "pns",      group = "sex")
-MI_sex_rse      <- mi_via_cutoffs(data = rse_data,      model = rse_model,      scale = "rse",      group = "sex")
-MI_sex_rwa      <- mi_via_cutoffs(data = rwa_data,      model = rwa_model,      scale = "rwa",      group = "sex")
-MI_sex_sdo      <- mi_via_cutoffs(data = sdo_data,      model = sdo_model,      scale = "sdo",      group = "sex")
-MI_sex_sm       <- mi_via_cutoffs(data = sm_data,       model = sm_model,       scale = "sm",       group = "sex")
-MI_sex_soc_ic   <- mi_via_cutoffs(data = soc_ic_data,   model = soc_ic_model,   scale = "soc_ic",   group = "sex")
-MI_sex_soc_pe   <- mi_via_cutoffs(data = soc_pe_data,   model = soc_pe_model,   scale = "soc_pe",   group = "sex")
+MI_sex_bfi_e    <- mi_via_cutoffs(data = bfi_e_data,    model = bfi_e_model,    scale = "BFI_E",    group = "sex")
+MI_sex_bfi_c    <- mi_via_cutoffs(data = bfi_c_data,    model = bfi_c_model,    scale = "BFI_C",    group = "sex")
+MI_sex_bfi_n    <- mi_via_cutoffs(data = bfi_n_data,    model = bfi_n_model,    scale = "BFI_N",    group = "sex")
+MI_sex_bfi_a    <- mi_via_cutoffs(data = bfi_a_data,    model = bfi_a_model,    scale = "BFI_A",    group = "sex")
+MI_sex_bfi_o    <- mi_via_cutoffs(data = bfi_o_data,    model = bfi_o_model,    scale = "BFI_O",    group = "sex")
+MI_sex_bidr_im  <- mi_via_cutoffs(data = bidr_im_data,  model = bidr_im_model,  scale = "BIDR-IM",  group = "sex")
+MI_sex_bidr_sde <- mi_via_cutoffs(data = bidr_sde_data, model = bidr_sde_model, scale = "BIDR-SDE", group = "sex")
+MI_sex_bjw      <- mi_via_cutoffs(data = bjw_data,      model = bjw_model,      scale = "BJW",      group = "sex")
+MI_sex_brs      <- mi_via_cutoffs(data = brs_data,      model = brs_model,      scale = "BRS",      group = "sex")
+MI_sex_he       <- mi_via_cutoffs(data = he_data,       model = he_model,       scale = "HE",       group = "sex")
+MI_sex_icat_o   <- mi_via_cutoffs(data = icat_o_data,   model = icat_o_model,   scale = "ICAT-O",   group = "sex")
+MI_sex_icat_s   <- mi_via_cutoffs(data = icat_s_data,   model = icat_s_model,   scale = "ICAT-S",   group = "sex")
+MI_sex_nfc      <- mi_via_cutoffs(data = nfc_data,      model = nfc_model,      scale = "NFC",      group = "sex")
+MI_sex_nfcc_a   <- mi_via_cutoffs(data = nfcc_a_data,   model = nfcc_a_model,   scale = "NFCC_A",   group = "sex")
+MI_sex_nfcc_o   <- mi_via_cutoffs(data = nfcc_o_data,   model = nfcc_o_model,   scale = "NFCC_O",   group = "sex")
+MI_sex_nfcc_p   <- mi_via_cutoffs(data = nfcc_p_data,   model = nfcc_p_model,   scale = "NFCC_P",   group = "sex")
+MI_sex_nfcc_d   <- mi_via_cutoffs(data = nfcc_d_data,   model = nfcc_d_model,   scale = "NFCC_D",   group = "sex")
+MI_sex_nfcc_c   <- mi_via_cutoffs(data = nfcc_c_data,   model = nfcc_c_model,   scale = "NFCC_C",   group = "sex")
+MI_sex_pe       <- mi_via_cutoffs(data = pe_data,       model = pe_model,       scale = "PE",       group = "sex")
+MI_sex_pns      <- mi_via_cutoffs(data = pns_data,      model = pns_model,      scale = "PNS",      group = "sex")
+MI_sex_rse      <- mi_via_cutoffs(data = rse_data,      model = rse_model,      scale = "RSE",      group = "sex")
+MI_sex_rwa      <- mi_via_cutoffs(data = rwa_data,      model = rwa_model,      scale = "RWA",      group = "sex")
+MI_sex_sdo      <- mi_via_cutoffs(data = sdo_data,      model = sdo_model,      scale = "SDO",      group = "sex")
+MI_sex_sm       <- mi_via_cutoffs(data = sm_data,       model = sm_model,       scale = "SM",       group = "sex")
+MI_sex_soc_ic   <- mi_via_cutoffs(data = soc_ic_data,   model = soc_ic_model,   scale = "SOC-IC",   group = "sex")
+MI_sex_soc_pe   <- mi_via_cutoffs(data = soc_pe_data,   model = soc_pe_model,   scale = "SOC-PE",   group = "sex")
 
 # mi for median age
-MI_age_bfi_e    <- mi_via_cutoffs(data = bfi_e_data,    model = bfi_e_model,    scale = "bfi_e",    group = "age")
-MI_age_bfi_c    <- mi_via_cutoffs(data = bfi_c_data,    model = bfi_c_model,    scale = "bfi_c",    group = "age")
-MI_age_bfi_n    <- mi_via_cutoffs(data = bfi_n_data,    model = bfi_n_model,    scale = "bfi_n",    group = "age")
-MI_age_bfi_a    <- mi_via_cutoffs(data = bfi_a_data,    model = bfi_a_model,    scale = "bfi_a",    group = "age")
-MI_age_bfi_o    <- mi_via_cutoffs(data = bfi_o_data,    model = bfi_o_model,    scale = "bfi_o",    group = "age")
-MI_age_bidr_im  <- mi_via_cutoffs(data = bidr_im_data,  model = bidr_im_model,  scale = "bidr_im",  group = "age")
-MI_age_bidr_sde <- mi_via_cutoffs(data = bidr_sde_data, model = bidr_sde_model, scale = "bidr_sde", group = "age")
-MI_age_bjw      <- mi_via_cutoffs(data = bjw_data,      model = bjw_model,      scale = "bjw",      group = "age")
-MI_age_brs      <- mi_via_cutoffs(data = brs_data,      model = brs_model,      scale = "brs",      group = "age")
-MI_age_he       <- mi_via_cutoffs(data = he_data,       model = he_model,       scale = "he",       group = "age")
-MI_age_icat_o   <- mi_via_cutoffs(data = icat_o_data,   model = icat_o_model,   scale = "icat_o",   group = "age")
-MI_age_icat_s   <- mi_via_cutoffs(data = icat_s_data,   model = icat_s_model,   scale = "icat_s",   group = "age")
-MI_age_nfc      <- mi_via_cutoffs(data = nfc_data,      model = nfc_model,      scale = "nfc",      group = "age")
-MI_age_nfcc_a   <- mi_via_cutoffs(data = nfcc_a_data,   model = nfcc_a_model,   scale = "nfcc_a",   group = "age")
-MI_age_nfcc_o   <- mi_via_cutoffs(data = nfcc_o_data,   model = nfcc_o_model,   scale = "nfcc_o",   group = "age")
-MI_age_nfcc_p   <- mi_via_cutoffs(data = nfcc_p_data,   model = nfcc_p_model,   scale = "nfcc_p",   group = "age")
-MI_age_nfcc_d   <- mi_via_cutoffs(data = nfcc_d_data,   model = nfcc_d_model,   scale = "nfcc_d",   group = "age")
-MI_age_nfcc_c   <- mi_via_cutoffs(data = nfcc_c_data,   model = nfcc_c_model,   scale = "nfcc_c",   group = "age")
-MI_age_pe       <- mi_via_cutoffs(data = pe_data,       model = pe_model,       scale = "pe",       group = "age")
-MI_age_pns      <- mi_via_cutoffs(data = pns_data,      model = pns_model,      scale = "pns",      group = "age")
-MI_age_rse      <- mi_via_cutoffs(data = rse_data,      model = rse_model,      scale = "rse",      group = "age")
-MI_age_rwa      <- mi_via_cutoffs(data = rwa_data,      model = rwa_model,      scale = "rwa",      group = "age")
-MI_age_sdo      <- mi_via_cutoffs(data = sdo_data,      model = sdo_model,      scale = "sdo",      group = "age")
-MI_age_sm       <- mi_via_cutoffs(data = sm_data,       model = sm_model,       scale = "sm",       group = "age")
-MI_age_soc_ic   <- mi_via_cutoffs(data = soc_ic_data,   model = soc_ic_model,   scale = "soc_ic",   group = "age")
-MI_age_soc_pe   <- mi_via_cutoffs(data = soc_pe_data,   model = soc_pe_model,   scale = "soc_pe",   group = "age")
+MI_age_bfi_e    <- mi_via_cutoffs(data = bfi_e_data,    model = bfi_e_model,    scale = "BFI_E",    group = "age")
+MI_age_bfi_c    <- mi_via_cutoffs(data = bfi_c_data,    model = bfi_c_model,    scale = "BFI_C",    group = "age")
+MI_age_bfi_n    <- mi_via_cutoffs(data = bfi_n_data,    model = bfi_n_model,    scale = "BFI_N",    group = "age")
+MI_age_bfi_a    <- mi_via_cutoffs(data = bfi_a_data,    model = bfi_a_model,    scale = "BFI_A",    group = "age")
+MI_age_bfi_o    <- mi_via_cutoffs(data = bfi_o_data,    model = bfi_o_model,    scale = "BFI_O",    group = "age")
+MI_age_bidr_im  <- mi_via_cutoffs(data = bidr_im_data,  model = bidr_im_model,  scale = "BIDR-IM",  group = "age")
+MI_age_bidr_sde <- mi_via_cutoffs(data = bidr_sde_data, model = bidr_sde_model, scale = "BIDR-SDE", group = "age")
+MI_age_bjw      <- mi_via_cutoffs(data = bjw_data,      model = bjw_model,      scale = "BJW",      group = "age")
+MI_age_brs      <- mi_via_cutoffs(data = brs_data,      model = brs_model,      scale = "BRS",      group = "age")
+MI_age_he       <- mi_via_cutoffs(data = he_data,       model = he_model,       scale = "HE",       group = "age")
+MI_age_icat_o   <- mi_via_cutoffs(data = icat_o_data,   model = icat_o_model,   scale = "ICAT-O",   group = "age")
+MI_age_icat_s   <- mi_via_cutoffs(data = icat_s_data,   model = icat_s_model,   scale = "ICAT-S",   group = "age")
+MI_age_nfc      <- mi_via_cutoffs(data = nfc_data,      model = nfc_model,      scale = "NFC",      group = "age")
+MI_age_nfcc_a   <- mi_via_cutoffs(data = nfcc_a_data,   model = nfcc_a_model,   scale = "NFCC_A",   group = "age")
+MI_age_nfcc_o   <- mi_via_cutoffs(data = nfcc_o_data,   model = nfcc_o_model,   scale = "NFCC_O",   group = "age")
+MI_age_nfcc_p   <- mi_via_cutoffs(data = nfcc_p_data,   model = nfcc_p_model,   scale = "NFCC_P",   group = "age")
+MI_age_nfcc_d   <- mi_via_cutoffs(data = nfcc_d_data,   model = nfcc_d_model,   scale = "NFCC_D",   group = "age")
+MI_age_nfcc_c   <- mi_via_cutoffs(data = nfcc_c_data,   model = nfcc_c_model,   scale = "NFCC_C",   group = "age")
+MI_age_pe       <- mi_via_cutoffs(data = pe_data,       model = pe_model,       scale = "PE",       group = "age")
+MI_age_pns      <- mi_via_cutoffs(data = pns_data,      model = pns_model,      scale = "PNS",      group = "age")
+MI_age_rse      <- mi_via_cutoffs(data = rse_data,      model = rse_model,      scale = "RSE",      group = "age")
+MI_age_rwa      <- mi_via_cutoffs(data = rwa_data,      model = rwa_model,      scale = "RWA",      group = "age")
+MI_age_sdo      <- mi_via_cutoffs(data = sdo_data,      model = sdo_model,      scale = "SDO",      group = "age")
+MI_age_sm       <- mi_via_cutoffs(data = sm_data,       model = sm_model,       scale = "SM",       group = "age")
+MI_age_soc_ic   <- mi_via_cutoffs(data = soc_ic_data,   model = soc_ic_model,   scale = "SOC-IC",   group = "age")
+MI_age_soc_pe   <- mi_via_cutoffs(data = soc_pe_data,   model = soc_pe_model,   scale = "SOC-PE",   group = "age")
 
 # combine
 ## fit indices
@@ -1386,7 +1462,34 @@ measurement_invariance_full_results <- MI_combined_fit_indicies %>%
   mutate(MI_test = ifelse(!is.na(MI_config), MI_config, MI_delta)) %>%
   select(Scale, group, test, 
          chisq, df, fit_chisq_p_value, cfi, tli, rmsea, srmr, 
-         df_change, cfi_change, tli_change, rmsea_change, srmr_change, MI_test)
+         df_change, cfi_change, tli_change, rmsea_change, srmr_change, MI_test) %>%
+  mutate(Scale = dplyr::recode(Scale,
+                               "BFI_E"    = "Big 5 Inventory - E",
+                               "BFI_C"    = "Big 5 Inventory - C",
+                               "BFI_N"    = "Big 5 Inventory - N",
+                               "BFI_A"    = "Big 5 Inventory - A",
+                               "BFI_O"    = "Big 5 Inventory - O",
+                               "BIDR-IM"  = "Balanced Inventory of Desirable Responding - Impression Management",
+                               "BIDR-SDE" = "Balanced Inventory of Desirable Responding - Self Deception",
+                               "BJW"      = "Belief in a Just World: General Just World Scale",
+                               "BRS"      = "Bayesian Racism",
+                               "HE"       = "Humanitarianism-Egalitarianism",
+                               "ICAT-O"   = "Intuitions about Controllability and Awareness of Thoughts - Others",
+                               "ICAT-S"   = "Intuitions about Controllability and Awareness of Thoughts - Self",
+                               "NFC"      = "Need for Cognition",
+                               "NFCC_P"  = "Need for Cognitive Closure - P",
+                               "NFCC_D"  = "Need for Cognitive Closure - D",
+                               "NFCC_C"  = "Need for Cognitive Closure - C",
+                               "NFCC_A"  = "Need for Cognitive Closure - A",
+                               "NFCC_O"  = "Need for Cognitive Closure - O",
+                               "PE"       = "Protestant Ethic",
+                               "PNS"      = "Personal Need for Structure",
+                               "RSE"      = "Rosenberg Self-Esteem",
+                               "RWA"      = "Ring-Wing Authoritarianism",
+                               "SDO"      = "Social Dominance Orientation",
+                               "SM"       = "Self-Monitoring",
+                               "SOC-IC"   = "Spheres of Control - Interpersonal Control",
+                               "SOC-PE"   = "Spheres of Control - Personal Efficacy"))
 
 
 # summarize results in categorical terms
@@ -1424,16 +1527,20 @@ write_csv(measurement_invariance_full_results, "results/supplementary_results_me
 
 ```
 
+# Results
+
 ## Combined table of results
 
 ```{r}
 
-combined_results <- cfi_fit_results %>%
+combined_results <- n_per_scale %>%
+  left_join(cfi_fit_results, by = "Scale") %>% 
   left_join(dist_results,          by = "Scale") %>%
   left_join(consistency_results,   by = "Scale") %>%
   left_join(dependability_results, by = "Scale") %>%
   left_join(stability_results,     by = "Scale") %>%
   left_join(MI_results,            by = "Scale") %>%
+  left_join(additional_scale_data, by = "Scale") %>%
 
   # apply cutoffs to reliability metrics
   dplyr::mutate(alpha_test   = ifelse(alpha >= .7,   "Passed", "Failed"),
@@ -1460,8 +1567,8 @@ combined_results <- cfi_fit_results %>%
                 # test-retest reliability
                 "Test-retest dependability n", "Test-retest dependability r", 
                 "dependability r lower", "dependability r upper", dependability_test,
-                "Test-retest stability n", "Test-retest stability r", "stability r lower", "stability r upper", stability_test,
-                test_retest_test,
+                "Test-retest stability n", "Test-retest stability r", 
+                "stability r lower", "stability r upper", stability_test, test_retest_test,
                 # cfa fit
                 chisq, "chisq/df", df, pvalue,
                 cfi, tli, rmsea, rmsea.ci.lower, rmsea.ci.upper, srmr, cfa_test, 
@@ -1532,7 +1639,7 @@ summary_table %>%
 
 ```
 
-# Alluvial plot
+## Alluvial plot
 
 ```{r fig.height=4, fig.width=7}
 

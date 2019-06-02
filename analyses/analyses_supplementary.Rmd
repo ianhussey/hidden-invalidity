@@ -12,6 +12,11 @@ output:
     toc_float: yes
 ---
 
+```{r, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,
+                      warning=FALSE)
+```
+
 # Data
 
 ## Get data
@@ -22,9 +27,11 @@ library(tidyverse)
 library(effsize)
 library(lubridate)
 library(knitr)
+library(kableExtra)
 library(semTools)
 library(timesavers)
 library(plotrix)
+library(patchwork)
 
 # get data
 load("../data/trimmed_data.RData")
@@ -37,31 +44,49 @@ trimmed_first_timepoint_per_user_per_scale <- trimmed_data %>%
   filter(combined_var != lag(combined_var)) %>%
   dplyr::select(-combined_var) 
 
-median_age <- trimmed_first_timepoint_per_user_per_scale %>%
-  summarize(median_age = median(age, na.rm = TRUE)) %>%
-  pull(median_age) %>%
-  as.numeric()
-
 ```
 
 ## Subset data
 
-By split scales
-
 ```{r}
+
+# find median age to split by.
+# Because individuals can participate more than once, and their age is recorded as age at participation, repeat participations
+# overrepresent that participant's age when finding medians. Given we can't assume that repeate participations are evenly distributed across ages, # we must instead construct a median age for the whole sample. 
+# This also ensures that the same median age is used for all scales.
+
+median_age <- trimmed_first_timepoint_per_user_per_scale %>%
+  group_by(user_id) %>%
+  summarize(mean_age_by_participant = mean(age)) %>%  # given repeat presentations with changing age
+  ungroup() %>%
+  summarize(median_age = median(mean_age_by_participant)) %>%
+  pull(median_age) %>%
+  round(0)
 
 # split scales
 
-bfi_ecn_data <- trimmed_first_timepoint_per_user_per_scale %>%
-  dplyr::select(bfi_e1, bfi_e2, bfi_e3, bfi_e4, bfi_e5, bfi_e6, bfi_e7, bfi_e8, 
-                bfi_c1, bfi_c2, bfi_c3, bfi_c4, bfi_c5, bfi_c6, bfi_c7, bfi_c8, bfi_c9, 
-                bfi_n1, bfi_n2, bfi_n3, bfi_n4, bfi_n5, bfi_n6, bfi_n7, bfi_n8, sex, age) %>%
+bfi_e_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bfi_e1, bfi_e2, bfi_e3, bfi_e4, bfi_e5, bfi_e6, bfi_e7, bfi_e8, sex, age) %>%
   na.omit() %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
-bfi_ao_data <- trimmed_first_timepoint_per_user_per_scale %>%
-  dplyr::select(bfi_a1, bfi_a2, bfi_a3, bfi_a4, bfi_a5, bfi_a6, bfi_a7, bfi_a8, bfi_a9, 
-                bfi_o1, bfi_o2, bfi_o3, bfi_o4, bfi_o5, bfi_o6, bfi_o7, bfi_o8, bfi_o9, bfi_o10, sex, age) %>%
+bfi_c_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bfi_c1, bfi_c2, bfi_c3, bfi_c4, bfi_c5, bfi_c6, bfi_c7, bfi_c8, bfi_c9, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+bfi_n_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bfi_n1, bfi_n2, bfi_n3, bfi_n4, bfi_n5, bfi_n6, bfi_n7, bfi_n8, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+bfi_a_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bfi_a1, bfi_a2, bfi_a3, bfi_a4, bfi_a5, bfi_a6, bfi_a7, bfi_a8, bfi_a9, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+bfi_o_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(bfi_o1, bfi_o2, bfi_o3, bfi_o4, bfi_o5, bfi_o6, bfi_o7, bfi_o8, bfi_o9, bfi_o10, sex, age) %>%
   na.omit() %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
@@ -85,7 +110,8 @@ bjw_data <- trimmed_first_timepoint_per_user_per_scale %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
 brs_data <- trimmed_first_timepoint_per_user_per_scale %>%
-  dplyr::select(brs1, brs2, brs3, brs4, brs5, brs6, brs7, brs8, brs9, brs10, brs11, brs12, brs13, brs14, brs15, brs16, sex, age) %>%
+  dplyr::select(brs1, brs2, brs3, brs4, brs5, brs6, brs7, brs8, brs9, brs10, 
+                brs11, brs12, brs13, brs14, brs15, brs16, sex, age) %>%
   na.omit() %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
@@ -110,16 +136,29 @@ nfc_data <- trimmed_first_timepoint_per_user_per_scale %>%
   na.omit() %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
-nfcc_pdc_data <- trimmed_first_timepoint_per_user_per_scale %>%
-  dplyr::select(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8, 
-                nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7, 
-                nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8, sex, age) %>%
+nfcc_p_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8, sex, age) %>%
   na.omit() %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
-nfcc_ao_data <- trimmed_first_timepoint_per_user_per_scale %>%
-  dplyr::select(nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8, 
-                nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7, sex, age) %>%
+nfcc_d_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+nfcc_c_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+nfcc_a_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8, nfcc_a9, sex, age) %>%
+  na.omit() %>%
+  mutate(age = ifelse(age < median_age, 0, 1))
+
+nfcc_o_data <- trimmed_first_timepoint_per_user_per_scale %>%
+  dplyr::select(nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, 
+                nfcc_o6, nfcc_o7, nfcc_o8, nfcc_o9, nfcc_o10, sex, age) %>%
   na.omit() %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
@@ -150,12 +189,14 @@ sdo_data <- trimmed_first_timepoint_per_user_per_scale %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
 sm_data <- trimmed_first_timepoint_per_user_per_scale %>%
-  dplyr::select(sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, sm10, sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sex, age) %>%
+  dplyr::select(sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, 
+                sm10, sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sex, age) %>%
   na.omit() %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
 soc_ic_data <- trimmed_first_timepoint_per_user_per_scale %>%
-  dplyr::select(soc_ic1, soc_ic2, soc_ic3, soc_ic4, soc_ic5, soc_ic6, soc_ic7, soc_ic8, soc_ic9, sex, age) %>%
+  dplyr::select(soc_ic1, soc_ic2, soc_ic3, soc_ic4, soc_ic5, 
+                soc_ic6, soc_ic7, soc_ic8, soc_ic9, soc_ic10, sex, age) %>%
   na.omit() %>%
   mutate(age = ifelse(age < median_age, 0, 1))
 
@@ -166,287 +207,32 @@ soc_pe_data <- trimmed_first_timepoint_per_user_per_scale %>%
 
 ```
 
-By full scales
-
-NB excludes users that completed the two halves more than 24 hours apart.
-
-```{r}
-
-# determine which participants have full scale data
-
-# function to return the user_ids and datetimes with a given scale
-user_id_by_scale <- function(scale_name){
-  trimmed_data %>%
-    dplyr::select(user_id, individual_differences_measure, datetime_ymdhms) %>%
-    filter(individual_differences_measure == scale_name) %>%
-    arrange(user_id, individual_differences_measure, datetime_ymdhms) %>%
-    mutate(combined_var = paste0(user_id, individual_differences_measure),
-           instance = ifelse(combined_var == lag(combined_var), 2, 1)) %>%
-    filter(instance == 1) %>%
-    select(-combined_var, -instance)
-}
-
-# apply for each scale pair
-
-## This contains some magic on two fronts, neither of which I can remember the hows and whys of.
-## 1. I cross semi_join in two directions to find matching cases. Can't remember why but it works.
-## 2. I then do some reshaping to find the absolute time between the completions of the two scales, trim 
-## participants who take longer than 1 day (24 hours), and reshape back to an original format that works with 
-## the subsequent functions below. Refactoring into a function or to make the logic more transparent would take time
-## and, given it all works, Im not motivated to do it. If you are reading this comment and you're not me, 
-## I am extremely suprised. Please accept a) my congratulations for doing such deep dives into other peoples code, 
-## and b) my apologies for what follows. Kanye/Oprah-2020.
-
-# bfi
-user_ids_with_bfi_1      <- user_id_by_scale(scale_name = "BFI-Part 1")
-user_ids_with_bfi_2      <- user_id_by_scale(scale_name = "BFI-Part 2")
-
-user_ids_with_bfi_1_2    <- semi_join(user_ids_with_bfi_1, 
-                                      user_ids_with_bfi_2, 
-                                      by = "user_id")
-
-user_ids_with_bfi_2_2    <- semi_join(user_ids_with_bfi_2, 
-                                      user_ids_with_bfi_1, 
-                                      by = "user_id")
-
-user_ids_with_both_bfi   <- rbind(user_ids_with_bfi_1_2, user_ids_with_bfi_2_2) %>%
-  spread(individual_differences_measure, datetime_ymdhms) %>%
-  dplyr::rename(first_scale = !!names(.[2]),
-                second_scale = !!names(.[3])) %>%
-  mutate(days_to_followup = as.duration(interval(start = ymd_hms(first_scale), 
-                                                 end = ymd_hms(second_scale))),
-         days_to_followup = abs(round(as.numeric(days_to_followup, "days"), 3))) %>%
-  filter(days_to_followup <= 1) %>%
-  gather(individual_differences_measure, datetime_ymdhms, c("first_scale", "second_scale")) %>%
-  mutate(individual_differences_measure = recode(individual_differences_measure,
-                                                 "first_scale" = "BFI-Part 1",
-                                                 "second_scale" = "BFI-Part 2"))
-
-# bidr
-user_ids_with_bidr_im    <- user_id_by_scale(scale_name = "BIDR-IM")
-user_ids_with_bidr_sde   <- user_id_by_scale(scale_name = "BIDR-SDE")
-
-user_ids_with_bidr_im_2  <- semi_join(user_ids_with_bidr_im, 
-                                      user_ids_with_bidr_sde, 
-                                      by = "user_id")
-
-user_ids_with_bidr_sde_2 <- semi_join(user_ids_with_bidr_sde, 
-                                      user_ids_with_bidr_im, 
-                                      by = "user_id")
-
-user_ids_with_both_bidr  <- rbind(user_ids_with_bidr_im_2, user_ids_with_bidr_sde_2) %>%
-  spread(individual_differences_measure, datetime_ymdhms) %>%
-  dplyr::rename(first_scale = !!names(.[2]),
-                second_scale = !!names(.[3])) %>%
-  mutate(days_to_followup = as.duration(interval(start = ymd_hms(first_scale), 
-                                                 end = ymd_hms(second_scale))),
-         days_to_followup = abs(round(as.numeric(days_to_followup, "days"), 3))) %>%
-  filter(days_to_followup <= 1) %>%
-  gather(individual_differences_measure, datetime_ymdhms, c("first_scale", "second_scale")) %>%
-  mutate(individual_differences_measure = recode(individual_differences_measure,
-                                                 "first_scale" = "BIDR-IM",
-                                                 "second_scale" = "BIDR-SDE"))
-
-# icat
-user_ids_with_icat_o     <- user_id_by_scale(scale_name = "ICAT-O")
-user_ids_with_icat_s     <- user_id_by_scale(scale_name = "ICAT-S")
-
-user_ids_with_icat_o_2   <- semi_join(user_ids_with_icat_o, 
-                                      user_ids_with_icat_s, 
-                                      by = "user_id")
-
-user_ids_with_icat_s_2   <- semi_join(user_ids_with_icat_s, 
-                                      user_ids_with_icat_o, 
-                                      by = "user_id")
-
-user_ids_with_both_icat  <- rbind(user_ids_with_icat_o_2, user_ids_with_icat_s_2) %>%
-  spread(individual_differences_measure, datetime_ymdhms) %>%
-  dplyr::rename(first_scale = !!names(.[2]),
-                second_scale = !!names(.[3])) %>%
-  mutate(days_to_followup = as.duration(interval(start = ymd_hms(first_scale), 
-                                                 end = ymd_hms(second_scale))),
-         days_to_followup = abs(round(as.numeric(days_to_followup, "days"), 3))) %>%
-  filter(days_to_followup <= 1) %>%
-  gather(individual_differences_measure, datetime_ymdhms, c("first_scale", "second_scale")) %>%
-  mutate(individual_differences_measure = recode(individual_differences_measure,
-                                                 "first_scale" = "ICAT-O",
-                                                 "second_scale" = "ICAT-S"))
-
-# nfcc
-user_ids_with_nfcc_1     <- user_id_by_scale(scale_name = "NFCC, Part 1")
-user_ids_with_nfcc_2     <- user_id_by_scale(scale_name = "NFCC, Part 2")
-
-user_ids_with_nfcc_1_2   <- semi_join(user_ids_with_nfcc_1, 
-                                      user_ids_with_nfcc_2, 
-                                      by = "user_id")
-
-user_ids_with_nfcc_2_2   <- semi_join(user_ids_with_nfcc_2, 
-                                      user_ids_with_nfcc_1, 
-                                      by = "user_id")
-
-user_ids_with_both_nfcc  <- rbind(user_ids_with_nfcc_1_2, user_ids_with_nfcc_2_2) %>%
-  spread(individual_differences_measure, datetime_ymdhms) %>%
-  dplyr::rename(first_scale = !!names(.[2]),
-                second_scale = !!names(.[3])) %>%
-  mutate(days_to_followup = as.duration(interval(start = ymd_hms(first_scale), 
-                                                 end = ymd_hms(second_scale))),
-         days_to_followup = abs(round(as.numeric(days_to_followup, "days"), 3))) %>%
-  filter(days_to_followup <= 1) %>%
-  gather(individual_differences_measure, datetime_ymdhms, c("first_scale", "second_scale")) %>%
-  mutate(individual_differences_measure = recode(individual_differences_measure,
-                                                 "first_scale" = "NFCC, Part 1",
-                                                 "second_scale" = "NFCC, Part 2"))
-
-# soc
-user_ids_with_soc_ic     <- user_id_by_scale(scale_name = "SOC-IC")
-user_ids_with_soc_pe     <- user_id_by_scale(scale_name = "SOC-PE")
-
-user_ids_with_soc_ic_2   <- semi_join(user_ids_with_soc_ic, 
-                                      user_ids_with_soc_pe, 
-                                      by = "user_id")
-
-user_ids_with_soc_pe_2   <- semi_join(user_ids_with_soc_pe, 
-                                      user_ids_with_soc_ic, 
-                                      by = "user_id")
-
-user_ids_with_both_soc   <- rbind(user_ids_with_soc_ic_2, user_ids_with_soc_pe_2) %>%
-  spread(individual_differences_measure, datetime_ymdhms) %>%
-  dplyr::rename(first_scale = !!names(.[2]),
-                second_scale = !!names(.[3])) %>%
-  mutate(days_to_followup = as.duration(interval(start = ymd_hms(first_scale), 
-                                                 end = ymd_hms(second_scale))),
-         days_to_followup = abs(round(as.numeric(days_to_followup, "days"), 3))) %>%
-  filter(days_to_followup <= 1) %>%
-  gather(individual_differences_measure, datetime_ymdhms, c("first_scale", "second_scale")) %>%
-  mutate(individual_differences_measure = recode(individual_differences_measure,
-                                                 "first_scale" = "SOC-IC",
-                                                 "second_scale" = "SOC-PE"))
-
-# join half scales and reduce to one row per user id
-join_full_scale <- function(data_1, data_2){
-  data_1 %>%
-    semi_join(data_2, 
-              by = c("user_id", "individual_differences_measure", "datetime_ymdhms")) %>%
-    select(user_id, contains("bfi_"), contains("bidr_"), 
-           contains("icat_"), contains("nfcc_"), contains("soc_"), -contains("_subscale")) %>%
-    # hacky way to collapse two rows per user_id into one. Function further below removes the NaNs it creates.
-    # to anyone who reads this hideous solution: I'm sorry. I'm sure there's a more tidyverse way of doing this, but it's 2am.
-    group_by(user_id) %>%
-    summarize_all(funs(mean(., na.rm = TRUE))) %>%
-    ungroup()
-}
-
-full_scales_temp <- 
-  rbind(join_full_scale(data_1 = trimmed_data, data_2 = user_ids_with_both_bfi),
-        join_full_scale(data_1 = trimmed_data, data_2 = user_ids_with_both_bidr),
-        join_full_scale(data_1 = trimmed_data, data_2 = user_ids_with_both_icat),
-        join_full_scale(data_1 = trimmed_data, data_2 = user_ids_with_both_nfcc),
-        join_full_scale(data_1 = trimmed_data, data_2 = user_ids_with_both_soc))
-
-# replace all NaN in this data frame with NA
-is.nan.data.frame <- function(x){do.call(cbind, lapply(x, is.nan))}
-full_scales_temp[is.nan.data.frame(full_scales_temp)] <- NA
-
-# age, gender, and distinct user_ids for joining below
-demographics_temp <- trimmed_data %>%
-  select(user_id, age, sex) %>%
-  distinct(user_id, .keep_all = TRUE)
-
-# create individual_differences_measure variable. difficult to do this by joining given multiple individual_differences_measures by user_id
-full_scales_data <- full_scales_temp %>%
-  mutate(Scale = ifelse(!is.na(bfi_e1), "BFI", 
-                        ifelse(!is.na(bidr_im1), "BIDR", 
-                               ifelse(!is.na(icat_o1), "ICAT", 
-                                      ifelse(!is.na(nfcc_p1), "NFCC", 
-                                             ifelse(!is.na(soc_ic1), "SOC", NA)))))) %>%
-  left_join(demographics_temp, by = "user_id")
-
-# summaries of data present
-
-# for joining again later below
-N_with_full_scale_data <- nrow(full_scales_data)
-
-percent_with_full_scale_data <- round(nrow(full_scales_data) / nrow(demographics_temp)*100, 2)
-
-# N per full scale - also used further below
-n_per_full_scale <- full_scales_data %>%  
-  count(Scale) 
-
-n_per_full_scale %>% kable()
-
-```
-
-`r N_with_full_scale_data` participants (`r percent_with_full_scale_data`%) had full scale available from scales that were split in two and had completed both halves within 24 hours.
-
-```{r}
-
-# subset full scales data
-
-# select data
-bfi_data <- full_scales_data %>%
-  dplyr::select(bfi_e1, bfi_e2, bfi_e3, bfi_e4, bfi_e5, bfi_e6, bfi_e7, bfi_e8, 
-                bfi_c1, bfi_c2, bfi_c3, bfi_c4, bfi_c5, bfi_c6, bfi_c7, bfi_c8, bfi_c9, 
-                bfi_n1, bfi_n2, bfi_n3, bfi_n4, bfi_n5, bfi_n6, bfi_n7, bfi_n8, 
-                bfi_a1, bfi_a2, bfi_a3, bfi_a4, bfi_a5, bfi_a6, bfi_a7, bfi_a8, bfi_a9, 
-                bfi_o1, bfi_o2, bfi_o3, bfi_o4, bfi_o5, bfi_o6, bfi_o7, bfi_o8, bfi_o9, bfi_o10, 
-                sex, age) %>%
-  na.omit() %>%
-  mutate(age = ifelse(age < median_age, 0, 1))
-
-bidr_data <- full_scales_data %>%
-  dplyr::select(bidr_im1, bidr_im2, bidr_im3, bidr_im4, bidr_im5, bidr_im6, bidr_im7, bidr_im8, 
-                bidr_im9, bidr_im10, bidr_im11, bidr_im12, bidr_im13, bidr_im14, bidr_im15, 
-                bidr_im16, bidr_im17, bidr_im18, 
-                bidr_sde1, bidr_sde2, bidr_sde3, bidr_sde4, bidr_sde5, bidr_sde6, bidr_sde7, bidr_sde8, 
-                bidr_sde9, bidr_sde10, bidr_sde11, bidr_sde12, bidr_sde13, bidr_sde14, bidr_sde15,
-                bidr_sde16, bidr_sde17, bidr_sde18, sex, age) %>%
-  na.omit() %>%
-  mutate(age = ifelse(age < median_age, 0, 1))
-
-icat_data <- full_scales_data %>%
-  dplyr::select(icat_o1, icat_o2, icat_o3, icat_o4, icat_o5, icat_o6, icat_o7, icat_o8, icat_o9, 
-                icat_s1, icat_s2, icat_s3, icat_s4, icat_s5, icat_s6, icat_s7, icat_s8, icat_s9, 
-                sex, age) %>%
-  na.omit() %>%
-  mutate(age = ifelse(age < median_age, 0, 1))
-
-nfcc_data <- full_scales_data %>%
-  dplyr::select(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8, 
-                nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7, 
-                nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8, 
-                nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8, 
-                nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7, sex, age) %>%
-  na.omit() %>%
-  mutate(age = ifelse(age < median_age, 0, 1))
-
-soc_data <- full_scales_data %>%
-  dplyr::select(soc_ic1, soc_ic2, soc_ic3, soc_ic4, soc_ic5, soc_ic6, soc_ic7, soc_ic8, soc_ic9, 
-                soc_pe1, soc_pe2, soc_pe3, soc_pe4, soc_pe5, soc_pe6, soc_pe7, soc_pe8, soc_pe9, soc_pe10,
-                sex, age) %>%
-  na.omit() %>%
-  mutate(age = ifelse(age < median_age, 0, 1))
-
-```
-
 ## Models
 
 ```{r}
 
-# split scale models
-bfi_ao_model <- "A =~ bfi_a1 + bfi_a2 + bfi_a3 + bfi_a4 + bfi_a5 + bfi_a6 + bfi_a7 + bfi_a8 + bfi_a9
-                 O =~ bfi_o1 + bfi_o2 + bfi_o3 + bfi_o4 + bfi_o5 + bfi_o6 + bfi_o7 + bfi_o8 + bfi_o9 + bfi_o10" 
+bfi_e_model <- "E =~ bfi_e1 + bfi_e2 + bfi_e3 + bfi_e4 + bfi_e5 + bfi_e6 + bfi_e7 + bfi_e8" 
 
-bfi_ecn_model <- "E =~ bfi_e1 + bfi_e2 + bfi_e3 + bfi_e4 + bfi_e5 + bfi_e6 + bfi_e7 + bfi_e8
-                  C =~ bfi_c1 + bfi_c2 + bfi_c3 + bfi_c4 + bfi_c5 + bfi_c6 + bfi_c7 + bfi_c8 + bfi_c9
-                  N =~ bfi_n1 + bfi_n2 + bfi_n3 + bfi_n4 + bfi_n5 + bfi_n6 + bfi_n7 + bfi_n8" 
+bfi_c_model <- "C =~ bfi_c1 + bfi_c2 + bfi_c3 + bfi_c4 + bfi_c5 + bfi_c6 + bfi_c7 + bfi_c8 + bfi_c9" 
 
-bidr_im_model <- "IM =~ bidr_im1 + bidr_im2 + bidr_im3 + bidr_im4 + bidr_im5 + bidr_im6 + bidr_im7 + bidr_im8 + bidr_im9 + bidr_im10 + bidr_im11 + bidr_im12 + bidr_im13 + bidr_im14 + bidr_im15 + bidr_im16 + bidr_im17 + bidr_im18" 
+bfi_n_model <- "N =~ bfi_n1 + bfi_n2 + bfi_n3 + bfi_n4 + bfi_n5 + bfi_n6 + bfi_n7 + bfi_n8" 
 
-bidr_sde_model <- "SDE =~ bidr_sde1 + bidr_sde2 + bidr_sde3 + bidr_sde4 + bidr_sde5 + bidr_sde6 + bidr_sde7 + bidr_sde8 + bidr_sde9 + bidr_sde10 + bidr_sde11 + bidr_sde12 + bidr_sde13 + bidr_sde14 + bidr_sde15 + bidr_sde16 + bidr_sde17 + bidr_sde18" 
+bfi_a_model <- "A =~ bfi_a1 + bfi_a2 + bfi_a3 + bfi_a4 + bfi_a5 + bfi_a6 + bfi_a7 + bfi_a8 + bfi_a9" 
+
+bfi_o_model <- "O =~ bfi_o1 + bfi_o2 + bfi_o3 + bfi_o4 + bfi_o5 + bfi_o6 + bfi_o7 + bfi_o8 + bfi_o9 + bfi_o10" 
+
+bidr_im_model <- "IM =~ bidr_im1 + bidr_im2 + bidr_im3 + bidr_im4 + bidr_im5 + bidr_im6 + bidr_im7 + 
+                        bidr_im8 + bidr_im9 + bidr_im10 + bidr_im11 + bidr_im12 + bidr_im13 + bidr_im14 + 
+                        bidr_im15 + bidr_im16 + bidr_im17 + bidr_im18" 
+
+bidr_sde_model <- "SDE =~ bidr_sde1 + bidr_sde2 + bidr_sde3 + bidr_sde4 + bidr_sde5 + bidr_sde6 + bidr_sde7 +
+                          bidr_sde8 + bidr_sde9 + bidr_sde10 + bidr_sde11 + bidr_sde12 + bidr_sde13 + 
+                          bidr_sde14 + bidr_sde15 + bidr_sde16 + bidr_sde17 + bidr_sde18" 
 
 bjw_model <- "BJW =~ bjw1 + bjw2 + bjw3 + bjw4 + bjw5 + bjw6" 
 
-brs_model <- "BRS =~ brs1 + brs2 + brs3 + brs4 + brs5 + brs6 + brs7 + brs8 + brs9 + brs10 + brs11 + brs12 + brs13 + brs14 + brs15 + brs16" 
+brs_model <- "BRS =~ brs1 + brs2 + brs3 + brs4 + brs5 + brs6 + brs7 + brs8 + 
+                     brs9 + brs10 + brs11 + brs12 + brs13 + brs14 + brs15 + brs16" 
 
 he_model <- "HE =~ he1 + he2 + he3 + he4 + he5 + he6 + he7 + he8 + he9 + he10" 
 
@@ -454,14 +240,20 @@ icat_o_model <- "ICAT_O =~ icat_o1 + icat_o2 + icat_o3 + icat_o4 + icat_o5 + ica
 
 icat_s_model <- "ICAT_S =~ icat_s1 + icat_s2 + icat_s3 + icat_s4 + icat_s5 + icat_s6 + icat_s7 + icat_s8 + icat_s9" 
 
-nfc_model <- "NFC =~ nfc1 + nfc2 + nfc3 + nfc4 + nfc5 + nfc6 + nfc7 + nfc8 + nfc9 + nfc10 + nfc11 + nfc12 + nfc13 + nfc14 + nfc15 + nfc16 + nfc17 + nfc18" 
+nfc_model <- "NFC =~ nfc1 + nfc2 + nfc3 + nfc4 + nfc5 + nfc6 + nfc7 + nfc8 + nfc9 + 
+                     nfc10 + nfc11 + nfc12 + nfc13 + nfc14 + nfc15 + nfc16 + nfc17 + nfc18" 
 
-nfcc_pdc_model <- "P =~ nfcc_p1 + nfcc_p2 + nfcc_p3 + nfcc_p4 + nfcc_p5 + nfcc_p6 + nfcc_p7 + nfcc_p8
-                   D =~ nfcc_d1 + nfcc_d2 + nfcc_d3 + nfcc_d4 + nfcc_d5 + nfcc_d6 + nfcc_d7
-                   C =~ nfcc_c1 + nfcc_c2 + nfcc_c3 + nfcc_c4 + nfcc_c5 + nfcc_c6 + nfcc_c7 + nfcc_c8" 
+nfcc_p_model <- "P =~ nfcc_p1 + nfcc_p2 + nfcc_p3 + nfcc_p4 + nfcc_p5 + nfcc_p6 + nfcc_p7 + nfcc_p8" 
 
-nfcc_ao_model <- "A =~ nfcc_a1 + nfcc_a2 + nfcc_a3 + nfcc_a4 + nfcc_a5 + nfcc_a6 + nfcc_a7 + nfcc_a8
-                  O =~ nfcc_o1 + nfcc_o2 + nfcc_o3 + nfcc_o4 + nfcc_o5 + nfcc_o6 + nfcc_o7" 
+nfcc_d_model <- "D =~ nfcc_d1 + nfcc_d2 + nfcc_d3 + nfcc_d4 + nfcc_d5 + nfcc_d6 + nfcc_d7" 
+
+nfcc_c_model <- "C =~ nfcc_c1 + nfcc_c2 + nfcc_c3 + nfcc_c4 + nfcc_c5 + nfcc_c6 + nfcc_c7 + nfcc_c8" 
+
+nfcc_a_model <- "A =~ nfcc_a1 + nfcc_a2 + nfcc_a3 + nfcc_a4 + nfcc_a5 + 
+                      nfcc_a6 + nfcc_a7 + nfcc_a8 + nfcc_a9"
+
+nfcc_o_model <- "O =~ nfcc_o1 + nfcc_o2 + nfcc_o3 + nfcc_o4 + nfcc_o5 +
+                      nfcc_o6 + nfcc_o7 + nfcc_o8 + nfcc_o9 + nfcc_o10" 
 
 pe_model <- "PE =~ pe1 + pe2 + pe3 + pe4 + pe5 + pe6 + pe7 + pe8 + pe9 + pe10 + pe11" 
 
@@ -469,37 +261,19 @@ pns_model <- "PNS =~ pns1 + pns2 + pns3 + pns4 + pns5 + pns6 + pns7 + pns8 + pns
 
 rse_model <- "RSE =~ rse1 + rse2 + rse3 + rse4 + rse5 + rse6 + rse7 + rse8 + rse9 + rse10" 
 
-rwa_model <- "RWA =~ rwa1 + rwa2 + rwa3 + rwa4 + rwa5 + rwa6 + rwa7 + rwa8 + rwa9 + rwa10 + rwa11 + rwa12 + rwa13 + rwa14 + rwa15 + rwa16 + rwa17 + rwa18 + rwa19 + rwa20" 
+rwa_model <- "RWA =~ rwa1 + rwa2 + rwa3 + rwa4 + rwa5 + rwa6 + rwa7 + rwa8 + rwa9 + rwa10 + 
+                     rwa11 + rwa12 + rwa13 + rwa14 + rwa15 + rwa16 + rwa17 + rwa18 + rwa19 + rwa20" 
 
 sdo_model <- "SDO =~ sdo1 + sdo2 + sdo3 + sdo4 + sdo5 + sdo6 + sdo7 + sdo8 + sdo9 + sdo10 + sdo11 + sdo12" 
 
-sm_model <- "SM =~ sm1 + sm2 + sm3 + sm4 + sm5 + sm6 + sm7 + sm8 + sm9 + sm10 + sm11 + sm12 + sm13 + sm14 + sm15 + sm16 + sm17 + sm18" 
+sm_model <- "SM =~ sm1 + sm2 + sm3 + sm4 + sm5 + sm6 + sm7 + sm8 + sm9 + 
+                   sm10 + sm11 + sm12 + sm13 + sm14 + sm15 + sm16 + sm17 + sm18" 
 
-soc_ic_model <- "IC =~ soc_ic1 + soc_ic2 + soc_ic3 + soc_ic4 + soc_ic5 + soc_ic6 + soc_ic7 + soc_ic8 + soc_ic9" 
-soc_pe_model <- "PE =~ soc_pe1 + soc_pe2 + soc_pe3 + soc_pe4 + soc_pe5 + soc_pe6 + soc_pe7 + soc_pe8 + soc_pe9 + soc_pe10" 
+soc_ic_model <- "IC =~ soc_ic1 + soc_ic2 + soc_ic3 + soc_ic4 + soc_ic5 + 
+                       soc_ic6 + soc_ic7 + soc_ic8 + soc_ic9 + soc_ic10" 
 
-
-# full scales
-bfi_model <- "O =~ bfi_o1 + bfi_o2 + bfi_o3 + bfi_o4 + bfi_o5 + bfi_o6 + bfi_o7 + bfi_o8 + bfi_o9 + bfi_o10
-              C =~ bfi_c1 + bfi_c2 + bfi_c3 + bfi_c4 + bfi_c5 + bfi_c6 + bfi_c7 + bfi_c8 + bfi_c9
-              E =~ bfi_e1 + bfi_e2 + bfi_e3 + bfi_e4 + bfi_e5 + bfi_e6 + bfi_e7 + bfi_e8
-              A =~ bfi_a1 + bfi_a2 + bfi_a3 + bfi_a4 + bfi_a5 + bfi_a6 + bfi_a7 + bfi_a8 + bfi_a9
-              N =~ bfi_n1 + bfi_n2 + bfi_n3 + bfi_n4 + bfi_n5 + bfi_n6 + bfi_n7 + bfi_n8" 
-
-bidr_model <- "IM =~ bidr_im1 + bidr_im2 + bidr_im3 + bidr_im4 + bidr_im5 + bidr_im6 + bidr_im7 + bidr_im8 + bidr_im9 + bidr_im10 + bidr_im11 + bidr_im12 + bidr_im13 + bidr_im14 + bidr_im15 + bidr_im16 + bidr_im17 + bidr_im18
-               SDE =~ bidr_sde1 + bidr_sde2 + bidr_sde3 + bidr_sde4 + bidr_sde5 + bidr_sde6 + bidr_sde7 + bidr_sde8 + bidr_sde9 + bidr_sde10 + bidr_sde11 + bidr_sde12 + bidr_sde13 + bidr_sde14 + bidr_sde15 + bidr_sde16 + bidr_sde17 + bidr_sde18" 
-
-icat_model <- "ICAT_O =~ icat_o1 + icat_o2 + icat_o3 + icat_o4 + icat_o5 + icat_o6 + icat_o7 + icat_o8 + icat_o9
-               ICAT_S =~ icat_s1 + icat_s2 + icat_s3 + icat_s4 + icat_s5 + icat_s6 + icat_s7 + icat_s8 + icat_s9" 
-
-nfcc_model <- "P =~ nfcc_p1 + nfcc_p2 + nfcc_p3 + nfcc_p4 + nfcc_p5 + nfcc_p6 + nfcc_p7 + nfcc_p8
-               D =~ nfcc_d1 + nfcc_d2 + nfcc_d3 + nfcc_d4 + nfcc_d5 + nfcc_d6 + nfcc_d7
-               C =~ nfcc_c1 + nfcc_c2 + nfcc_c3 + nfcc_c4 + nfcc_c5 + nfcc_c6 + nfcc_c7 + nfcc_c8
-               A =~ nfcc_a1 + nfcc_a2 + nfcc_a3 + nfcc_a4 + nfcc_a5 + nfcc_a6 + nfcc_a7 + nfcc_a8
-               O =~ nfcc_o1 + nfcc_o2 + nfcc_o3 + nfcc_o4 + nfcc_o5 + nfcc_o6 + nfcc_o7" 
-
-soc_model <- "IC =~ soc_ic1 + soc_ic2 + soc_ic3 + soc_ic4 + soc_ic5 + soc_ic6 + soc_ic7 + soc_ic8 + soc_ic9
-              PE =~ soc_pe1 + soc_pe2 + soc_pe3 + soc_pe4 + soc_pe5 + soc_pe6 + soc_pe7 + soc_pe8 + soc_pe9 + soc_pe10" 
+soc_pe_model <- "PE =~ soc_pe1 + soc_pe2 + soc_pe3 + soc_pe4 + soc_pe5 + 
+                       soc_pe6 + soc_pe7 + soc_pe8 + soc_pe9 + soc_pe10" 
 
 ```
 
@@ -527,8 +301,6 @@ cfa_fit <- function(data, model) {
 
 ```
 
-## By split scales
-
 ```{r}
 
 # fit models
@@ -545,8 +317,11 @@ he_fit       <- cfa_fit(data = he_data,       model = he_model)
 icat_o_fit   <- cfa_fit(data = icat_o_data,   model = icat_o_model)
 icat_s_fit   <- cfa_fit(data = icat_s_data,   model = icat_s_model)
 nfc_fit      <- cfa_fit(data = nfc_data,      model = nfc_model)
-nfcc_pdc_fit <- cfa_fit(data = nfcc_pdc_data, model = nfcc_pdc_model)
-nfcc_ao_fit  <- cfa_fit(data = nfcc_ao_data,  model = nfcc_ao_model)
+nfcc_p_fit   <- cfa_fit(data = nfcc_p_data,   model = nfcc_p_model)
+nfcc_d_fit   <- cfa_fit(data = nfcc_d_data,   model = nfcc_d_model)
+nfcc_c_fit   <- cfa_fit(data = nfcc_c_data,   model = nfcc_c_model)
+nfcc_a_fit   <- cfa_fit(data = nfcc_a_data,   model = nfcc_a_model)
+nfcc_o_fit   <- cfa_fit(data = nfcc_o_data,   model = nfcc_o_model)
 pe_fit       <- cfa_fit(data = pe_data,       model = pe_model)
 pns_fit      <- cfa_fit(data = pns_data,      model = pns_model)
 rse_fit      <- cfa_fit(data = rse_data,      model = rse_model)
@@ -662,29 +437,44 @@ latent_observed_nfc <- nfc_data %>%
   select(age, sex, 
          latent, observed)
 
-latent_observed_nfcc_pdc <- nfcc_pdc_data %>%
-  mutate(latent_P = as.data.frame(lavPredict(nfcc_pdc_fit))$P,
-         latent_D = as.data.frame(lavPredict(nfcc_pdc_fit))$D,
-         latent_C = as.data.frame(lavPredict(nfcc_pdc_fit))$C) %>%
+latent_observed_nfcc_p <- nfcc_p_data %>%
+  mutate(latent = as.data.frame(lavPredict(nfcc_p_fit))$P) %>%
   rowwise() %>%
-  mutate(observed_P = mean(c(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8)),
-         observed_D = mean(c(nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7)),
-         observed_C = mean(c(nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8))) %>%
+  mutate(observed = mean(c(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8))) %>%
   ungroup() %>%
   select(age, sex, 
-         latent_P, latent_D, latent_C, 
-         observed_P, observed_D, observed_C)
+         latent, observed)
 
-latent_observed_nfcc_ao <- nfcc_ao_data %>%
-  mutate(latent_A = as.data.frame(lavPredict(nfcc_ao_fit))$A,
-         latent_O = as.data.frame(lavPredict(nfcc_ao_fit))$O) %>%
+latent_observed_nfcc_d <- nfcc_d_data %>%
+  mutate(latent = as.data.frame(lavPredict(nfcc_d_fit))$D) %>%
   rowwise() %>%
-  mutate(observed_A = mean(c(nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8)),
-         observed_O = mean(c(nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7))) %>%
+  mutate(observed = mean(c(nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7))) %>%
   ungroup() %>%
   select(age, sex, 
-         latent_A, latent_O, 
-         observed_A, observed_O)
+         latent, observed)
+
+latent_observed_nfcc_c <- nfcc_c_data %>%
+  mutate(latent = as.data.frame(lavPredict(nfcc_c_fit))$C) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8))) %>%
+  ungroup() %>%
+  select(age, sex, latent, observed)
+
+latent_observed_nfcc_a <- nfcc_a_data %>%
+  mutate(latent = as.data.frame(lavPredict(nfcc_a_fit))$A) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+latent_observed_nfcc_o <- nfcc_o_data %>%
+  mutate(latent = as.data.frame(lavPredict(nfcc_o_fit))$O) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
 
 latent_observed_pe <- pe_data %>%
   mutate(latent = as.data.frame(lavPredict(pe_fit))$PE) %>%
@@ -752,74 +542,6 @@ latent_observed_soc_pe <- soc_pe_data %>%
 
 ```
 
-## By full scales
-
-```{r}
-
-# fit models
-bidr_fit <- cfa_fit(data = bidr_data, model = bidr_model)
-icat_fit <- cfa_fit(data = icat_data, model = icat_model)
-nfcc_fit <- cfa_fit(data = nfcc_data, model = nfcc_model)
-soc_fit  <- cfa_fit(data = soc_data,  model = soc_model)
-
-# full scales
-latent_observed_bidr <- bidr_data %>%
-  mutate(latent_IM = as.data.frame(lavPredict(bidr_fit))$IM,
-         latent_SDE = as.data.frame(lavPredict(bidr_fit))$SDE) %>%
-  rowwise() %>%
-  mutate(observed_IM = mean(c(bidr_im1, bidr_im2, bidr_im3, bidr_im4, bidr_im5, bidr_im6, bidr_im7,
-                              bidr_im8, bidr_im9, bidr_im10, bidr_im11, bidr_im12, bidr_im13, 
-                              bidr_im14, bidr_im15, bidr_im16, bidr_im17, bidr_im18)),
-         observed_SDE = mean(c(bidr_sde1, bidr_sde2, bidr_sde3, bidr_sde4, bidr_sde5, bidr_sde6, bidr_sde7,
-                               bidr_sde8, bidr_sde9, bidr_sde10, bidr_sde11, bidr_sde12, bidr_sde13,
-                               bidr_sde14, bidr_sde15, bidr_sde16, bidr_sde17, bidr_sde18))) %>%
-  ungroup() %>%
-  select(age, sex, 
-         latent_IM, latent_SDE, observed_IM, observed_SDE)
-
-latent_observed_icat <- icat_data %>%
-  mutate(latent_O = as.data.frame(lavPredict(icat_fit))$ICAT_O,
-         latent_S = as.data.frame(lavPredict(icat_fit))$ICAT_S) %>%
-  rowwise() %>%
-  mutate(observed_O = mean(c(icat_o1, icat_o2, icat_o3, icat_o4, icat_o5, icat_o6, icat_o7, icat_o8, icat_o9)),
-         observed_S = mean(c(icat_s1, icat_s2, icat_s3, icat_s4, icat_s5, icat_s6, icat_s7, icat_s8, icat_s9))) %>%
-  ungroup() %>%
-  select(age, sex, 
-         latent_O, latent_S, 
-         observed_O, observed_S)
-
-latent_observed_nfcc <- nfcc_data %>%
-  mutate(latent_P = as.data.frame(lavPredict(nfcc_fit))$P,
-         latent_D = as.data.frame(lavPredict(nfcc_fit))$D,
-         latent_C = as.data.frame(lavPredict(nfcc_fit))$C,
-         latent_A = as.data.frame(lavPredict(nfcc_fit))$A,
-         latent_O = as.data.frame(lavPredict(nfcc_fit))$O) %>%
-  rowwise() %>%
-  mutate(observed_P = mean(c(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8)),
-         observed_D = mean(c(nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7)),
-         observed_C = mean(c(nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8)),
-         observed_A = mean(c(nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8)),
-         observed_O = mean(c(nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7))) %>%
-  ungroup() %>%
-  select(age, sex, 
-         latent_P, latent_D, latent_C, 
-         latent_A, latent_O, 
-         observed_P, observed_D, observed_C,
-         observed_A, observed_O)
-
-latent_observed_soc <- soc_data %>%
-  mutate(latent_IC = as.data.frame(lavPredict(soc_fit))$IC,
-         latent_PE = as.data.frame(lavPredict(soc_fit))$PE) %>%
-  rowwise() %>%
-  mutate(observed_IC = mean(c(soc_ic1, soc_ic2, soc_ic3, soc_ic4, soc_ic5, soc_ic6, soc_ic7, soc_ic8, soc_ic9)),
-         observed_PE = mean(c(soc_pe1, soc_pe2, soc_pe3, soc_pe4, soc_pe5, soc_pe6, soc_pe7, soc_pe8, soc_pe9, soc_pe10))) %>%
-  ungroup() %>%
-  select(age, sex, 
-         latent_IC, latent_PE,
-         observed_IC, observed_PE)
-
-```
-
 ## Correlations between latent and observed scores, and misclassification rate between them
 
 Cut points for classifications are of course arbitrary and hard to know what researchers might use. For illustration, we use the mean of the scale (i.e., 0 on the scaled and centered variable) to show the rate of incongruent conclusions when using the observed sum score vs. the latent mean for decision making.
@@ -835,28 +557,6 @@ percent_misclassification <- function(data) {
     summarize(percent = (n()/nrow(data))*100) %>%
     pull(percent)
 }
-
-# temp data
-latent_observed_nfcc_p_temp <- latent_observed_nfcc_pdc %>%
-  rename(latent = latent_P,
-         observed = observed_P)
-
-latent_observed_nfcc_d_temp <- latent_observed_nfcc_pdc %>%
-  rename(latent = latent_D,
-         observed = observed_D)
-
-latent_observed_nfcc_c_temp <- latent_observed_nfcc_pdc %>%
-  rename(latent = latent_C,
-         observed = observed_C)
-
-latent_observed_nfcc_a_temp <- latent_observed_nfcc_ao %>%
-  rename(latent = latent_A,
-         observed = observed_A)
-
-latent_observed_nfcc_o_temp <- latent_observed_nfcc_ao %>%
-  rename(latent = latent_O,
-         observed = observed_O)
-
 
 latent_observed_correlation_results <- 
   data.frame(scale_name = c("bfi_a", "bfi_c", "bfi_e", "bfi_n", "bfi_o", "bidr_im", "bidr_sde", "bjw", "brs", 
@@ -875,11 +575,11 @@ latent_observed_correlation_results <-
                    cor.test(latent_observed_icat_o$latent, latent_observed_icat_o$observed)$estimate,
                    cor.test(latent_observed_icat_s$latent, latent_observed_icat_s$observed)$estimate,
                    cor.test(latent_observed_nfc$latent, latent_observed_nfc$observed)$estimate,
-                   cor.test(latent_observed_nfcc_pdc$latent_P, latent_observed_nfcc_pdc$observed_P)$estimate,
-                   cor.test(latent_observed_nfcc_pdc$latent_D, latent_observed_nfcc_pdc$observed_D)$estimate,
-                   cor.test(latent_observed_nfcc_pdc$latent_C, latent_observed_nfcc_pdc$observed_C)$estimate,
-                   cor.test(latent_observed_nfcc_ao$latent_A, latent_observed_nfcc_ao$observed_A)$estimate,
-                   cor.test(latent_observed_nfcc_ao$latent_O, latent_observed_nfcc_ao$observed_O)$estimate,
+                   cor.test(latent_observed_nfcc_p$latent, latent_observed_nfcc_p$observed)$estimate,
+                   cor.test(latent_observed_nfcc_d$latent, latent_observed_nfcc_d$observed)$estimate,
+                   cor.test(latent_observed_nfcc_c$latent, latent_observed_nfcc_c$observed)$estimate,
+                   cor.test(latent_observed_nfcc_a$latent, latent_observed_nfcc_a$observed)$estimate,
+                   cor.test(latent_observed_nfcc_o$latent, latent_observed_nfcc_o$observed)$estimate,
                    cor.test(latent_observed_pe$latent, latent_observed_pe$observed)$estimate,
                    cor.test(latent_observed_pns$latent, latent_observed_pns$observed)$estimate,
                    cor.test(latent_observed_rse$latent, latent_observed_rse$observed)$estimate,
@@ -901,16 +601,11 @@ latent_observed_correlation_results <-
                           cor.test(latent_observed_icat_o$latent, latent_observed_icat_o$observed)$conf.int[1],
                           cor.test(latent_observed_icat_s$latent, latent_observed_icat_s$observed)$conf.int[1],
                           cor.test(latent_observed_nfc$latent, latent_observed_nfc$observed)$conf.int[1],
-                          cor.test(latent_observed_nfcc_pdc$latent_P,
-                                   latent_observed_nfcc_pdc$observed_P)$conf.int[1],
-                          cor.test(latent_observed_nfcc_pdc$latent_D,
-                                   latent_observed_nfcc_pdc$observed_D)$conf.int[1],
-                          cor.test(latent_observed_nfcc_pdc$latent_C,
-                                   latent_observed_nfcc_pdc$observed_C)$conf.int[1],
-                          cor.test(latent_observed_nfcc_ao$latent_A,
-                                   latent_observed_nfcc_ao$observed_A)$conf.int[1],
-                          cor.test(latent_observed_nfcc_ao$latent_O,
-                                   latent_observed_nfcc_ao$observed_O)$conf.int[1],
+                          cor.test(latent_observed_nfcc_p$latent, latent_observed_nfcc_p$observed)$conf.int[1],
+                          cor.test(latent_observed_nfcc_d$latent, latent_observed_nfcc_d$observed)$conf.int[1],
+                          cor.test(latent_observed_nfcc_c$latent, latent_observed_nfcc_c$observed)$conf.int[1],
+                          cor.test(latent_observed_nfcc_a$latent, latent_observed_nfcc_a$observed)$conf.int[1],
+                          cor.test(latent_observed_nfcc_o$latent, latent_observed_nfcc_o$observed)$conf.int[1],
                           cor.test(latent_observed_pe$latent, latent_observed_pe$observed)$conf.int[1],
                           cor.test(latent_observed_pns$latent, latent_observed_pns$observed)$conf.int[1],
                           cor.test(latent_observed_rse$latent, latent_observed_rse$observed)$conf.int[1],
@@ -932,16 +627,11 @@ latent_observed_correlation_results <-
                           cor.test(latent_observed_icat_o$latent, latent_observed_icat_o$observed)$conf.int[2],
                           cor.test(latent_observed_icat_s$latent, latent_observed_icat_s$observed)$conf.int[2],
                           cor.test(latent_observed_nfc$latent, latent_observed_nfc$observed)$conf.int[2],
-                          cor.test(latent_observed_nfcc_pdc$latent_P,
-                                   latent_observed_nfcc_pdc$observed_P)$conf.int[2],
-                          cor.test(latent_observed_nfcc_pdc$latent_D,
-                                   latent_observed_nfcc_pdc$observed_D)$conf.int[2],
-                          cor.test(latent_observed_nfcc_pdc$latent_C,
-                                   latent_observed_nfcc_pdc$observed_C)$conf.int[2],
-                          cor.test(latent_observed_nfcc_ao$latent_A,
-                                   latent_observed_nfcc_ao$observed_A)$conf.int[2],
-                          cor.test(latent_observed_nfcc_ao$latent_O,
-                                   latent_observed_nfcc_ao$observed_O)$conf.int[2],
+                          cor.test(latent_observed_nfcc_p$latent, latent_observed_nfcc_p$observed)$conf.int[2],
+                          cor.test(latent_observed_nfcc_d$latent, latent_observed_nfcc_d$observed)$conf.int[2],
+                          cor.test(latent_observed_nfcc_c$latent, latent_observed_nfcc_c$observed)$conf.int[2],
+                          cor.test(latent_observed_nfcc_a$latent, latent_observed_nfcc_a$observed)$conf.int[2],
+                          cor.test(latent_observed_nfcc_o$latent, latent_observed_nfcc_o$observed)$conf.int[2],
                           cor.test(latent_observed_pe$latent, latent_observed_pe$observed)$conf.int[2],
                           cor.test(latent_observed_pns$latent, latent_observed_pns$observed)$conf.int[2],
                           cor.test(latent_observed_rse$latent, latent_observed_rse$observed)$conf.int[2],
@@ -963,11 +653,11 @@ latent_observed_correlation_results <-
                                         percent_misclassification(latent_observed_icat_o),
                                         percent_misclassification(latent_observed_icat_s),
                                         percent_misclassification(latent_observed_nfc),
-                                        percent_misclassification(latent_observed_nfcc_p_temp),
-                                        percent_misclassification(latent_observed_nfcc_d_temp),
-                                        percent_misclassification(latent_observed_nfcc_c_temp),
-                                        percent_misclassification(latent_observed_nfcc_a_temp),
-                                        percent_misclassification(latent_observed_nfcc_o_temp),
+                                        percent_misclassification(latent_observed_nfcc_p),
+                                        percent_misclassification(latent_observed_nfcc_d),
+                                        percent_misclassification(latent_observed_nfcc_c),
+                                        percent_misclassification(latent_observed_nfcc_a),
+                                        percent_misclassification(latent_observed_nfcc_o),
                                         percent_misclassification(latent_observed_pe),
                                         percent_misclassification(latent_observed_pns),
                                         percent_misclassification(latent_observed_rse),
@@ -991,11 +681,11 @@ latent_observed_correlation_results <-
                                "icat_o"   = "Intuitions about Controllability and Awareness of Thoughts - Others",
                                "icat_s"   = "Intuitions about Controllability and Awareness of Thoughts - Self",
                                "nfc"      = "Need for Cognition",
-                               "nfcc_p" = "Need for Cognitive Closure - P",
-                               "nfcc_d" = "Need for Cognitive Closure - D",
-                               "nfcc_c" = "Need for Cognitive Closure - CM",
-                               "nfcc_a"  = "Need for Cognitive Closure - A",
-                               "nfcc_o"  = "Need for Cognitive Closure - O",
+                               "nfcc_p"   = "Need for Cognitive Closure - P",
+                               "nfcc_d"   = "Need for Cognitive Closure - D",
+                               "nfcc_c"   = "Need for Cognitive Closure - C",
+                               "nfcc_a"   = "Need for Cognitive Closure - A",
+                               "nfcc_o"   = "Need for Cognitive Closure - O",
                                "pe"       = "Protestant Ethic",
                                "pns"      = "Personal Need for Structure",
                                "rse"      = "Rosenberg Self-Esteem",
@@ -1011,9 +701,23 @@ latent_observed_correlation_results <-
 # write to disk
 write_csv(latent_observed_correlation_results, "results/supplementary_results_effect_sizes_cfa_fits.csv")
 
+# table
 latent_observed_correlation_results %>%
   kable() %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE)
+
+# plots
+ggplot(latent_observed_correlation_results, aes(r, fill = "dummy")) +
+  geom_density(alpha = 0.7) +
+  scale_fill_viridis_d(begin = 0.7, end = 0.7) + 
+  theme(legend.position = "none") +
+  xlab("correlation between latent and observed scores")
+
+ggplot(latent_observed_correlation_results, aes(percent_misclassification, fill = "dummy")) +
+  geom_density(alpha = 0.7) +
+  scale_fill_viridis_d(begin = 0.7, end = 0.7) + 
+  theme(legend.position = "none") +
+  xlab("percent of incongruent group classifications between the latent and observed sum scores\nusing the mean as an illustrative cutpoint")
 
 ```
 
@@ -1042,8 +746,6 @@ constrained_cfa_fit <- function(data, model) {
 
 ```
 
-## By split scales
-
 ```{r}
 
 # fit models
@@ -1060,8 +762,11 @@ he_fit_constrained       <- constrained_cfa_fit(data = he_data,       model = he
 icat_o_fit_constrained   <- constrained_cfa_fit(data = icat_o_data,   model = icat_o_model)
 icat_s_fit_constrained   <- constrained_cfa_fit(data = icat_s_data,   model = icat_s_model)
 nfc_fit_constrained      <- constrained_cfa_fit(data = nfc_data,      model = nfc_model)
-nfcc_pdc_fit_constrained <- constrained_cfa_fit(data = nfcc_pdc_data, model = nfcc_pdc_model)
-nfcc_ao_fit_constrained  <- constrained_cfa_fit(data = nfcc_ao_data,  model = nfcc_ao_model)
+nfcc_p_fit_constrained   <- constrained_cfa_fit(data = nfcc_p_data,   model = nfcc_p_model)
+nfcc_d_fit_constrained   <- constrained_cfa_fit(data = nfcc_d_data,   model = nfcc_d_model)
+nfcc_c_fit_constrained   <- constrained_cfa_fit(data = nfcc_c_data,   model = nfcc_c_model)
+nfcc_a_fit_constrained   <- constrained_cfa_fit(data = nfcc_a_data,   model = nfcc_a_model)
+nfcc_o_fit_constrained   <- constrained_cfa_fit(data = nfcc_o_data,   model = nfcc_o_model)
 pe_fit_constrained       <- constrained_cfa_fit(data = pe_data,       model = pe_model)
 pns_fit_constrained      <- constrained_cfa_fit(data = pns_data,      model = pns_model)
 rse_fit_constrained      <- constrained_cfa_fit(data = rse_data,      model = rse_model)
@@ -1177,29 +882,45 @@ constrained_latent_observed_nfc <- nfc_data %>%
   select(age, sex, 
          latent, observed)
 
-constrained_latent_observed_nfcc_pdc <- nfcc_pdc_data %>%
-  mutate(latent_P = as.data.frame(lavPredict(nfcc_pdc_fit_constrained))$P,
-         latent_D = as.data.frame(lavPredict(nfcc_pdc_fit_constrained))$D,
-         latent_C = as.data.frame(lavPredict(nfcc_pdc_fit_constrained))$C) %>%
+constrained_latent_observed_nfcc_p <- nfcc_p_data %>%
+  mutate(latent = as.data.frame(lavPredict(nfcc_p_fit_constrained))$P) %>%
   rowwise() %>%
-  mutate(observed_P = mean(c(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8)),
-         observed_D = mean(c(nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7)),
-         observed_C = mean(c(nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8))) %>%
+  mutate(observed = mean(c(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8))) %>%
   ungroup() %>%
   select(age, sex, 
-         latent_P, latent_D, latent_C, 
-         observed_P, observed_D, observed_C)
+         latent, observed)
 
-constrained_latent_observed_nfcc_ao <- nfcc_ao_data %>%
-  mutate(latent_A = as.data.frame(lavPredict(nfcc_ao_fit_constrained))$A,
-         latent_O = as.data.frame(lavPredict(nfcc_ao_fit_constrained))$O) %>%
+constrained_latent_observed_nfcc_d <- nfcc_d_data %>%
+  mutate(latent = as.data.frame(lavPredict(nfcc_d_fit_constrained))$D) %>%
   rowwise() %>%
-  mutate(observed_A = mean(c(nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8)),
-         observed_O = mean(c(nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7))) %>%
+  mutate(observed = mean(c(nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7))) %>%
   ungroup() %>%
   select(age, sex, 
-         latent_A, latent_O, 
-         observed_A, observed_O)
+         latent, observed)
+
+constrained_latent_observed_nfcc_c <- nfcc_c_data %>%
+  mutate(latent = as.data.frame(lavPredict(nfcc_c_fit_constrained))$C) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_nfcc_a <- nfcc_a_data %>%
+  mutate(latent = as.data.frame(lavPredict(nfcc_a_fit_constrained))$A) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
+
+constrained_latent_observed_nfcc_o <- nfcc_o_data %>%
+  mutate(latent = as.data.frame(lavPredict(nfcc_o_fit_constrained))$O) %>%
+  rowwise() %>%
+  mutate(observed = mean(c(nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7))) %>%
+  ungroup() %>%
+  select(age, sex, 
+         latent, observed)
 
 constrained_latent_observed_pe <- pe_data %>%
   mutate(latent = as.data.frame(lavPredict(pe_fit_constrained))$PE) %>%
@@ -1267,74 +988,6 @@ constrained_latent_observed_soc_pe <- soc_pe_data %>%
 
 ```
 
-## By full scales
-
-```{r}
-
-# fit models
-bidr_fit_constrained <- constrained_cfa_fit(data = bidr_data, model = bidr_model)
-icat_fit_constrained <- constrained_cfa_fit(data = icat_data, model = icat_model)
-nfcc_fit_constrained <- constrained_cfa_fit(data = nfcc_data, model = nfcc_model)
-soc_fit_constrained  <- constrained_cfa_fit(data = soc_data,  model = soc_model)
-
-# full scales
-constrained_latent_observed_bidr <- bidr_data %>%
-  mutate(latent_IM = as.data.frame(lavPredict(bidr_fit_constrained))$IM,
-         latent_SDE = as.data.frame(lavPredict(bidr_fit_constrained))$SDE) %>%
-  rowwise() %>%
-  mutate(observed_IM = mean(c(bidr_im1, bidr_im2, bidr_im3, bidr_im4, bidr_im5, bidr_im6, bidr_im7,
-                              bidr_im8, bidr_im9, bidr_im10, bidr_im11, bidr_im12, bidr_im13, 
-                              bidr_im14, bidr_im15, bidr_im16, bidr_im17, bidr_im18)),
-         observed_SDE = mean(c(bidr_sde1, bidr_sde2, bidr_sde3, bidr_sde4, bidr_sde5, bidr_sde6, bidr_sde7,
-                               bidr_sde8, bidr_sde9, bidr_sde10, bidr_sde11, bidr_sde12, bidr_sde13,
-                               bidr_sde14, bidr_sde15, bidr_sde16, bidr_sde17, bidr_sde18))) %>%
-  ungroup() %>%
-  select(age, sex, 
-         latent_IM, latent_SDE, observed_IM, observed_SDE)
-
-constrained_latent_observed_icat <- icat_data %>%
-  mutate(latent_O = as.data.frame(lavPredict(icat_fit_constrained))$ICAT_O,
-         latent_S = as.data.frame(lavPredict(icat_fit_constrained))$ICAT_S) %>%
-  rowwise() %>%
-  mutate(observed_O = mean(c(icat_o1, icat_o2, icat_o3, icat_o4, icat_o5, icat_o6, icat_o7, icat_o8, icat_o9)),
-         observed_S = mean(c(icat_s1, icat_s2, icat_s3, icat_s4, icat_s5, icat_s6, icat_s7, icat_s8, icat_s9))) %>%
-  ungroup() %>%
-  select(age, sex, 
-         latent_O, latent_S, 
-         observed_O, observed_S)
-
-constrained_latent_observed_nfcc <- nfcc_data %>%
-  mutate(latent_P = as.data.frame(lavPredict(nfcc_fit_constrained))$P,
-         latent_D = as.data.frame(lavPredict(nfcc_fit_constrained))$D,
-         latent_C = as.data.frame(lavPredict(nfcc_fit_constrained))$C,
-         latent_A = as.data.frame(lavPredict(nfcc_fit_constrained))$A,
-         latent_O = as.data.frame(lavPredict(nfcc_fit_constrained))$O) %>%
-  rowwise() %>%
-  mutate(observed_P = mean(c(nfcc_p1, nfcc_p2, nfcc_p3, nfcc_p4, nfcc_p5, nfcc_p6, nfcc_p7, nfcc_p8)),
-         observed_D = mean(c(nfcc_d1, nfcc_d2, nfcc_d3, nfcc_d4, nfcc_d5, nfcc_d6, nfcc_d7)),
-         observed_C = mean(c(nfcc_c1, nfcc_c2, nfcc_c3, nfcc_c4, nfcc_c5, nfcc_c6, nfcc_c7, nfcc_c8)),
-         observed_A = mean(c(nfcc_a1, nfcc_a2, nfcc_a3, nfcc_a4, nfcc_a5, nfcc_a6, nfcc_a7, nfcc_a8)),
-         observed_O = mean(c(nfcc_o1, nfcc_o2, nfcc_o3, nfcc_o4, nfcc_o5, nfcc_o6, nfcc_o7))) %>%
-  ungroup() %>%
-  select(age, sex, 
-         latent_P, latent_D, latent_C, 
-         latent_A, latent_O, 
-         observed_P, observed_D, observed_C,
-         observed_A, observed_O)
-
-constrained_latent_observed_soc <- soc_data %>%
-  mutate(latent_IC = as.data.frame(lavPredict(soc_fit_constrained))$IC,
-         latent_PE = as.data.frame(lavPredict(soc_fit_constrained))$PE) %>%
-  rowwise() %>%
-  mutate(observed_IC = mean(c(soc_ic1, soc_ic2, soc_ic3, soc_ic4, soc_ic5, soc_ic6, soc_ic7, soc_ic8, soc_ic9)),
-         observed_PE = mean(c(soc_pe1, soc_pe2, soc_pe3, soc_pe4, soc_pe5, soc_pe6, soc_pe7, soc_pe8, soc_pe9, soc_pe10))) %>%
-  ungroup() %>%
-  select(age, sex, 
-         latent_IC, latent_PE,
-         observed_IC, observed_PE)
-
-```
-
 ## Between-group differences on the latent vs. the observed scales.
 
 ```{r}
@@ -1352,11 +1005,11 @@ es_constrained_latent_sex_he         <- effsize::cohen.d(latent ~ sex,     data 
 es_constrained_latent_sex_icat_o     <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_icat_o)
 es_constrained_latent_sex_icat_s     <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_icat_s)
 es_constrained_latent_sex_nfc        <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_nfc)
-es_constrained_latent_sex_nfcc_p     <- effsize::cohen.d(latent_P ~ sex,   data = constrained_latent_observed_nfcc_pdc)
-es_constrained_latent_sex_nfcc_d     <- effsize::cohen.d(latent_D ~ sex,   data = constrained_latent_observed_nfcc_pdc)
-es_constrained_latent_sex_nfcc_c     <- effsize::cohen.d(latent_C ~ sex,   data = constrained_latent_observed_nfcc_pdc)
-es_constrained_latent_sex_nfcc_a     <- effsize::cohen.d(latent_A ~ sex,   data = constrained_latent_observed_nfcc_ao)
-es_constrained_latent_sex_nfcc_o     <- effsize::cohen.d(latent_O ~ sex,   data = constrained_latent_observed_nfcc_ao)
+es_constrained_latent_sex_nfcc_p     <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_nfcc_p)
+es_constrained_latent_sex_nfcc_d     <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_nfcc_d)
+es_constrained_latent_sex_nfcc_c     <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_nfcc_c)
+es_constrained_latent_sex_nfcc_a     <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_nfcc_a)
+es_constrained_latent_sex_nfcc_o     <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_nfcc_o)
 es_constrained_latent_sex_pe         <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_pe)
 es_constrained_latent_sex_pns        <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_pns)
 es_constrained_latent_sex_rse        <- effsize::cohen.d(latent ~ sex,     data = constrained_latent_observed_rse)
@@ -1379,11 +1032,11 @@ es_constrained_latent_age_he         <- effsize::cohen.d(latent ~ age,     data 
 es_constrained_latent_age_icat_o     <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_icat_o)
 es_constrained_latent_age_icat_s     <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_icat_s)
 es_constrained_latent_age_nfc        <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_nfc)
-es_constrained_latent_age_nfcc_p     <- effsize::cohen.d(latent_P ~ age,   data = constrained_latent_observed_nfcc_pdc)
-es_constrained_latent_age_nfcc_d     <- effsize::cohen.d(latent_D ~ age,   data = constrained_latent_observed_nfcc_pdc)
-es_constrained_latent_age_nfcc_c     <- effsize::cohen.d(latent_C ~ age,   data = constrained_latent_observed_nfcc_pdc)
-es_constrained_latent_age_nfcc_a     <- effsize::cohen.d(latent_A ~ age,   data = constrained_latent_observed_nfcc_ao)
-es_constrained_latent_age_nfcc_o     <- effsize::cohen.d(latent_O ~ age,   data = constrained_latent_observed_nfcc_ao)
+es_constrained_latent_age_nfcc_p     <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_nfcc_p)
+es_constrained_latent_age_nfcc_d     <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_nfcc_d)
+es_constrained_latent_age_nfcc_c     <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_nfcc_c)
+es_constrained_latent_age_nfcc_a     <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_nfcc_a)
+es_constrained_latent_age_nfcc_o     <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_nfcc_o)
 es_constrained_latent_age_pe         <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_pe)
 es_constrained_latent_age_pns        <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_pns)
 es_constrained_latent_age_rse        <- effsize::cohen.d(latent ~ age,     data = constrained_latent_observed_rse)
@@ -1406,11 +1059,11 @@ es_constrained_observed_sex_he       <- effsize::cohen.d(observed ~ sex,   data 
 es_constrained_observed_sex_icat_o   <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_icat_o)
 es_constrained_observed_sex_icat_s   <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_icat_s)
 es_constrained_observed_sex_nfc      <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_nfc)
-es_constrained_observed_sex_nfcc_p   <- effsize::cohen.d(observed_P ~ sex, data = constrained_latent_observed_nfcc_pdc)
-es_constrained_observed_sex_nfcc_d   <- effsize::cohen.d(observed_D ~ sex, data = constrained_latent_observed_nfcc_pdc)
-es_constrained_observed_sex_nfcc_c   <- effsize::cohen.d(observed_C ~ sex, data = constrained_latent_observed_nfcc_pdc)
-es_constrained_observed_sex_nfcc_a   <- effsize::cohen.d(observed_A ~ sex, data = constrained_latent_observed_nfcc_ao)
-es_constrained_observed_sex_nfcc_o   <- effsize::cohen.d(observed_O ~ sex, data = constrained_latent_observed_nfcc_ao)
+es_constrained_observed_sex_nfcc_p   <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_nfcc_p)
+es_constrained_observed_sex_nfcc_d   <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_nfcc_d)
+es_constrained_observed_sex_nfcc_c   <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_nfcc_c)
+es_constrained_observed_sex_nfcc_a   <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_nfcc_a)
+es_constrained_observed_sex_nfcc_o   <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_nfcc_o)
 es_constrained_observed_sex_pe       <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_pe)
 es_constrained_observed_sex_pns      <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_pns)
 es_constrained_observed_sex_rse      <- effsize::cohen.d(observed ~ sex,   data = constrained_latent_observed_rse)
@@ -1433,11 +1086,11 @@ es_constrained_observed_age_he       <- effsize::cohen.d(observed ~ age,   data 
 es_constrained_observed_age_icat_o   <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_icat_o)
 es_constrained_observed_age_icat_s   <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_icat_s)
 es_constrained_observed_age_nfc      <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_nfc)
-es_constrained_observed_age_nfcc_p   <- effsize::cohen.d(observed_P ~ age, data = constrained_latent_observed_nfcc_pdc)
-es_constrained_observed_age_nfcc_d   <- effsize::cohen.d(observed_D ~ age, data = constrained_latent_observed_nfcc_pdc)
-es_constrained_observed_age_nfcc_c   <- effsize::cohen.d(observed_C ~ age, data = constrained_latent_observed_nfcc_pdc)
-es_constrained_observed_age_nfcc_a   <- effsize::cohen.d(observed_A ~ age, data = constrained_latent_observed_nfcc_ao)
-es_constrained_observed_age_nfcc_o   <- effsize::cohen.d(observed_O ~ age, data = constrained_latent_observed_nfcc_ao)
+es_constrained_observed_age_nfcc_p   <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_nfcc_p)
+es_constrained_observed_age_nfcc_d   <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_nfcc_d)
+es_constrained_observed_age_nfcc_c   <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_nfcc_c)
+es_constrained_observed_age_nfcc_a   <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_nfcc_a)
+es_constrained_observed_age_nfcc_o   <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_nfcc_o)
 es_constrained_observed_age_pe       <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_pe)
 es_constrained_observed_age_pns      <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_pns)
 es_constrained_observed_age_rse      <- effsize::cohen.d(observed ~ age,   data = constrained_latent_observed_rse)
@@ -1449,7 +1102,7 @@ es_constrained_observed_age_soc_pe   <- effsize::cohen.d(observed ~ age,   data 
   
 
 group_differences_results <- 
-  data.frame(scale_name = c("bfi_a", "bfi_c", "bfi_e", "bfi_n", "bfi_o", "bidr_im", "bidr_sde", "bjw", "brs", "he", "icat_o", "icat_s", "nfc", "nfcc_a", "nfcc_c", "nfcc_d", "nfcc_o", "nfcc_p", "pe", "pns", "rse", "rwa", "sdo", "sm", "soc_ic", "soc_pe"),
+  data.frame(scale_name = c("bfi_a", "bfi_c", "bfi_e", "bfi_n", "bfi_o", "bidr_im", "bidr_sde", "bjw", "brs", "he", "icat_o", "icat_s", "nfc", "nfcc_p", "nfcc_d", "nfcc_c", "nfcc_a", "nfcc_o", "pe", "pns", "rse", "rwa", "sdo", "sm", "soc_ic", "soc_pe"),
              group_comparison = c("age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "age", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex", "sex"),
              latent_cohens_d = c(es_constrained_latent_age_bfi_a$estimate,
                                  es_constrained_latent_age_bfi_c$estimate,
@@ -1464,11 +1117,11 @@ group_differences_results <-
                                  es_constrained_latent_age_icat_o$estimate,
                                  es_constrained_latent_age_icat_s$estimate,
                                  es_constrained_latent_age_nfc$estimate,
-                                 es_constrained_latent_age_nfcc_a$estimate,
-                                 es_constrained_latent_age_nfcc_c$estimate,
-                                 es_constrained_latent_age_nfcc_d$estimate,
-                                 es_constrained_latent_age_nfcc_o$estimate,
                                  es_constrained_latent_age_nfcc_p$estimate,
+                                 es_constrained_latent_age_nfcc_d$estimate,
+                                 es_constrained_latent_age_nfcc_c$estimate,
+                                 es_constrained_latent_age_nfcc_a$estimate,
+                                 es_constrained_latent_age_nfcc_o$estimate,
                                  es_constrained_latent_age_pe$estimate,
                                  es_constrained_latent_age_pns$estimate,
                                  es_constrained_latent_age_rse$estimate,
@@ -1490,11 +1143,11 @@ group_differences_results <-
                                  es_constrained_latent_sex_icat_o$estimate,
                                  es_constrained_latent_sex_icat_s$estimate,
                                  es_constrained_latent_sex_nfc$estimate,
-                                 es_constrained_latent_sex_nfcc_a$estimate,
-                                 es_constrained_latent_sex_nfcc_c$estimate,
-                                 es_constrained_latent_sex_nfcc_d$estimate,
-                                 es_constrained_latent_sex_nfcc_o$estimate,
                                  es_constrained_latent_sex_nfcc_p$estimate,
+                                 es_constrained_latent_sex_nfcc_d$estimate,
+                                 es_constrained_latent_sex_nfcc_c$estimate,
+                                 es_constrained_latent_sex_nfcc_a$estimate,
+                                 es_constrained_latent_sex_nfcc_o$estimate,
                                  es_constrained_latent_sex_pe$estimate,
                                  es_constrained_latent_sex_pns$estimate,
                                  es_constrained_latent_sex_rse$estimate,
@@ -1516,11 +1169,11 @@ group_differences_results <-
                                         es_constrained_latent_age_icat_o$conf.int[1],
                                         es_constrained_latent_age_icat_s$conf.int[1],
                                         es_constrained_latent_age_nfc$conf.int[1],
-                                        es_constrained_latent_age_nfcc_a$conf.int[1],
-                                        es_constrained_latent_age_nfcc_c$conf.int[1],
-                                        es_constrained_latent_age_nfcc_d$conf.int[1],
-                                        es_constrained_latent_age_nfcc_o$conf.int[1],
                                         es_constrained_latent_age_nfcc_p$conf.int[1],
+                                        es_constrained_latent_age_nfcc_d$conf.int[1],
+                                        es_constrained_latent_age_nfcc_c$conf.int[1],
+                                        es_constrained_latent_age_nfcc_a$conf.int[1],
+                                        es_constrained_latent_age_nfcc_o$conf.int[1],
                                         es_constrained_latent_age_pe$conf.int[1],
                                         es_constrained_latent_age_pns$conf.int[1],
                                         es_constrained_latent_age_rse$conf.int[1],
@@ -1542,11 +1195,11 @@ group_differences_results <-
                                         es_constrained_latent_sex_icat_o$conf.int[1],
                                         es_constrained_latent_sex_icat_s$conf.int[1],
                                         es_constrained_latent_sex_nfc$conf.int[1],
-                                        es_constrained_latent_sex_nfcc_a$conf.int[1],
-                                        es_constrained_latent_sex_nfcc_c$conf.int[1],
-                                        es_constrained_latent_sex_nfcc_d$conf.int[1],
-                                        es_constrained_latent_sex_nfcc_o$conf.int[1],
                                         es_constrained_latent_sex_nfcc_p$conf.int[1],
+                                        es_constrained_latent_sex_nfcc_d$conf.int[1],
+                                        es_constrained_latent_sex_nfcc_c$conf.int[1],
+                                        es_constrained_latent_sex_nfcc_a$conf.int[1],
+                                        es_constrained_latent_sex_nfcc_o$conf.int[1],
                                         es_constrained_latent_sex_pe$conf.int[1],
                                         es_constrained_latent_sex_pns$conf.int[1],
                                         es_constrained_latent_sex_rse$conf.int[1],
@@ -1568,11 +1221,11 @@ group_differences_results <-
                                         es_constrained_latent_age_icat_o$conf.int[2],
                                         es_constrained_latent_age_icat_s$conf.int[2],
                                         es_constrained_latent_age_nfc$conf.int[2],
-                                        es_constrained_latent_age_nfcc_a$conf.int[2],
-                                        es_constrained_latent_age_nfcc_c$conf.int[2],
-                                        es_constrained_latent_age_nfcc_d$conf.int[2],
-                                        es_constrained_latent_age_nfcc_o$conf.int[2],
                                         es_constrained_latent_age_nfcc_p$conf.int[2],
+                                        es_constrained_latent_age_nfcc_d$conf.int[2],
+                                        es_constrained_latent_age_nfcc_c$conf.int[2],
+                                        es_constrained_latent_age_nfcc_a$conf.int[2],
+                                        es_constrained_latent_age_nfcc_o$conf.int[2],
                                         es_constrained_latent_age_pe$conf.int[2],
                                         es_constrained_latent_age_pns$conf.int[2],
                                         es_constrained_latent_age_rse$conf.int[2],
@@ -1594,11 +1247,11 @@ group_differences_results <-
                                         es_constrained_latent_sex_icat_o$conf.int[2],
                                         es_constrained_latent_sex_icat_s$conf.int[2],
                                         es_constrained_latent_sex_nfc$conf.int[2],
-                                        es_constrained_latent_sex_nfcc_a$conf.int[2],
-                                        es_constrained_latent_sex_nfcc_c$conf.int[2],
-                                        es_constrained_latent_sex_nfcc_d$conf.int[2],
-                                        es_constrained_latent_sex_nfcc_o$conf.int[2],
                                         es_constrained_latent_sex_nfcc_p$conf.int[2],
+                                        es_constrained_latent_sex_nfcc_d$conf.int[2],
+                                        es_constrained_latent_sex_nfcc_c$conf.int[2],
+                                        es_constrained_latent_sex_nfcc_a$conf.int[2],
+                                        es_constrained_latent_sex_nfcc_o$conf.int[2],
                                         es_constrained_latent_sex_pe$conf.int[2],
                                         es_constrained_latent_sex_pns$conf.int[2],
                                         es_constrained_latent_sex_rse$conf.int[2],
@@ -1620,11 +1273,11 @@ group_differences_results <-
                                    es_constrained_observed_age_icat_o$estimate,
                                    es_constrained_observed_age_icat_s$estimate,
                                    es_constrained_observed_age_nfc$estimate,
-                                   es_constrained_observed_age_nfcc_a$estimate,
-                                   es_constrained_observed_age_nfcc_c$estimate,
-                                   es_constrained_observed_age_nfcc_d$estimate,
-                                   es_constrained_observed_age_nfcc_o$estimate,
                                    es_constrained_observed_age_nfcc_p$estimate,
+                                   es_constrained_observed_age_nfcc_d$estimate,
+                                   es_constrained_observed_age_nfcc_c$estimate,
+                                   es_constrained_observed_age_nfcc_a$estimate,
+                                   es_constrained_observed_age_nfcc_o$estimate,
                                    es_constrained_observed_age_pe$estimate,
                                    es_constrained_observed_age_pns$estimate,
                                    es_constrained_observed_age_rse$estimate,
@@ -1646,11 +1299,11 @@ group_differences_results <-
                                    es_constrained_observed_sex_icat_o$estimate,
                                    es_constrained_observed_sex_icat_s$estimate,
                                    es_constrained_observed_sex_nfc$estimate,
-                                   es_constrained_observed_sex_nfcc_a$estimate,
-                                   es_constrained_observed_sex_nfcc_c$estimate,
-                                   es_constrained_observed_sex_nfcc_d$estimate,
-                                   es_constrained_observed_sex_nfcc_o$estimate,
                                    es_constrained_observed_sex_nfcc_p$estimate,
+                                   es_constrained_observed_sex_nfcc_d$estimate,
+                                   es_constrained_observed_sex_nfcc_c$estimate,
+                                   es_constrained_observed_sex_nfcc_a$estimate,
+                                   es_constrained_observed_sex_nfcc_o$estimate,
                                    es_constrained_observed_sex_pe$estimate,
                                    es_constrained_observed_sex_pns$estimate,
                                    es_constrained_observed_sex_rse$estimate,
@@ -1672,11 +1325,11 @@ group_differences_results <-
                                           es_constrained_observed_age_icat_o$conf.int[1],
                                           es_constrained_observed_age_icat_s$conf.int[1],
                                           es_constrained_observed_age_nfc$conf.int[1],
-                                          es_constrained_observed_age_nfcc_a$conf.int[1],
-                                          es_constrained_observed_age_nfcc_c$conf.int[1],
-                                          es_constrained_observed_age_nfcc_d$conf.int[1],
-                                          es_constrained_observed_age_nfcc_o$conf.int[1],
                                           es_constrained_observed_age_nfcc_p$conf.int[1],
+                                          es_constrained_observed_age_nfcc_d$conf.int[1],
+                                          es_constrained_observed_age_nfcc_c$conf.int[1],
+                                          es_constrained_observed_age_nfcc_a$conf.int[1],
+                                          es_constrained_observed_age_nfcc_o$conf.int[1],
                                           es_constrained_observed_age_pe$conf.int[1],
                                           es_constrained_observed_age_pns$conf.int[1],
                                           es_constrained_observed_age_rse$conf.int[1],
@@ -1698,11 +1351,11 @@ group_differences_results <-
                                           es_constrained_observed_sex_icat_o$conf.int[1],
                                           es_constrained_observed_sex_icat_s$conf.int[1],
                                           es_constrained_observed_sex_nfc$conf.int[1],
-                                          es_constrained_observed_sex_nfcc_a$conf.int[1],
-                                          es_constrained_observed_sex_nfcc_c$conf.int[1],
-                                          es_constrained_observed_sex_nfcc_d$conf.int[1],
-                                          es_constrained_observed_sex_nfcc_o$conf.int[1],
                                           es_constrained_observed_sex_nfcc_p$conf.int[1],
+                                          es_constrained_observed_sex_nfcc_d$conf.int[1],
+                                          es_constrained_observed_sex_nfcc_c$conf.int[1],
+                                          es_constrained_observed_sex_nfcc_a$conf.int[1],
+                                          es_constrained_observed_sex_nfcc_o$conf.int[1],
                                           es_constrained_observed_sex_pe$conf.int[1],
                                           es_constrained_observed_sex_pns$conf.int[1],
                                           es_constrained_observed_sex_rse$conf.int[1],
@@ -1724,11 +1377,11 @@ group_differences_results <-
                                           es_constrained_observed_age_icat_o$conf.int[2],
                                           es_constrained_observed_age_icat_s$conf.int[2],
                                           es_constrained_observed_age_nfc$conf.int[2],
-                                          es_constrained_observed_age_nfcc_a$conf.int[2],
-                                          es_constrained_observed_age_nfcc_c$conf.int[2],
-                                          es_constrained_observed_age_nfcc_d$conf.int[2],
-                                          es_constrained_observed_age_nfcc_o$conf.int[2],
                                           es_constrained_observed_age_nfcc_p$conf.int[2],
+                                          es_constrained_observed_age_nfcc_d$conf.int[2],
+                                          es_constrained_observed_age_nfcc_c$conf.int[2],
+                                          es_constrained_observed_age_nfcc_a$conf.int[2],
+                                          es_constrained_observed_age_nfcc_o$conf.int[2],
                                           es_constrained_observed_age_pe$conf.int[2],
                                           es_constrained_observed_age_pns$conf.int[2],
                                           es_constrained_observed_age_rse$conf.int[2],
@@ -1750,11 +1403,11 @@ group_differences_results <-
                                           es_constrained_observed_sex_icat_o$conf.int[2],
                                           es_constrained_observed_sex_icat_s$conf.int[2],
                                           es_constrained_observed_sex_nfc$conf.int[2],
-                                          es_constrained_observed_sex_nfcc_a$conf.int[2],
-                                          es_constrained_observed_sex_nfcc_c$conf.int[2],
-                                          es_constrained_observed_sex_nfcc_d$conf.int[2],
-                                          es_constrained_observed_sex_nfcc_o$conf.int[2],
                                           es_constrained_observed_sex_nfcc_p$conf.int[2],
+                                          es_constrained_observed_sex_nfcc_d$conf.int[2],
+                                          es_constrained_observed_sex_nfcc_c$conf.int[2],
+                                          es_constrained_observed_sex_nfcc_a$conf.int[2],
+                                          es_constrained_observed_sex_nfcc_o$conf.int[2],
                                           es_constrained_observed_sex_pe$conf.int[2],
                                           es_constrained_observed_sex_pns$conf.int[2],
                                           es_constrained_observed_sex_rse$conf.int[2],
@@ -1788,11 +1441,11 @@ group_differences_results <-
                                "icat_o"   = "Intuitions about Controllability and Awareness of Thoughts - Others",
                                "icat_s"   = "Intuitions about Controllability and Awareness of Thoughts - Self",
                                "nfc"      = "Need for Cognition",
-                               "nfcc_p" = "Need for Cognitive Closure - P",
-                               "nfcc_d" = "Need for Cognitive Closure - D",
-                               "nfcc_c" = "Need for Cognitive Closure - CM",
-                               "nfcc_a"  = "Need for Cognitive Closure - A",
-                               "nfcc_o"  = "Need for Cognitive Closure - O",
+                               "nfcc_p"   = "Need for Cognitive Closure - P",
+                               "nfcc_d"   = "Need for Cognitive Closure - D",
+                               "nfcc_c"   = "Need for Cognitive Closure - C",
+                               "nfcc_a"   = "Need for Cognitive Closure - A",
+                               "nfcc_o"   = "Need for Cognitive Closure - O",
                                "pe"       = "Protestant Ethic",
                                "pns"      = "Personal Need for Structure",
                                "rse"      = "Rosenberg Self-Esteem",
@@ -1840,5 +1493,6 @@ p1 / p2
 
 ```
 
-`r mean(temp$sig_change)`% of MI tests showed a significant change in effect size between the latent and observed scores.
+`r round(mean(summary$sig_change)*100, 1)`% of MI tests showed a significant change in effect size between the latent and observed scores.
+
 

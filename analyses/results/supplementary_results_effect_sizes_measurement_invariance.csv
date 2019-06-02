@@ -9,45 +9,45 @@ age,0.189,0.14,0.237,0.196,0.148,0.244,0.007,0.007,FALSE,Big 5 Inventory - N
 sex,0.353,0.302,0.403,0.336,0.285,0.386,-0.017,0.017,FALSE,Big 5 Inventory - N
 age,-0.173,-0.221,-0.124,-0.224,-0.273,-0.176,-0.052,0.052,TRUE,Big 5 Inventory - O
 sex,-0.13,-0.18,-0.08,-0.098,-0.148,-0.048,0.032,0.032,FALSE,Big 5 Inventory - O
-age,-0.263,-0.31,-0.215,-0.224,-0.271,-0.176,0.039,0.039,FALSE,Balanced Inventory of Desirable Responding - Impression Management
+age,-0.263,-0.311,-0.216,-0.223,-0.271,-0.176,0.04,0.04,FALSE,Balanced Inventory of Desirable Responding - Impression Management
 sex,0.181,0.131,0.23,0.181,0.132,0.23,0,0,FALSE,Balanced Inventory of Desirable Responding - Impression Management
-age,-0.082,-0.13,-0.034,-0.037,-0.084,0.011,0.045,0.045,FALSE,Balanced Inventory of Desirable Responding - Self Deception
+age,-0.077,-0.125,-0.029,-0.03,-0.078,0.019,0.047,0.047,FALSE,Balanced Inventory of Desirable Responding - Self Deception
 sex,-0.14,-0.191,-0.09,-0.179,-0.23,-0.129,-0.039,0.039,FALSE,Balanced Inventory of Desirable Responding - Self Deception
-age,0.123,0.076,0.171,0.111,0.064,0.159,-0.012,0.012,FALSE,Belief in a Just World: General Just World Scale
+age,0.129,0.081,0.177,0.116,0.068,0.164,-0.014,0.014,FALSE,Belief in a Just World: General Just World Scale
 sex,-0.001,-0.051,0.05,-0.004,-0.054,0.047,-0.003,0.003,FALSE,Belief in a Just World: General Just World Scale
-age,0.071,0.022,0.119,0.07,0.021,0.118,-0.001,0.001,FALSE,Bayesian Racism
+age,0.09,0.041,0.139,0.091,0.042,0.14,0.001,0.001,FALSE,Bayesian Racism
 sex,-0.399,-0.45,-0.347,-0.394,-0.446,-0.343,0.004,0.004,FALSE,Bayesian Racism
-age,-0.262,-0.309,-0.215,-0.215,-0.262,-0.167,0.047,0.047,FALSE,Humanitarianism-Egalitarianism
+age,-0.264,-0.312,-0.217,-0.214,-0.262,-0.167,0.05,0.05,TRUE,Humanitarianism-Egalitarianism
 sex,0.343,0.293,0.393,0.359,0.31,0.409,0.017,0.017,FALSE,Humanitarianism-Egalitarianism
-age,0.143,0.095,0.191,0.109,0.061,0.157,-0.034,0.034,FALSE,Intuitions about Controllability and Awareness of Thoughts - Others
+age,0.159,0.111,0.208,0.126,0.078,0.174,-0.033,0.033,FALSE,Intuitions about Controllability and Awareness of Thoughts - Others
 sex,-0.063,-0.113,-0.013,-0.063,-0.113,-0.013,-0,0,FALSE,Intuitions about Controllability and Awareness of Thoughts - Others
-age,-0.012,-0.06,0.035,-0.02,-0.068,0.027,-0.008,0.008,FALSE,Intuitions about Controllability and Awareness of Thoughts - Self
+age,-0.013,-0.06,0.035,-0.022,-0.069,0.026,-0.009,0.009,FALSE,Intuitions about Controllability and Awareness of Thoughts - Self
 sex,-0.155,-0.205,-0.105,-0.157,-0.207,-0.108,-0.003,0.003,FALSE,Intuitions about Controllability and Awareness of Thoughts - Self
-age,-0.404,-0.453,-0.355,-0.377,-0.426,-0.329,0.027,0.027,FALSE,Need for Cognition
+age,-0.438,-0.486,-0.389,-0.41,-0.459,-0.361,0.028,0.028,FALSE,Need for Cognition
 sex,-0.189,-0.239,-0.138,-0.183,-0.233,-0.132,0.006,0.006,FALSE,Need for Cognition
-age,0.181,0.132,0.229,0.206,0.158,0.255,0.026,0.026,FALSE,Need for Cognitive Closure - A
-sex,0.21,0.16,0.261,0.144,0.093,0.194,-0.067,0.067,TRUE,Need for Cognitive Closure - A
-age,0.101,0.053,0.15,0.1,0.052,0.149,-0.001,0.001,FALSE,Need for Cognitive Closure - CM
-sex,0.119,0.069,0.17,0.103,0.053,0.154,-0.016,0.016,FALSE,Need for Cognitive Closure - CM
-age,-0.483,-0.532,-0.434,-0.465,-0.514,-0.416,0.018,0.018,FALSE,Need for Cognitive Closure - D
-sex,-0.238,-0.289,-0.187,-0.216,-0.267,-0.165,0.022,0.022,FALSE,Need for Cognitive Closure - D
-age,0.11,0.062,0.159,0.074,0.026,0.122,-0.036,0.036,FALSE,Need for Cognitive Closure - O
-sex,0.201,0.151,0.252,0.218,0.168,0.269,0.017,0.017,FALSE,Need for Cognitive Closure - O
-age,0.07,0.021,0.118,0.06,0.012,0.109,-0.009,0.009,FALSE,Need for Cognitive Closure - P
-sex,0.082,0.031,0.133,0.031,-0.02,0.082,-0.051,0.051,TRUE,Need for Cognitive Closure - P
-age,0.219,0.171,0.267,0.218,0.17,0.265,-0.001,0.001,FALSE,Protestant Ethic
+age,0.169,0.121,0.218,0.204,0.156,0.253,0.035,0.035,FALSE,Need for Cognitive Closure - A
+sex,0.181,0.13,0.231,0.144,0.093,0.194,-0.037,0.037,FALSE,Need for Cognitive Closure - A
+age,0.096,0.047,0.144,0.116,0.067,0.165,0.02,0.02,FALSE,Need for Cognitive Closure - C
+sex,0.094,0.043,0.145,0.103,0.053,0.154,0.01,0.01,FALSE,Need for Cognitive Closure - C
+age,-0.47,-0.519,-0.42,-0.45,-0.5,-0.401,0.02,0.02,FALSE,Need for Cognitive Closure - D
+sex,-0.236,-0.287,-0.185,-0.216,-0.267,-0.165,0.02,0.02,FALSE,Need for Cognitive Closure - D
+age,0.086,0.037,0.135,0.064,0.016,0.113,-0.021,0.021,FALSE,Need for Cognitive Closure - O
+sex,0.204,0.154,0.255,0.218,0.168,0.269,0.014,0.014,FALSE,Need for Cognitive Closure - O
+age,0.042,-0.007,0.091,0.063,0.014,0.111,0.021,0.021,FALSE,Need for Cognitive Closure - P
+sex,0.066,0.015,0.117,0.031,-0.02,0.082,-0.035,0.035,FALSE,Need for Cognitive Closure - P
+age,0.218,0.17,0.265,0.216,0.168,0.264,-0.001,0.001,FALSE,Protestant Ethic
 sex,-0.169,-0.219,-0.12,-0.148,-0.197,-0.098,0.022,0.022,FALSE,Protestant Ethic
-age,-0.028,-0.075,0.02,-0.04,-0.087,0.008,-0.012,0.012,FALSE,Personal Need for Structure
+age,-0.023,-0.071,0.025,-0.035,-0.083,0.013,-0.012,0.012,FALSE,Personal Need for Structure
 sex,0.164,0.114,0.213,0.161,0.112,0.211,-0.002,0.002,FALSE,Personal Need for Structure
-age,-0.16,-0.207,-0.113,-0.182,-0.229,-0.135,-0.022,0.022,FALSE,Rosenberg Self-Esteem
+age,-0.169,-0.216,-0.122,-0.193,-0.24,-0.145,-0.023,0.023,FALSE,Rosenberg Self-Esteem
 sex,-0.048,-0.097,0.001,-0.059,-0.108,-0.01,-0.011,0.011,FALSE,Rosenberg Self-Esteem
-age,0.248,0.199,0.296,0.212,0.163,0.26,-0.036,0.036,FALSE,Ring-Wing Authoritarianism
+age,0.251,0.202,0.3,0.215,0.166,0.264,-0.036,0.036,FALSE,Ring-Wing Authoritarianism
 sex,-0.072,-0.123,-0.021,-0.046,-0.097,0.005,0.027,0.027,FALSE,Ring-Wing Authoritarianism
-age,0.28,0.233,0.328,0.273,0.225,0.32,-0.008,0.008,FALSE,Social Dominance Orientation
+age,0.295,0.247,0.343,0.288,0.241,0.336,-0.007,0.007,FALSE,Social Dominance Orientation
 sex,-0.44,-0.49,-0.39,-0.462,-0.512,-0.412,-0.022,0.022,FALSE,Social Dominance Orientation
-age,0.132,0.083,0.18,0.165,0.117,0.214,0.034,0.034,FALSE,Self-Monitoring
+age,0.115,0.067,0.164,0.151,0.103,0.199,0.036,0.036,FALSE,Self-Monitoring
 sex,-0.223,-0.274,-0.173,-0.251,-0.301,-0.201,-0.028,0.028,FALSE,Self-Monitoring
-age,-0.187,-0.235,-0.14,-0.181,-0.229,-0.133,0.007,0.007,FALSE,Spheres of Control - Interpersonal Control
-sex,0.051,0.001,0.1,0.038,-0.012,0.087,-0.013,0.013,FALSE,Spheres of Control - Interpersonal Control
-age,-0.144,-0.192,-0.097,-0.141,-0.188,-0.093,0.004,0.004,FALSE,Spheres of Control - Personal Efficacy
+age,-0.157,-0.205,-0.109,-0.166,-0.214,-0.118,-0.009,0.009,FALSE,Spheres of Control - Interpersonal Control
+sex,0.034,-0.016,0.083,0.038,-0.012,0.087,0.004,0.004,FALSE,Spheres of Control - Interpersonal Control
+age,-0.142,-0.189,-0.094,-0.142,-0.19,-0.095,-0.001,0.001,FALSE,Spheres of Control - Personal Efficacy
 sex,0.068,0.019,0.117,-0.015,-0.065,0.034,-0.083,0.083,TRUE,Spheres of Control - Personal Efficacy

@@ -1,5 +1,4 @@
 Scale,Internal consistency,Test-retest reliability,Confirmatory factor structure,Measurement invariance,Global structural validity
-Balanced Inventory of Desirable Responding,Passed,Passed,Mixed,,
 Balanced Inventory of Desirable Responding - Impression Management,Passed,Passed,Mixed,Failed,Questionable
 Balanced Inventory of Desirable Responding - Self Deception,Passed,Passed,Poor,Failed,Questionable
 Bayesian Racism,Passed,Passed,Good,Failed,Questionable
@@ -10,20 +9,20 @@ Big 5 Inventory - E,Passed,Passed,Mixed,Failed,Questionable
 Big 5 Inventory - N,Passed,Passed,Mixed,Failed,Questionable
 Big 5 Inventory - O,Passed,Passed,Poor,Failed,Questionable
 Humanitarianism-Egalitarianism,Passed,Passed,Good,Failed,Questionable
-Intuitions about Controllability and Awareness of Thoughts,Passed,Passed,Poor,,Questionable
 Intuitions about Controllability and Awareness of Thoughts - Others,Passed,Passed,Poor,Failed,Questionable
 Intuitions about Controllability and Awareness of Thoughts - Self,Passed,Passed,Poor,Failed,Questionable
 Need for Cognition,Passed,Passed,Good,Passed,Good
-Need for Cognitive Closure,Passed,Passed,Mixed,,
-"Need for Cognitive Closure - O,A",Passed,Passed,Poor,Failed,Questionable
-"Need for Cognitive Closure - P,D,CM",Passed,Passed,Mixed,Failed,Questionable
+Need for Cognitive Closure - A,Failed,Passed,Good,Failed,Questionable
+Need for Cognitive Closure - C,Failed,Passed,Mixed,Failed,Questionable
+Need for Cognitive Closure - D,Passed,Passed,Good,Failed,Questionable
+Need for Cognitive Closure - O,Passed,Passed,Good,Failed,Questionable
+Need for Cognitive Closure - P,Passed,Passed,Good,Failed,Questionable
 Personal Need for Structure,Passed,Passed,Mixed,Failed,Questionable
 Protestant Ethic,Passed,Passed,Mixed,Failed,Questionable
 Ring-Wing Authoritarianism,Passed,Passed,Mixed,Failed,Questionable
 Rosenberg Self-Esteem,Passed,Passed,Good,Failed,Questionable
 Self-Monitoring,Passed,Passed,Poor,Failed,Questionable
 Social Dominance Orientation,Passed,Passed,Poor,Failed,Questionable
-Spheres of Control,Passed,Passed,Mixed,,
 Spheres of Control - Interpersonal Control,Passed,Passed,Good,Failed,Questionable
 Spheres of Control - Personal Efficacy,Failed,Passed,Poor,Failed,Questionable
-Summary,96.3,100,66.7,4.3,4.2
+Summary,88.5,100,73.1,3.8,3.8

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Ian Hussey" />
 
-<meta name="date" content="2019-05-17" />
+<meta name="date" content="2019-06-02" />
 
 <title>Trim AIID dataset</title>
 
@@ -256,7 +256,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Trim AIID dataset</h1>
 <h4 class="author"><em>Ian Hussey<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></em></h4>
-<h4 class="date"><em>17 May 2019</em></h4>
+<h4 class="date"><em>02 June 2019</em></h4>
 
 </div>
 
@@ -266,7 +266,7 @@ $(document).ready(function () {
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># dependencies</span>
 <span class="kw">library</span>(tidyverse)</code></pre></div>
 <pre><code>## ── Attaching packages ─────────────</code></pre>
-<pre><code>## ✔ ggplot2 3.1.0       ✔ purrr   0.3.2  
+<pre><code>## ✔ ggplot2 3.1.1       ✔ purrr   0.3.2  
 ## ✔ tibble  2.1.1       ✔ dplyr   0.8.0.1
 ## ✔ tidyr   0.8.3       ✔ stringr 1.4.0  
 ## ✔ readr   1.3.1       ✔ forcats 0.4.0</code></pre>
@@ -333,7 +333,7 @@ trimmed_data &lt;-<span class="st"> </span>AIID_data <span class="op">%&gt;%</sp
                 soc_pe1, soc_pe2, soc_pe3, soc_pe4, soc_pe5, soc_pe6, soc_pe7, soc_pe8, soc_pe9, soc_pe10)
 
 <span class="co"># save to disk</span>
-<span class="kw">save</span>(trimmed_data, <span class="dt">file =</span> <span class="st">&quot;processed/trimmed_data.RData&quot;</span>)</code></pre></div>
+<span class="kw">save</span>(trimmed_data, <span class="dt">file =</span> <span class="st">&quot;trimmed_data.RData&quot;</span>)</code></pre></div>
 <div class="footnotes">
 <hr />
 <ol>
