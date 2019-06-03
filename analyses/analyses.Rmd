@@ -708,7 +708,7 @@ bfi_a_dist    <- bfi_a_data    %>% dplyr::select(-age, -sex) %>% distributions_a
 bfi_o_dist    <- bfi_o_data    %>% dplyr::select(-age, -sex) %>% distributions_auto(., scale_name = "Big 5 Inventory - O")
 bidr_im_dist  <- bidr_im_data  %>% dplyr::select(-age, -sex) %>% distributions_auto(., scale_name = "Balanced Inventory of Desirable Responding - Impression Management")
 bidr_sde_dist <- bidr_sde_data %>% dplyr::select(-age, -sex) %>% distributions_auto(., scale_name = "Balanced Inventory of Desirable Responding - Self Deception")
-bjw_dist      <- bjw_data      %>% dplyr::select(-age, -sex) %>% distributions_auto(., scale_name = "Belief in a Just World")
+bjw_dist      <- bjw_data      %>% dplyr::select(-age, -sex) %>% distributions_auto(., scale_name = "Belief in a Just World: General Just World Scale")
 brs_dist      <- brs_data      %>% dplyr::select(-age, -sex) %>% distributions_auto(., scale_name = "Bayesian Racism")
 he_dist       <- he_data       %>% dplyr::select(-age, -sex) %>% distributions_auto(., scale_name = "Humanitarianism-Egalitarianism")
 icat_o_dist   <- icat_o_data   %>% dplyr::select(-age, -sex) %>% distributions_auto(., scale_name = "Intuitions about Controllability and Awareness of Thoughts - Others")
@@ -983,6 +983,9 @@ if (exists(load("results/consistency_results.RData"))) {
 dependability_data <- two_timepoint_scores %>%
   filter(days_to_followup < 1/24)  # retest within an hour
 
+# total n
+n_dependability <- nrow(dependability_data)
+
 # # n per scale
 n_per_scale_dependability <- dependability_data %>%
   count(individual_differences_measure) %>%
@@ -1069,12 +1072,17 @@ dependability_results <-
 
 ```
 
+total n dependability: `r n_dependability`
+
 ### Stability
 
 ```{r}
 
 stability_data <- two_timepoint_scores %>%
   filter(days_to_followup >= 1 & days_to_followup < 365)  # retest more than a day and less than a year later
+
+# total n
+n_stability <- nrow(stability_data)
 
 # n per scale
 n_per_scale_stability <- stability_data %>%
@@ -1142,6 +1150,8 @@ stability_results <-
                                "SOC-PE"   = "Spheres of Control - Personal Efficacy"))
 
 ```
+
+total n stability: `r n_stability`
 
 ## CFA fits
 
@@ -1654,10 +1664,9 @@ data_alluvial_plot <- binarized_combined_results %>%
   mutate(validity = ifelse(is.na(validity), 2, validity),
          validity = dplyr::recode(validity,
                                   `0` = "Fail",
-                                  `1` = "Pass",
-                                  `2` = "NA"),
+                                  `1` = "Pass"),
          validity = forcats::fct_relevel(as.factor(validity),
-                                         "Fail", "NA", "Pass"),
+                                         "Fail", "Pass"),
          metric = dplyr::recode(as.character(metric),
                                 "alpha_test" = "Internal\nconsistency",
                                 "test_retest_test" = "Test-retest\nreliability",
@@ -1671,7 +1680,8 @@ data_alluvial_plot <- binarized_combined_results %>%
          n = n/n_scales*100)
 
 # alluvial plot with flow
-ggplot(data_alluvial_plot,
+p_figure_1 <-
+  ggplot(data_alluvial_plot,
        aes(x = metric,
            stratum = validity,
            alluvium = rowname,
@@ -1686,6 +1696,8 @@ ggplot(data_alluvial_plot,
   ylab("Percent of scales") +
   xlab("") +
   scale_fill_viridis_d(option = "viridis", direction = -1, begin = 0.3, end = 0.7)
+
+p_figure_1
 
 ```
 
