@@ -11,7 +11,7 @@
 
 <meta name="author" content="Ian Hussey" />
 
-<meta name="date" content="2019-06-02" />
+<meta name="date" content="2019-06-04" />
 
 <title>Simplified example of how we implemented different assessments structural validity</title>
 
@@ -356,7 +356,7 @@ div.tocify {
 <h1 class="title toc-ignore">Simplified example of how we implemented different assessments structural validity</h1>
 <h3 class="subtitle"><em>May be useful for educational purposes</em></h3>
 <h4 class="author"><em>Ian Hussey<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></em></h4>
-<h4 class="date"><em>02 June 2019</em></h4>
+<h4 class="date"><em>04 June 2019</em></h4>
 
 </div>
 
@@ -902,7 +902,7 @@ cfi_fit_results &lt;-<span class="st"> </span><span class="kw">cfa_fit_metrics</
 <span class="st">  </span><span class="kw">arrange</span>(Scale)
 
 <span class="co"># write to disk</span>
-<span class="kw">write_csv</span>(combined_results, <span class="st">&quot;results/main_results_table.csv&quot;</span>, <span class="dt">na =</span> <span class="st">&quot;&quot;</span>)</code></pre></div>
+<span class="kw">write_csv</span>(combined_results, <span class="st">&quot;main_results_table.csv&quot;</span>, <span class="dt">na =</span> <span class="st">&quot;&quot;</span>)</code></pre></div>
 </div>
 <div id="effect-sizes-for-cfa-and-mi-misfit" class="section level1">
 <h1>Effect sizes for CFA and MI (mis)fit</h1>
@@ -945,7 +945,7 @@ latent_observed_correlation_results &lt;-<span class="st"> </span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">percent_misclassification =</span> <span class="kw">round</span>(percent_misclassification, <span class="dv">1</span>)) 
 
 <span class="co"># write to disk</span>
-<span class="kw">write_csv</span>(latent_observed_correlation_results, <span class="st">&quot;results/effect_sizes_cfa_fits.csv&quot;</span>)
+<span class="kw">write_csv</span>(latent_observed_correlation_results, <span class="st">&quot;effect_sizes_cfa_fits.csv&quot;</span>)
 
 <span class="co"># table</span>
 latent_observed_correlation_results <span class="op">%&gt;%</span>
@@ -1064,7 +1064,7 @@ group_differences_results &lt;-<span class="st"> </span>
          observed_latent_cohens_d_diff, abs_observed_latent_cohens_d_diff, sig_change) 
 
 <span class="co"># write to disk</span>
-<span class="kw">write_csv</span>(group_differences_results, <span class="st">&quot;results/effect_sizes_measurement_invariance.csv&quot;</span>)
+<span class="kw">write_csv</span>(group_differences_results, <span class="st">&quot;effect_sizes_measurement_invariance.csv&quot;</span>)
 
 <span class="co"># table</span>
 summary &lt;-<span class="st"> </span>group_differences_results <span class="op">%&gt;%</span>

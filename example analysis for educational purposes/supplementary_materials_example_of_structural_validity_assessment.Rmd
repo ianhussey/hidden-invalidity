@@ -611,7 +611,7 @@ MI_results <- full_join(MI_results_temp_2, MI_results_temp_3, by = "Scale") %>%
 
 
 # save full results to disk for reporting
-write_csv(measurement_invariance_full_results, "results/measurement_invariance_full_results.csv")
+write_csv(measurement_invariance_full_results, "measurement_invariance_full_results.csv")
 
 ```
 
@@ -664,7 +664,7 @@ combined_results <- cfi_fit_results %>%
   arrange(Scale)
 
 # write to disk
-write_csv(combined_results, "results/main_results_table.csv", na = "")
+write_csv(combined_results, "main_results_table.csv", na = "")
 
 ```
 
@@ -715,7 +715,7 @@ latent_observed_correlation_results <-
   mutate(percent_misclassification = round(percent_misclassification, 1)) 
 
 # write to disk
-write_csv(latent_observed_correlation_results, "results/effect_sizes_cfa_fits.csv")
+write_csv(latent_observed_correlation_results, "effect_sizes_cfa_fits.csv")
 
 # table
 latent_observed_correlation_results %>%
@@ -799,7 +799,7 @@ group_differences_results <-
          observed_latent_cohens_d_diff, abs_observed_latent_cohens_d_diff, sig_change) 
 
 # write to disk
-write_csv(group_differences_results, "results/effect_sizes_measurement_invariance.csv")
+write_csv(group_differences_results, "effect_sizes_measurement_invariance.csv")
 
 # table
 summary <- group_differences_results %>%
