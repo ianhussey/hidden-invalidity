@@ -1,8 +1,8 @@
 Scale,Internal consistency,Test-retest reliability,Confirmatory factor structure,Measurement invariance,Global structural validity
-Balanced Inventory of Desirable Responding - Impression Management,Passed,Passed,Mixed,Failed,Questionable
+Balanced Inventory of Desirable Responding - Impression Management,Passed,Passed,Mixed,,
 Balanced Inventory of Desirable Responding - Self Deception,Passed,Passed,Poor,Failed,Questionable
 Bayesian Racism,Passed,Passed,Good,Failed,Questionable
-Belief in a Just World: General Just World Scale,Passed,Passed,Good,Failed,Questionable
+Belief in a Just World: General Just World Scale,Passed,Passed,Good,,
 Big 5 Inventory - A,Passed,Passed,Mixed,Failed,Questionable
 Big 5 Inventory - C,Passed,Passed,Good,Failed,Questionable
 Big 5 Inventory - E,Passed,Passed,Mixed,Failed,Questionable
@@ -11,8 +11,8 @@ Big 5 Inventory - O,Passed,Passed,Poor,Failed,Questionable
 Humanitarianism-Egalitarianism,Passed,Passed,Good,Failed,Questionable
 Intuitions about Controllability and Awareness of Thoughts - Others,Passed,Passed,Poor,Failed,Questionable
 Intuitions about Controllability and Awareness of Thoughts - Self,Passed,Passed,Poor,Failed,Questionable
-Need for Cognition,Passed,Passed,Good,Passed,Good
-Need for Cognitive Closure - A,Failed,Passed,Good,Failed,Questionable
+Need for Cognition,Passed,Passed,Good,,
+Need for Cognitive Closure - A,Failed,Passed,Good,,Questionable
 Need for Cognitive Closure - C,Failed,Passed,Mixed,Failed,Questionable
 Need for Cognitive Closure - D,Passed,Passed,Good,Failed,Questionable
 Need for Cognitive Closure - O,Passed,Passed,Good,Failed,Questionable
@@ -25,4 +25,4 @@ Self-Monitoring,Passed,Passed,Poor,Failed,Questionable
 Social Dominance Orientation,Passed,Passed,Poor,Failed,Questionable
 Spheres of Control - Interpersonal Control,Passed,Passed,Good,Failed,Questionable
 Spheres of Control - Personal Efficacy,Failed,Passed,Poor,Failed,Questionable
-Summary,88.5,100,73.1,3.8,3.8
+Summary,88,100,73,0,0

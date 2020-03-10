@@ -81,6 +81,7 @@ trimmed_data <- AIID_data %>%
 
 # save to disk
 save(trimmed_data, file = "trimmed_data.RData")
+write_csv(trimmed_data, "trimmed_data.csv")
 
 ```
 

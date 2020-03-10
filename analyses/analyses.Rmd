@@ -1621,7 +1621,7 @@ binarized_combined_results <- combined_results %>%
 summarized_combined_results <- binarized_combined_results %>%
   gather(key, value, -Scale) %>%
   group_by(key) %>%
-  summarize(percent = as.character(round(mean(value, na.rm = TRUE)*100, 1))) %>%
+  summarize(percent = as.character(round(mean(value, na.rm = TRUE)*100, 0))) %>%
   spread(key, percent) %>%
   mutate(Scale = "Summary")
 

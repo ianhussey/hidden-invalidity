@@ -1,157 +1,157 @@
 Scale,group,test,chisq,df,fit_chisq_p_value,cfi,tli,rmsea,srmr,df_change,cfi_change,tli_change,rmsea_change,srmr_change,MI_test
 Big 5 Inventory - A,age,fit_configural,1354.877,54,< .0001,0.884,0.846,0.085,0.05,NA,NA,NA,NA,NA,Poor
 Big 5 Inventory - A,age,fit_metric,1134.468,62,< .0001,0.905,0.889,0.072,0.051,8,0.02,0.044,-0.013,0.001,Passed
-Big 5 Inventory - A,age,fit_scalar,1282.905,70,< .0001,0.892,0.889,0.072,0.054,8,-0.013,-0,0,0.002,Passed
+Big 5 Inventory - A,age,fit_scalar,1282.905,70,< .0001,0.892,0.889,0.072,0.054,NA,NA,NA,NA,NA,NA
 Big 5 Inventory - A,sex,fit_configural,1319.765,54,< .0001,0.888,0.851,0.084,0.05,NA,NA,NA,NA,NA,Poor
 Big 5 Inventory - A,sex,fit_metric,1070.589,62,< .0001,0.911,0.896,0.07,0.051,8,0.023,0.046,-0.014,0.001,Passed
-Big 5 Inventory - A,sex,fit_scalar,1239.622,70,< .0001,0.896,0.894,0.071,0.054,8,-0.014,-0.003,0.001,0.003,Passed
+Big 5 Inventory - A,sex,fit_scalar,1239.622,70,< .0001,0.896,0.894,0.071,0.054,NA,NA,NA,NA,NA,NA
 Big 5 Inventory - C,age,fit_configural,1393.081,54,< .0001,0.887,0.849,0.086,0.048,NA,NA,NA,NA,NA,Poor
 Big 5 Inventory - C,age,fit_metric,1053.773,62,< .0001,0.916,0.902,0.069,0.049,8,0.029,0.054,-0.017,0.001,Passed
-Big 5 Inventory - C,age,fit_scalar,1219.642,70,< .0001,0.903,0.9,0.07,0.052,8,-0.013,-0.003,0.001,0.003,Passed
+Big 5 Inventory - C,age,fit_scalar,1219.642,70,< .0001,0.903,0.9,0.07,0.052,NA,NA,NA,NA,NA,NA
 Big 5 Inventory - C,sex,fit_configural,1385.77,54,< .0001,0.888,0.851,0.086,0.048,NA,NA,NA,NA,NA,Poor
 Big 5 Inventory - C,sex,fit_metric,1025.502,62,< .0001,0.919,0.906,0.068,0.049,8,0.031,0.055,-0.018,0.002,Passed
-Big 5 Inventory - C,sex,fit_scalar,1091.385,70,< .0001,0.914,0.912,0.066,0.05,8,-0.005,0.006,-0.002,0.001,Passed
+Big 5 Inventory - C,sex,fit_scalar,1091.385,70,< .0001,0.914,0.912,0.066,0.05,NA,NA,NA,NA,NA,NA
 Big 5 Inventory - E,age,fit_configural,2168.822,40,< .0001,0.868,0.816,0.127,0.055,NA,NA,NA,NA,NA,Poor
 Big 5 Inventory - E,age,fit_metric,1445.791,47,< .0001,0.914,0.897,0.095,0.057,7,0.045,0.081,-0.032,0.001,Passed
-Big 5 Inventory - E,age,fit_scalar,1670.236,54,< .0001,0.9,0.896,0.095,0.06,7,-0.013,-0.001,0,0.003,Passed
+Big 5 Inventory - E,age,fit_scalar,1670.236,54,< .0001,0.9,0.896,0.095,0.06,NA,NA,NA,NA,NA,NA
 Big 5 Inventory - E,sex,fit_configural,2144.457,40,< .0001,0.868,0.815,0.126,0.055,NA,NA,NA,NA,NA,Poor
 Big 5 Inventory - E,sex,fit_metric,1475.943,47,< .0001,0.91,0.893,0.096,0.057,7,0.042,0.078,-0.03,0.002,Passed
-Big 5 Inventory - E,sex,fit_scalar,1587.359,54,< .0001,0.904,0.9,0.092,0.059,7,-0.007,0.007,-0.003,0.001,Passed
+Big 5 Inventory - E,sex,fit_scalar,1587.359,54,< .0001,0.904,0.9,0.092,0.059,NA,NA,NA,NA,NA,NA
 Big 5 Inventory - N,age,fit_configural,1417.465,40,< .0001,0.892,0.849,0.102,0.05,NA,NA,NA,NA,NA,Poor
 Big 5 Inventory - N,age,fit_metric,1088.805,47,< .0001,0.919,0.903,0.082,0.052,7,0.026,0.054,-0.02,0.002,Passed
-Big 5 Inventory - N,age,fit_scalar,1371.767,54,< .0001,0.897,0.893,0.086,0.057,7,-0.022,-0.01,0.004,0.005,Failed
+Big 5 Inventory - N,age,fit_scalar,1371.767,54,< .0001,0.897,0.893,0.086,0.057,NA,NA,NA,NA,NA,NA
 Big 5 Inventory - N,sex,fit_configural,1456.192,40,< .0001,0.887,0.841,0.103,0.05,NA,NA,NA,NA,NA,Poor
 Big 5 Inventory - N,sex,fit_metric,1068.731,47,< .0001,0.918,0.903,0.081,0.051,7,0.032,0.061,-0.022,0.001,Passed
-Big 5 Inventory - N,sex,fit_scalar,1210.569,54,< .0001,0.907,0.904,0.08,0.054,7,-0.011,0.001,-0.001,0.003,Passed
+Big 5 Inventory - N,sex,fit_scalar,1210.569,54,< .0001,0.907,0.904,0.08,0.054,NA,NA,NA,NA,NA,NA
 Big 5 Inventory - O,age,fit_configural,2092.437,70,< .0001,0.816,0.763,0.093,0.06,NA,NA,NA,NA,NA,Poor
 Big 5 Inventory - O,age,fit_metric,1709.554,79,< .0001,0.852,0.831,0.078,0.062,9,0.036,0.068,-0.014,0.001,Passed
-Big 5 Inventory - O,age,fit_scalar,2164.33,88,< .0001,0.811,0.807,0.084,0.067,9,-0.041,-0.024,0.005,0.006,Failed
+Big 5 Inventory - O,age,fit_scalar,2164.33,88,< .0001,0.811,0.807,0.084,0.067,NA,NA,NA,NA,NA,NA
 Big 5 Inventory - O,sex,fit_configural,1962.747,70,< .0001,0.828,0.779,0.09,0.058,NA,NA,NA,NA,NA,Poor
 Big 5 Inventory - O,sex,fit_metric,1583.094,79,< .0001,0.863,0.844,0.075,0.06,9,0.035,0.065,-0.014,0.002,Passed
-Big 5 Inventory - O,sex,fit_scalar,2063.247,88,< .0001,0.821,0.816,0.082,0.066,9,-0.043,-0.028,0.006,0.006,Failed
+Big 5 Inventory - O,sex,fit_scalar,2063.247,88,< .0001,0.821,0.816,0.082,0.066,NA,NA,NA,NA,NA,NA
 Balanced Inventory of Desirable Responding - Impression Management,age,fit_configural,2692.772,270,< .0001,0.878,0.862,0.051,0.041,NA,NA,NA,NA,NA,Mixed
 Balanced Inventory of Desirable Responding - Impression Management,age,fit_metric,2406.912,287,< .0001,0.894,0.887,0.046,0.043,17,0.015,0.024,-0.005,0.001,Passed
-Balanced Inventory of Desirable Responding - Impression Management,age,fit_scalar,2961.925,304,< .0001,0.867,0.866,0.05,0.047,17,-0.027,-0.021,0.004,0.004,Failed
+Balanced Inventory of Desirable Responding - Impression Management,age,fit_scalar,2961.925,304,< .0001,0.867,0.866,0.05,0.047,NA,NA,NA,NA,NA,NA
 Balanced Inventory of Desirable Responding - Impression Management,sex,fit_configural,2557.542,270,< .0001,0.886,0.871,0.049,0.04,NA,NA,NA,NA,NA,Mixed
 Balanced Inventory of Desirable Responding - Impression Management,sex,fit_metric,2228.921,287,< .0001,0.903,0.897,0.044,0.041,17,0.017,0.026,-0.005,0.001,Passed
-Balanced Inventory of Desirable Responding - Impression Management,sex,fit_scalar,2887.075,304,< .0001,0.871,0.87,0.05,0.046,17,-0.032,-0.026,0.005,0.005,Failed
+Balanced Inventory of Desirable Responding - Impression Management,sex,fit_scalar,2887.075,304,< .0001,0.871,0.87,0.05,0.046,NA,NA,NA,NA,NA,NA
 Balanced Inventory of Desirable Responding - Self Deception,age,fit_configural,4502.727,270,< .0001,0.698,0.658,0.068,0.06,NA,NA,NA,NA,NA,Poor
 Balanced Inventory of Desirable Responding - Self Deception,age,fit_metric,4076.524,287,< .0001,0.73,0.712,0.063,0.06,17,0.032,0.054,-0.006,0,Passed
-Balanced Inventory of Desirable Responding - Self Deception,age,fit_scalar,4576.886,304,< .0001,0.695,0.693,0.065,0.063,17,-0.035,-0.019,0.002,0.003,Failed
+Balanced Inventory of Desirable Responding - Self Deception,age,fit_scalar,4576.886,304,< .0001,0.695,0.693,0.065,0.063,NA,NA,NA,NA,NA,NA
 Balanced Inventory of Desirable Responding - Self Deception,sex,fit_configural,4494.66,270,< .0001,0.694,0.653,0.068,0.06,NA,NA,NA,NA,NA,Poor
 Balanced Inventory of Desirable Responding - Self Deception,sex,fit_metric,4080.439,287,< .0001,0.725,0.707,0.063,0.06,17,0.031,0.054,-0.006,0.001,Passed
-Balanced Inventory of Desirable Responding - Self Deception,sex,fit_scalar,4510.805,304,< .0001,0.695,0.693,0.064,0.063,17,-0.03,-0.014,0.001,0.002,Failed
+Balanced Inventory of Desirable Responding - Self Deception,sex,fit_scalar,4510.805,304,< .0001,0.695,0.693,0.064,0.063,NA,NA,NA,NA,NA,NA
 Belief in a Just World: General Just World Scale,age,fit_configural,286.646,18,< .0001,0.962,0.937,0.066,0.03,NA,NA,NA,NA,NA,Mixed
 Belief in a Just World: General Just World Scale,age,fit_metric,272.035,23,< .0001,0.965,0.954,0.057,0.032,5,0.003,0.017,-0.01,0.002,Passed
-Belief in a Just World: General Just World Scale,age,fit_scalar,556.786,28,< .0001,0.926,0.92,0.075,0.044,5,-0.039,-0.034,0.018,0.012,Failed
+Belief in a Just World: General Just World Scale,age,fit_scalar,556.786,28,< .0001,0.926,0.92,0.075,0.044,NA,NA,NA,NA,NA,NA
 Belief in a Just World: General Just World Scale,sex,fit_configural,316.147,18,< .0001,0.958,0.93,0.07,0.032,NA,NA,NA,NA,NA,Mixed
 Belief in a Just World: General Just World Scale,sex,fit_metric,259.285,23,< .0001,0.967,0.957,0.055,0.032,5,0.009,0.026,-0.015,0,Passed
-Belief in a Just World: General Just World Scale,sex,fit_scalar,364.534,28,< .0001,0.953,0.949,0.06,0.037,5,-0.014,-0.007,0.005,0.005,Passed
+Belief in a Just World: General Just World Scale,sex,fit_scalar,364.534,28,< .0001,0.953,0.949,0.06,0.037,NA,NA,NA,NA,NA,NA
 Bayesian Racism,age,fit_configural,2754.603,208,< .0001,0.878,0.859,0.061,0.047,NA,NA,NA,NA,NA,Poor
 Bayesian Racism,age,fit_metric,2202.704,223,< .0001,0.905,0.898,0.052,0.049,15,0.027,0.039,-0.009,0.002,Passed
-Bayesian Racism,age,fit_scalar,2395.196,238,< .0001,0.896,0.896,0.053,0.051,15,-0.009,-0.002,0.001,0.002,Passed
+Bayesian Racism,age,fit_scalar,2395.196,238,< .0001,0.896,0.896,0.053,0.051,NA,NA,NA,NA,NA,NA
 Bayesian Racism,sex,fit_configural,2591.629,208,< .0001,0.886,0.868,0.059,0.045,NA,NA,NA,NA,NA,Mixed
 Bayesian Racism,sex,fit_metric,2476.571,223,< .0001,0.892,0.884,0.056,0.051,15,0.006,0.016,-0.004,0.006,Passed
-Bayesian Racism,sex,fit_scalar,2868.377,238,< .0001,0.874,0.873,0.058,0.054,15,-0.018,-0.011,0.003,0.003,Failed
+Bayesian Racism,sex,fit_scalar,2868.377,238,< .0001,0.874,0.873,0.058,0.054,NA,NA,NA,NA,NA,NA
 Humanitarianism-Egalitarianism,age,fit_configural,1270.451,70,< .0001,0.84,0.794,0.07,0.048,NA,NA,NA,NA,NA,Poor
 Humanitarianism-Egalitarianism,age,fit_metric,956.396,79,< .0001,0.883,0.867,0.057,0.051,9,0.043,0.072,-0.014,0.003,Passed
-Humanitarianism-Egalitarianism,age,fit_scalar,1281.968,88,< .0001,0.841,0.837,0.063,0.056,9,-0.042,-0.03,0.006,0.005,Failed
+Humanitarianism-Egalitarianism,age,fit_scalar,1281.968,88,< .0001,0.841,0.837,0.063,0.056,NA,NA,NA,NA,NA,NA
 Humanitarianism-Egalitarianism,sex,fit_configural,1337.453,70,< .0001,0.833,0.785,0.072,0.05,NA,NA,NA,NA,NA,Poor
 Humanitarianism-Egalitarianism,sex,fit_metric,996.746,79,< .0001,0.879,0.862,0.058,0.052,9,0.046,0.077,-0.014,0.003,Passed
-Humanitarianism-Egalitarianism,sex,fit_scalar,1151.46,88,< .0001,0.86,0.857,0.059,0.055,9,-0.019,-0.006,0.001,0.002,Failed
+Humanitarianism-Egalitarianism,sex,fit_scalar,1151.46,88,< .0001,0.86,0.857,0.059,0.055,NA,NA,NA,NA,NA,NA
 Intuitions about Controllability and Awareness of Thoughts - Others,age,fit_configural,2159.491,54,< .0001,0.746,0.661,0.108,0.074,NA,NA,NA,NA,NA,Poor
 Intuitions about Controllability and Awareness of Thoughts - Others,age,fit_metric,1876.742,62,< .0001,0.781,0.746,0.093,0.076,8,0.035,0.084,-0.014,0.002,Passed
-Intuitions about Controllability and Awareness of Thoughts - Others,age,fit_scalar,2034.373,70,< .0001,0.763,0.756,0.091,0.077,8,-0.018,0.01,-0.002,0.002,Failed
+Intuitions about Controllability and Awareness of Thoughts - Others,age,fit_scalar,2034.373,70,< .0001,0.763,0.756,0.091,0.077,NA,NA,NA,NA,NA,NA
 Intuitions about Controllability and Awareness of Thoughts - Others,sex,fit_configural,2178.705,54,< .0001,0.745,0.66,0.108,0.074,NA,NA,NA,NA,NA,Poor
 Intuitions about Controllability and Awareness of Thoughts - Others,sex,fit_metric,1772.821,62,< .0001,0.795,0.762,0.091,0.074,8,0.05,0.101,-0.018,0,Passed
-Intuitions about Controllability and Awareness of Thoughts - Others,sex,fit_scalar,1904.076,70,< .0001,0.78,0.774,0.088,0.075,8,-0.015,0.012,-0.002,0.002,Passed
+Intuitions about Controllability and Awareness of Thoughts - Others,sex,fit_scalar,1904.076,70,< .0001,0.78,0.774,0.088,0.075,NA,NA,NA,NA,NA,NA
 Intuitions about Controllability and Awareness of Thoughts - Self,age,fit_configural,2431.879,54,< .0001,0.797,0.729,0.114,0.07,NA,NA,NA,NA,NA,Poor
 Intuitions about Controllability and Awareness of Thoughts - Self,age,fit_metric,2050.411,62,< .0001,0.83,0.803,0.097,0.071,8,0.033,0.074,-0.017,0.001,Passed
-Intuitions about Controllability and Awareness of Thoughts - Self,age,fit_scalar,2372.302,70,< .0001,0.803,0.798,0.098,0.075,8,-0.027,-0.005,0.001,0.004,Failed
+Intuitions about Controllability and Awareness of Thoughts - Self,age,fit_scalar,2372.302,70,< .0001,0.803,0.798,0.098,0.075,NA,NA,NA,NA,NA,NA
 Intuitions about Controllability and Awareness of Thoughts - Self,sex,fit_configural,2540.84,54,< .0001,0.786,0.715,0.116,0.072,NA,NA,NA,NA,NA,Poor
 Intuitions about Controllability and Awareness of Thoughts - Self,sex,fit_metric,2115.245,62,< .0001,0.824,0.795,0.098,0.073,8,0.037,0.08,-0.018,0,Passed
-Intuitions about Controllability and Awareness of Thoughts - Self,sex,fit_scalar,2197.119,70,< .0001,0.817,0.812,0.094,0.073,8,-0.006,0.017,-0.004,0.001,Passed
+Intuitions about Controllability and Awareness of Thoughts - Self,sex,fit_scalar,2197.119,70,< .0001,0.817,0.812,0.094,0.073,NA,NA,NA,NA,NA,NA
 Need for Cognition,age,fit_configural,3155.301,270,< .0001,0.897,0.883,0.057,0.045,NA,NA,NA,NA,NA,Mixed
 Need for Cognition,age,fit_metric,2593.05,287,< .0001,0.918,0.912,0.049,0.048,17,0.021,0.029,-0.008,0.003,Passed
-Need for Cognition,age,fit_scalar,2944.509,304,< .0001,0.906,0.905,0.051,0.05,17,-0.012,-0.007,0.002,0.002,Passed
+Need for Cognition,age,fit_scalar,2944.509,304,< .0001,0.906,0.905,0.051,0.05,NA,NA,NA,NA,NA,NA
 Need for Cognition,sex,fit_configural,3073.208,270,< .0001,0.905,0.892,0.056,0.044,NA,NA,NA,NA,NA,Mixed
 Need for Cognition,sex,fit_metric,2342.016,287,< .0001,0.93,0.925,0.046,0.046,17,0.025,0.034,-0.009,0.002,Passed
-Need for Cognition,sex,fit_scalar,2594.929,304,< .0001,0.922,0.922,0.048,0.048,17,-0.008,-0.004,0.001,0.002,Passed
+Need for Cognition,sex,fit_scalar,2594.929,304,< .0001,0.922,0.922,0.048,0.048,NA,NA,NA,NA,NA,NA
 Need for Cognitive Closure - A,age,fit_configural,397.783,54,< .0001,0.946,0.928,0.044,0.03,NA,NA,NA,NA,NA,Mixed
 Need for Cognitive Closure - A,age,fit_metric,380.334,62,< .0001,0.95,0.942,0.039,0.031,8,0.004,0.014,-0.004,0.002,Passed
-Need for Cognitive Closure - A,age,fit_scalar,776.782,70,< .0001,0.89,0.886,0.055,0.043,8,-0.061,-0.056,0.016,0.011,Failed
+Need for Cognitive Closure - A,age,fit_scalar,776.782,70,< .0001,0.89,0.886,0.055,0.043,NA,NA,NA,NA,NA,NA
 Need for Cognitive Closure - A,sex,fit_configural,386.763,54,< .0001,0.948,0.931,0.043,0.029,NA,NA,NA,NA,NA,Mixed
 Need for Cognitive Closure - A,sex,fit_metric,343.543,62,< .0001,0.956,0.949,0.037,0.03,8,0.008,0.018,-0.006,0.001,Passed
-Need for Cognitive Closure - A,sex,fit_scalar,605.094,70,< .0001,0.917,0.914,0.048,0.038,8,-0.039,-0.035,0.011,0.008,Failed
+Need for Cognitive Closure - A,sex,fit_scalar,605.094,70,< .0001,0.917,0.914,0.048,0.038,NA,NA,NA,NA,NA,NA
 Need for Cognitive Closure - C,age,fit_configural,638.924,40,< .0001,0.877,0.827,0.068,0.043,NA,NA,NA,NA,NA,Poor
 Need for Cognitive Closure - C,age,fit_metric,616.374,47,< .0001,0.883,0.86,0.061,0.044,7,0.006,0.033,-0.007,0.001,Passed
-Need for Cognitive Closure - C,age,fit_scalar,752.289,54,< .0001,0.856,0.851,0.063,0.048,7,-0.027,-0.009,0.002,0.004,Failed
+Need for Cognitive Closure - C,age,fit_scalar,752.289,54,< .0001,0.856,0.851,0.063,0.048,NA,NA,NA,NA,NA,NA
 Need for Cognitive Closure - C,sex,fit_configural,644.737,40,< .0001,0.875,0.825,0.068,0.043,NA,NA,NA,NA,NA,Poor
 Need for Cognitive Closure - C,sex,fit_metric,590.969,47,< .0001,0.888,0.866,0.059,0.044,7,0.013,0.041,-0.008,0,Passed
-Need for Cognitive Closure - C,sex,fit_scalar,666.569,54,< .0001,0.873,0.869,0.059,0.046,7,-0.014,0.003,-0.001,0.002,Passed
+Need for Cognitive Closure - C,sex,fit_scalar,666.569,54,< .0001,0.873,0.869,0.059,0.046,NA,NA,NA,NA,NA,NA
 Need for Cognitive Closure - D,age,fit_configural,693.349,28,< .0001,0.94,0.909,0.085,0.04,NA,NA,NA,NA,NA,Poor
 Need for Cognitive Closure - D,age,fit_metric,568.358,34,< .0001,0.951,0.94,0.069,0.043,6,0.012,0.031,-0.016,0.003,Passed
-Need for Cognitive Closure - D,age,fit_scalar,761.063,40,< .0001,0.935,0.931,0.074,0.048,6,-0.017,-0.009,0.005,0.006,Failed
+Need for Cognitive Closure - D,age,fit_scalar,761.063,40,< .0001,0.935,0.931,0.074,0.048,NA,NA,NA,NA,NA,NA
 Need for Cognitive Closure - D,sex,fit_configural,676.341,28,< .0001,0.945,0.918,0.084,0.039,NA,NA,NA,NA,NA,Poor
 Need for Cognitive Closure - D,sex,fit_metric,478.253,34,< .0001,0.963,0.954,0.063,0.04,6,0.017,0.036,-0.021,0.001,Passed
-Need for Cognitive Closure - D,sex,fit_scalar,751.059,40,< .0001,0.94,0.937,0.074,0.048,6,-0.022,-0.017,0.011,0.008,Failed
+Need for Cognitive Closure - D,sex,fit_scalar,751.059,40,< .0001,0.94,0.937,0.074,0.048,NA,NA,NA,NA,NA,NA
 Need for Cognitive Closure - O,age,fit_configural,1015.039,70,< .0001,0.94,0.923,0.064,0.036,NA,NA,NA,NA,NA,Poor
 Need for Cognitive Closure - O,age,fit_metric,758.465,79,< .0001,0.957,0.951,0.051,0.038,9,0.017,0.028,-0.013,0.001,Passed
-Need for Cognitive Closure - O,age,fit_scalar,840.663,88,< .0001,0.952,0.951,0.051,0.039,9,-0.005,0,-0,0.001,Passed
+Need for Cognitive Closure - O,age,fit_scalar,840.663,88,< .0001,0.952,0.951,0.051,0.039,NA,NA,NA,NA,NA,NA
 Need for Cognitive Closure - O,sex,fit_configural,965.615,70,< .0001,0.943,0.927,0.062,0.036,NA,NA,NA,NA,NA,Poor
 Need for Cognitive Closure - O,sex,fit_metric,705.533,79,< .0001,0.96,0.955,0.049,0.037,9,0.017,0.028,-0.013,0.001,Passed
-Need for Cognitive Closure - O,sex,fit_scalar,862.086,88,< .0001,0.951,0.95,0.052,0.04,9,-0.009,-0.005,0.003,0.003,Passed
+Need for Cognitive Closure - O,sex,fit_scalar,862.086,88,< .0001,0.951,0.95,0.052,0.04,NA,NA,NA,NA,NA,NA
 Need for Cognitive Closure - P,age,fit_configural,682.782,40,< .0001,0.935,0.91,0.07,0.038,NA,NA,NA,NA,NA,Poor
 Need for Cognitive Closure - P,age,fit_metric,533.945,47,< .0001,0.951,0.942,0.056,0.038,7,0.016,0.032,-0.014,0,Passed
-Need for Cognitive Closure - P,age,fit_scalar,1083.689,54,< .0001,0.897,0.893,0.076,0.051,7,-0.054,-0.049,0.02,0.013,Failed
+Need for Cognitive Closure - P,age,fit_scalar,1083.689,54,< .0001,0.897,0.893,0.076,0.051,NA,NA,NA,NA,NA,NA
 Need for Cognitive Closure - P,sex,fit_configural,746.087,40,< .0001,0.929,0.901,0.073,0.04,NA,NA,NA,NA,NA,Poor
 Need for Cognitive Closure - P,sex,fit_metric,610.779,47,< .0001,0.943,0.932,0.06,0.042,7,0.014,0.032,-0.013,0.001,Passed
-Need for Cognitive Closure - P,sex,fit_scalar,724.228,54,< .0001,0.933,0.93,0.062,0.044,7,-0.011,-0.002,0.001,0.003,Passed
+Need for Cognitive Closure - P,sex,fit_scalar,724.228,54,< .0001,0.933,0.93,0.062,0.044,NA,NA,NA,NA,NA,NA
 Protestant Ethic,age,fit_configural,2171.651,88,< .0001,0.842,0.802,0.083,0.057,NA,NA,NA,NA,NA,Poor
 Protestant Ethic,age,fit_metric,1765.057,98,< .0001,0.873,0.858,0.07,0.058,10,0.032,0.056,-0.013,0.001,Passed
-Protestant Ethic,age,fit_scalar,1985.872,108,< .0001,0.857,0.855,0.071,0.061,10,-0.016,-0.003,0.001,0.002,Failed
+Protestant Ethic,age,fit_scalar,1985.872,108,< .0001,0.857,0.855,0.071,0.061,NA,NA,NA,NA,NA,NA
 Protestant Ethic,sex,fit_configural,2173.68,88,< .0001,0.842,0.803,0.083,0.057,NA,NA,NA,NA,NA,Poor
 Protestant Ethic,sex,fit_metric,1767.96,98,< .0001,0.874,0.858,0.07,0.058,10,0.031,0.055,-0.013,0.001,Passed
-Protestant Ethic,sex,fit_scalar,1888.122,108,< .0001,0.866,0.863,0.069,0.06,10,-0.008,0.005,-0.001,0.001,Passed
+Protestant Ethic,sex,fit_scalar,1888.122,108,< .0001,0.866,0.863,0.069,0.06,NA,NA,NA,NA,NA,NA
 Personal Need for Structure,age,fit_configural,3054.395,108,< .0001,0.854,0.822,0.089,0.056,NA,NA,NA,NA,NA,Poor
 Personal Need for Structure,age,fit_metric,2258.444,119,< .0001,0.894,0.883,0.073,0.058,11,0.04,0.061,-0.017,0.003,Passed
-Personal Need for Structure,age,fit_scalar,2569.319,130,< .0001,0.879,0.878,0.074,0.061,11,-0.015,-0.005,0.002,0.003,Passed
+Personal Need for Structure,age,fit_scalar,2569.319,130,< .0001,0.879,0.878,0.074,0.061,NA,NA,NA,NA,NA,NA
 Personal Need for Structure,sex,fit_configural,2978.579,108,< .0001,0.857,0.825,0.088,0.055,NA,NA,NA,NA,NA,Poor
 Personal Need for Structure,sex,fit_metric,2146.531,119,< .0001,0.899,0.888,0.071,0.057,11,0.042,0.063,-0.018,0.002,Passed
-Personal Need for Structure,sex,fit_scalar,2250.158,130,< .0001,0.895,0.893,0.069,0.058,11,-0.005,0.005,-0.002,0.001,Passed
+Personal Need for Structure,sex,fit_scalar,2250.158,130,< .0001,0.895,0.893,0.069,0.058,NA,NA,NA,NA,NA,NA
 Rosenberg Self-Esteem,age,fit_configural,2875.978,70,< .0001,0.803,0.747,0.107,0.057,NA,NA,NA,NA,NA,Poor
 Rosenberg Self-Esteem,age,fit_metric,1693.608,79,< .0001,0.887,0.871,0.077,0.063,9,0.084,0.124,-0.031,0.006,Passed
-Rosenberg Self-Esteem,age,fit_scalar,1868.062,88,< .0001,0.875,0.872,0.076,0.065,9,-0.012,0.001,-0,0.002,Passed
+Rosenberg Self-Esteem,age,fit_scalar,1868.062,88,< .0001,0.875,0.872,0.076,0.065,NA,NA,NA,NA,NA,NA
 Rosenberg Self-Esteem,sex,fit_configural,2893.996,70,< .0001,0.806,0.751,0.108,0.057,NA,NA,NA,NA,NA,Poor
 Rosenberg Self-Esteem,sex,fit_metric,1450.61,79,< .0001,0.906,0.893,0.071,0.059,9,0.1,0.142,-0.037,0.002,Passed
-Rosenberg Self-Esteem,sex,fit_scalar,1541.394,88,< .0001,0.9,0.898,0.069,0.06,9,-0.006,0.005,-0.002,0.001,Passed
+Rosenberg Self-Esteem,sex,fit_scalar,1541.394,88,< .0001,0.9,0.898,0.069,0.06,NA,NA,NA,NA,NA,NA
 Ring-Wing Authoritarianism,age,fit_configural,10035.284,340,< .0001,0.788,0.763,0.093,0.074,NA,NA,NA,NA,NA,Poor
 Ring-Wing Authoritarianism,age,fit_metric,6719.104,359,< .0001,0.861,0.853,0.074,0.077,19,0.073,0.09,-0.02,0.002,Passed
-Ring-Wing Authoritarianism,age,fit_scalar,7287.071,378,< .0001,0.849,0.848,0.075,0.079,19,-0.012,-0.005,0.001,0.003,Passed
+Ring-Wing Authoritarianism,age,fit_scalar,7287.071,378,< .0001,0.849,0.848,0.075,0.079,NA,NA,NA,NA,NA,NA
 Ring-Wing Authoritarianism,sex,fit_configural,10441.987,340,< .0001,0.788,0.763,0.095,0.076,NA,NA,NA,NA,NA,Poor
 Ring-Wing Authoritarianism,sex,fit_metric,6557.285,359,< .0001,0.87,0.862,0.073,0.077,19,0.082,0.099,-0.023,0.002,Passed
-Ring-Wing Authoritarianism,sex,fit_scalar,6895.306,378,< .0001,0.863,0.862,0.073,0.079,19,-0.007,0,-0,0.002,Passed
+Ring-Wing Authoritarianism,sex,fit_scalar,6895.306,378,< .0001,0.863,0.862,0.073,0.079,NA,NA,NA,NA,NA,NA
 Social Dominance Orientation,age,fit_configural,2893.712,108,< .0001,0.822,0.783,0.087,0.064,NA,NA,NA,NA,NA,Poor
 Social Dominance Orientation,age,fit_metric,2354.093,119,< .0001,0.857,0.842,0.074,0.065,11,0.035,0.059,-0.013,0.001,Passed
-Social Dominance Orientation,age,fit_scalar,2718.49,130,< .0001,0.835,0.832,0.076,0.069,11,-0.023,-0.01,0.002,0.004,Failed
+Social Dominance Orientation,age,fit_scalar,2718.49,130,< .0001,0.835,0.832,0.076,0.069,NA,NA,NA,NA,NA,NA
 Social Dominance Orientation,sex,fit_configural,2975.534,108,< .0001,0.814,0.773,0.088,0.065,NA,NA,NA,NA,NA,Poor
 Social Dominance Orientation,sex,fit_metric,2307.903,119,< .0001,0.858,0.843,0.073,0.065,11,0.044,0.07,-0.015,0,Passed
-Social Dominance Orientation,sex,fit_scalar,2415.071,130,< .0001,0.852,0.85,0.072,0.066,11,-0.006,0.007,-0.002,0.001,Passed
+Social Dominance Orientation,sex,fit_scalar,2415.071,130,< .0001,0.852,0.85,0.072,0.066,NA,NA,NA,NA,NA,NA
 Self-Monitoring,age,fit_configural,11911.08,270,< .0001,0.482,0.413,0.114,0.102,NA,NA,NA,NA,NA,Poor
 Self-Monitoring,age,fit_metric,10708.468,287,< .0001,0.536,0.505,0.105,0.103,17,0.054,0.093,-0.009,0.001,Passed
-Self-Monitoring,age,fit_scalar,11039.544,304,< .0001,0.522,0.519,0.103,0.104,17,-0.014,0.014,-0.001,0.001,Passed
+Self-Monitoring,age,fit_scalar,11039.544,304,< .0001,0.522,0.519,0.103,0.104,NA,NA,NA,NA,NA,NA
 Self-Monitoring,sex,fit_configural,11883.615,270,< .0001,0.471,0.401,0.114,0.102,NA,NA,NA,NA,NA,Poor
 Self-Monitoring,sex,fit_metric,10598.608,287,< .0001,0.531,0.5,0.104,0.102,17,0.059,0.099,-0.01,0.001,Passed
-Self-Monitoring,sex,fit_scalar,11150.995,304,< .0001,0.506,0.503,0.104,0.104,17,-0.024,0.003,-0,0.002,Failed
+Self-Monitoring,sex,fit_scalar,11150.995,304,< .0001,0.506,0.503,0.104,0.104,NA,NA,NA,NA,NA,NA
 Spheres of Control - Interpersonal Control,age,fit_configural,1472.63,70,< .0001,0.885,0.852,0.077,0.049,NA,NA,NA,NA,NA,Poor
 Spheres of Control - Interpersonal Control,age,fit_metric,1197.231,79,< .0001,0.908,0.895,0.065,0.05,9,0.023,0.044,-0.012,0.001,Passed
-Spheres of Control - Interpersonal Control,age,fit_scalar,1315.655,88,< .0001,0.899,0.897,0.064,0.052,9,-0.009,0.002,-0,0.002,Passed
+Spheres of Control - Interpersonal Control,age,fit_scalar,1315.655,88,< .0001,0.899,0.897,0.064,0.052,NA,NA,NA,NA,NA,NA
 Spheres of Control - Interpersonal Control,sex,fit_configural,1468.148,70,< .0001,0.885,0.852,0.077,0.049,NA,NA,NA,NA,NA,Poor
 Spheres of Control - Interpersonal Control,sex,fit_metric,1182.598,79,< .0001,0.909,0.897,0.064,0.05,9,0.024,0.044,-0.013,0.001,Passed
-Spheres of Control - Interpersonal Control,sex,fit_scalar,1325.199,88,< .0001,0.898,0.896,0.064,0.052,9,-0.011,-0.001,0,0.002,Passed
+Spheres of Control - Interpersonal Control,sex,fit_scalar,1325.199,88,< .0001,0.898,0.896,0.064,0.052,NA,NA,NA,NA,NA,NA
 Spheres of Control - Personal Efficacy,age,fit_configural,1980.845,70,< .0001,0.713,0.631,0.089,0.066,NA,NA,NA,NA,NA,Poor
 Spheres of Control - Personal Efficacy,age,fit_metric,1822.172,79,< .0001,0.738,0.702,0.08,0.066,9,0.025,0.071,-0.009,0.001,Passed
-Spheres of Control - Personal Efficacy,age,fit_scalar,1981.543,88,< .0001,0.715,0.709,0.079,0.068,9,-0.023,0.007,-0.001,0.002,Failed
+Spheres of Control - Personal Efficacy,age,fit_scalar,1981.543,88,< .0001,0.715,0.709,0.079,0.068,NA,NA,NA,NA,NA,NA
 Spheres of Control - Personal Efficacy,sex,fit_configural,1913.659,70,< .0001,0.723,0.644,0.087,0.064,NA,NA,NA,NA,NA,Poor
 Spheres of Control - Personal Efficacy,sex,fit_metric,1733.293,79,< .0001,0.752,0.717,0.078,0.065,9,0.028,0.073,-0.009,0.001,Passed
-Spheres of Control - Personal Efficacy,sex,fit_scalar,2274.411,88,< .0001,0.672,0.664,0.085,0.072,9,-0.08,-0.053,0.007,0.007,Failed
+Spheres of Control - Personal Efficacy,sex,fit_scalar,2274.411,88,< .0001,0.672,0.664,0.085,0.072,NA,NA,NA,NA,NA,NA

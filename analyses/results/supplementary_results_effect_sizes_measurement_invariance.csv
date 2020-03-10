@@ -9,12 +9,12 @@ Big 5 Inventory - N,age,0.189,0.14,0.237,0.196,0.148,0.244,0.007,0.007,FALSE,Fai
 Big 5 Inventory - N,sex,0.353,0.302,0.403,0.336,0.285,0.386,-0.017,0.017,FALSE,Failed,Questionable
 Big 5 Inventory - O,age,-0.173,-0.221,-0.124,-0.224,-0.273,-0.176,-0.052,0.052,TRUE,Failed,Questionable
 Big 5 Inventory - O,sex,-0.13,-0.18,-0.08,-0.098,-0.148,-0.048,0.032,0.032,FALSE,Failed,Questionable
-Balanced Inventory of Desirable Responding - Impression Management,age,-0.263,-0.311,-0.216,-0.223,-0.271,-0.176,0.04,0.04,FALSE,Failed,Questionable
-Balanced Inventory of Desirable Responding - Impression Management,sex,0.181,0.131,0.23,0.181,0.132,0.23,0,0,FALSE,Failed,Questionable
+Balanced Inventory of Desirable Responding - Impression Management,age,-0.263,-0.311,-0.216,-0.223,-0.271,-0.176,0.04,0.04,FALSE,NA,NA
+Balanced Inventory of Desirable Responding - Impression Management,sex,0.181,0.131,0.23,0.181,0.132,0.23,0,0,FALSE,NA,NA
 Balanced Inventory of Desirable Responding - Self Deception,age,-0.077,-0.125,-0.029,-0.03,-0.078,0.019,0.047,0.047,FALSE,Failed,Questionable
 Balanced Inventory of Desirable Responding - Self Deception,sex,-0.14,-0.191,-0.09,-0.179,-0.23,-0.129,-0.039,0.039,FALSE,Failed,Questionable
-Belief in a Just World: General Just World Scale,age,0.129,0.081,0.177,0.116,0.068,0.164,-0.014,0.014,FALSE,Failed,Questionable
-Belief in a Just World: General Just World Scale,sex,-0.001,-0.051,0.05,-0.004,-0.054,0.047,-0.003,0.003,FALSE,Failed,Questionable
+Belief in a Just World: General Just World Scale,age,0.129,0.081,0.177,0.116,0.068,0.164,-0.014,0.014,FALSE,NA,NA
+Belief in a Just World: General Just World Scale,sex,-0.001,-0.051,0.05,-0.004,-0.054,0.047,-0.003,0.003,FALSE,NA,NA
 Bayesian Racism,age,0.09,0.041,0.139,0.091,0.042,0.14,0.001,0.001,FALSE,Failed,Questionable
 Bayesian Racism,sex,-0.399,-0.45,-0.347,-0.394,-0.446,-0.343,0.004,0.004,FALSE,Failed,Questionable
 Humanitarianism-Egalitarianism,age,-0.264,-0.312,-0.217,-0.214,-0.262,-0.167,0.05,0.05,TRUE,Failed,Questionable
@@ -23,10 +23,10 @@ Intuitions about Controllability and Awareness of Thoughts - Others,age,0.159,0.
 Intuitions about Controllability and Awareness of Thoughts - Others,sex,-0.063,-0.113,-0.013,-0.063,-0.113,-0.013,-0,0,FALSE,Failed,Questionable
 Intuitions about Controllability and Awareness of Thoughts - Self,age,-0.013,-0.06,0.035,-0.022,-0.069,0.026,-0.009,0.009,FALSE,Failed,Questionable
 Intuitions about Controllability and Awareness of Thoughts - Self,sex,-0.155,-0.205,-0.105,-0.157,-0.207,-0.108,-0.003,0.003,FALSE,Failed,Questionable
-Need for Cognition,age,-0.438,-0.486,-0.389,-0.41,-0.459,-0.361,0.028,0.028,FALSE,Passed,Good
-Need for Cognition,sex,-0.189,-0.239,-0.138,-0.183,-0.233,-0.132,0.006,0.006,FALSE,Passed,Good
-Need for Cognitive Closure - A,age,0.169,0.121,0.218,0.204,0.156,0.253,0.035,0.035,FALSE,Failed,Questionable
-Need for Cognitive Closure - A,sex,0.181,0.13,0.231,0.144,0.093,0.194,-0.037,0.037,FALSE,Failed,Questionable
+Need for Cognition,age,-0.438,-0.486,-0.389,-0.41,-0.459,-0.361,0.028,0.028,FALSE,NA,NA
+Need for Cognition,sex,-0.189,-0.239,-0.138,-0.183,-0.233,-0.132,0.006,0.006,FALSE,NA,NA
+Need for Cognitive Closure - A,age,0.169,0.121,0.218,0.204,0.156,0.253,0.035,0.035,FALSE,NA,Questionable
+Need for Cognitive Closure - A,sex,0.181,0.13,0.231,0.144,0.093,0.194,-0.037,0.037,FALSE,NA,Questionable
 Need for Cognitive Closure - C,age,0.096,0.047,0.144,0.116,0.067,0.165,0.02,0.02,FALSE,Failed,Questionable
 Need for Cognitive Closure - C,sex,0.094,0.043,0.145,0.103,0.053,0.154,0.01,0.01,FALSE,Failed,Questionable
 Need for Cognitive Closure - D,age,-0.47,-0.519,-0.42,-0.45,-0.5,-0.401,0.02,0.02,FALSE,Failed,Questionable
